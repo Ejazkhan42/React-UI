@@ -1,12 +1,15 @@
 const { query } = require('express');
+const fs=require("fs")
 var mysql = require('mysql');
+
+
 var connection = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DATABASE,
   multipleStatements: true,
-  timezone: 'utc'
+  timezone: 'utc',
 });
 
 function getAllDataFromTarget(target) {
@@ -134,6 +137,7 @@ function createNewUser(userDetails, hashedPassword) {
     })
   })
 }
+
 
 module.exports = {
   getByModule,
