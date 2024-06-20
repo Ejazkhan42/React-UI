@@ -93,7 +93,7 @@
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/Zlvsky/One-place.git
+   git clone https://github.com/Ejazkhan42/React-UI.git
    ```
 2. Install NPM packages in root folder and /client folder
    ```sh
