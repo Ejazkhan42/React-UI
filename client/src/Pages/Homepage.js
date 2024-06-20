@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import {
   LineChart,
@@ -10,6 +9,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
 } from "recharts";
 import "./Styles/homepage.css";
 import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
@@ -17,7 +19,6 @@ import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import SupervisorAccountRoundedIcon from "@mui/icons-material/SupervisorAccountRounded";
 import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
-import ContentPasteRoundedIcon from "@mui/icons-material/ContentPasteRounded";
 
 function Homepage() {
   const ctx = useContext(AuthLoginInfo);
@@ -34,212 +35,69 @@ function Homepage() {
       });
   }, []);
 
+  const dummyLineData = [
+    { month: "Jan", Requisition: 40, Offer: 24, Candidates: 24, Onboarding: 35 },
+    { month: "Feb", Requisition: 30, Offer: 13, Candidates: 22, Onboarding: 28 },
+    { month: "Mar", Requisition: 20, Offer: 98, Candidates: 32, Onboarding: 15 },
+    { month: "Apr", Requisition: 27, Offer: 39, Candidates: 20, Onboarding: 25 },
+    { month: "May", Requisition: 18, Offer: 48, Candidates: 30, Onboarding: 20 }
+  ];
+
+  const dummyPieData = [
+    { name: "Requisition", value: 400 },
+    { name: "Offer", value: 300 },
+    { name: "Candidates", value: 300 },
+    { name: "Onboarding", value: 200 }
+  ];
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+  const dummyTableData = [
+    { id: 1, name: "Requisition Management", jobRun: "19 May, 2021 : 10:10 AM", status: "Passed" },
+    { id: 2, name: "Offer Management", jobRun: "18 May, 2021 : 3:12 PM", status: "Failed" },
+    { id: 3, name: "Candidates Management", jobRun: "17 May, 2021 : 2:15 PM", status: "Pass" },
+    { id: 4, name: "Onboarding Management", jobRun: "23 Apr, 2021 : 1:15 PM", status: "Running" }
+  ];
+
   const TopPanel = () => {
-    const todaysDate = new Date().getTime();
-    const historyDateRange = (days) => {
-      let newDate = new Date();
-      newDate.setHours(0, 0, 0, 1);
-      newDate.setDate(newDate.getDate() - days);
-      return newDate.getTime();
-    };
-    const [changedDate, setChangedDate] = useState(historyDateRange(0));
-    const [selectedDateToText, setSelectedDateToText] = useState("today");
-
-    // dokonczyc dzialanie filtrowania tablicy dashboardData z wybrana data
-    const dashboardClientsDataFiltered = dashboardData[0]?.filter((item) => {
-      let itemDate = new Date(item.clientDateCreated).getTime();
-      return changedDate < itemDate && itemDate < todaysDate;
-    });
-
-    const dashboardDataFiltered = dashboardData[1]?.filter((item) => {
-      let itemDate = new Date(item.date).getTime();
-      return changedDate < itemDate && itemDate < todaysDate;
-    });
-
-    const getTotalSumOfDateRange = () => {
-      if (typeof dashboardDataFiltered === "undefined") {
-        return 0;
-      }
-      let totalSum = dashboardDataFiltered?.reduce((total, value) => {
-        return total + value.price;
-      }, 0);
-      return totalSum.toFixed(2);
-    };
-
-    const getTotalNewOrdersDateRange = () => {
-      if (typeof dashboardDataFiltered === "undefined") {
-        return 0;
-      }
-      return dashboardDataFiltered?.length;
-    };
-
-    const getTotalNewClientsDateRange = () => {
-      if (typeof dashboardDataFiltered === "undefined") {
-        return 0;
-      }
-      return dashboardClientsDataFiltered?.length;
-    };
-
-    const dateRangeToText = (dateNumber) => {
-      if (dateNumber === 0) {
-        setSelectedDateToText("today");
-      } else if (dateNumber > 100) {
-        setSelectedDateToText("whole period");
-      } else {
-        setSelectedDateToText(`${dateNumber} days`);
-      }
-    };
-
-    const upcomingEventDateText = (date) => {
-      let todaysDate = new Date().toISOString().split("T")[0];
-      let tommorowDate = new Date();
-      tommorowDate.setDate(tommorowDate.getDate() + 1);
-      let tommorowDateToCompare = tommorowDate.toISOString().split("T")[0];
-      let eventDate = date.split("T")[0];
-      if (eventDate === todaysDate) {
-        return "Today";
-      } else if (eventDate === tommorowDateToCompare) {
-        return "Tommorow";
-      } else {
-        return eventDate;
-      }
-    };
-
-    const UpcomingEvents = () => {
-      let upcomingEventsExist = false;
-      if (dashboardData[2] === undefined || dashboardData[2].length === 0) {
-        upcomingEventsExist = false;
-      } else {
-        upcomingEventsExist = true;
-      }
-      return upcomingEventsExist ? (
-        dashboardData[2]?.map((event) => {
-          let dateText = upcomingEventDateText(event.deadlineDate);
-          return (
-            <div className="upcomingEventWrap" key={event.id}>
-              <div className="upcomingEventDate">
-                <span>-{dateText} </span>
-                <span>{event.hours}</span>
-              </div>
-              <div className="upcomingEventTitle">
-                <span>{event.title}</span>
-              </div>
-            </div>
-          );
-        })
-      ) : (
-        <div className="upcomingEventWrap">
-          <span>There are no upcoming events</span>
-        </div>
-      );
-    };
-
     return (
-      <div className="topPanelWrap">
-        <div className="topPanelDataRangeBox">
-          <h3>Show data from selected period</h3>
-          <div className="topPanelDataIcon">
+      <div className="top-panel">
+        <div className="card">
+          
+          <div className="card-content">
+            <h3>Total Test Passed</h3>
+            <div className="card-icon">
+            <PaymentsRoundedIcon />
+          </div>
+            <h1>1000</h1>
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-icon">
+            <TrendingUpRoundedIcon />
+          </div>
+          <div className="card-content">
+            <h3>Total Failed Test Case</h3>
+            <h1>200</h1>
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-icon">
+            <SupervisorAccountRoundedIcon />
+          </div>
+          <div className="card-content">
+            <h3>Total Test Case</h3>
+            <h1>1200</h1>
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-icon">
             <EventNoteRoundedIcon />
           </div>
-          <select
-            className="dataRangeSelect"
-            onChange={(e) => {
-              setChangedDate(historyDateRange(Number(e.target.value)));
-              dateRangeToText(Number(e.target.value));
-            }}
-          >
-            <option defaultValue="defaultValue" value="0">
-              Today
-            </option>
-            <option value="7">7 Days</option>
-            <option value="14">14 Days</option>
-            <option value="30">30 Days</option>
-            <option value="99999">All</option>
-          </select>
-        </div>
-
-        <div className="topPanelData">
-          <div className="topPanelDataBox">
-            <div className="topPanelDataIcon">
-              <PaymentsRoundedIcon />
-            </div>
-
-            <div className="topPanelDataSummary">
-              <p>Income</p>
-              <h3 className="maincolor topPanelDataText">
-                {getTotalSumOfDateRange()}
-                zł
-              </h3>
-            </div>
-
-            <div className="topPanelSeperator"></div>
-            <div>
-              <span className="topPanelBottomText">
-                From {selectedDateToText}
-              </span>
-            </div>
-          </div>
-
-          <div className="topPanelDataBox">
-            <div className="topPanelDataIcon">
-              <TrendingUpRoundedIcon />
-            </div>
-
-            <div className="topPanelDataSummary">
-              <p>New orders</p>
-              <h3 className="maincolor topPanelDataText">
-                {getTotalNewOrdersDateRange()}
-              </h3>
-            </div>
-
-            <div className="topPanelSeperator"></div>
-            <div>
-              <span className="topPanelBottomText">
-                <Link to="/orders" className="maincolor">
-                  + Create new order
-                </Link>
-              </span>
-            </div>
-          </div>
-
-          <div className="topPanelDataBox">
-            <div className="topPanelDataIcon">
-              <SupervisorAccountRoundedIcon />
-            </div>
-
-            <div className="topPanelDataSummary">
-              <p>New clients</p>
-              <h3 className="maincolor topPanelDataText">
-                {getTotalNewClientsDateRange()}
-              </h3>
-            </div>
-
-            <div className="topPanelSeperator"></div>
-            <div>
-              <span className="topPanelBottomText">
-                <Link to="/clients" className="maincolor">
-                  + Add new client
-                </Link>
-              </span>
-            </div>
-          </div>
-
-          <div className="topPanelDataBox">
-            <div className="topPanelDataIcon topPanelHeaderInline">
-              <ContentPasteRoundedIcon />
-              <span>Upcoming events</span>
-            </div>
-
-            <UpcomingEvents />
-
-            <div className="topPanelSeperator"></div>
-            <div>
-              <span className="topPanelBottomText">
-                <Link to="/calendar" className="maincolor">
-                  See more events
-                </Link>
-              </span>
-            </div>
+          <div className="card-content">
+            <h3>Running</h3>
+            <h1>12.8%</h1>
+            <span>-1.22%</span>
           </div>
         </div>
       </div>
@@ -247,88 +105,107 @@ function Homepage() {
   };
 
   const ChartComponent = () => {
-    const getPastMonths = () => {
-      const pastMonths = [];
-      for (let i = 0; i < 12; i++) {
-        const todaysDate = new Date();
-        todaysDate.setMonth(todaysDate.getMonth() - i);
-        pastMonths.push({
-          month: todaysDate.toLocaleString("default", { month: "long" }),
-          firstDay: new Date(
-            todaysDate.getFullYear(),
-            todaysDate.getMonth(),
-            1
-          ),
-          lastDay: new Date(
-            todaysDate.getFullYear(),
-            todaysDate.getMonth() + 1,
-            0
-          ),
-          totalMonthSum: 0,
-        });
-      }
-      return pastMonths;
-    };
-    const dataBasedOnPastMonths = () => {
-      const pastMonthsData = getPastMonths();
-      pastMonthsData.forEach((el, i) => {
-        el.totalMonthSum = dashboardData[1]?.reduce((total, item) => {
-          let itemDate = new Date(item.date);
-          if (
-            el.firstDay.getTime() < itemDate.getTime() &&
-            itemDate.getTime() < el.lastDay.getTime()
-          ) {
-            return total + item.price;
-          } else {
-            return total;
-          }
-        }, 0);
-      });
-      return pastMonthsData.reverse();
-    };
-
     return (
-      <ResponsiveContainer width="100%" height="50%">
-        <LineChart
-          width={500}
-          height={300}
-          data={dataBasedOnPastMonths()}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="totalMonthSum"
-            stroke="#8884d8"
-            name="Orders sum"
-            activeDot={{
-              r: 8,
-            }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="chart-container">
+        <div className="line-chart">
+          <h3>Performance</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart data={dummyLineData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="Requisition" stroke="#8884d8" />
+              <Line type="monotone" dataKey="Offer" stroke="#82ca9d" />
+              <Line type="monotone" dataKey="Candidates" stroke="#ffc658" />
+              <Line type="monotone" dataKey="Onboarding" stroke="#FF8042" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="pie-chart">
+          <h3>Popular Categories</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Pie
+                data={dummyPieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {dummyPieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="legend">
+            <div>
+              <span className="legend-color" style={{ backgroundColor: COLORS[0] }}></span>
+              Requisition
+            </div>
+            <div>
+              <span className="legend-color" style={{ backgroundColor: COLORS[1] }}></span>
+              Offer
+            </div>
+            <div>
+              <span className="legend-color" style={{ backgroundColor: COLORS[2] }}></span>
+              Candidates
+            </div>
+            <div>
+              <span className="legend-color" style={{ backgroundColor: COLORS[3] }}></span>
+              Onboarding
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const TableComponent = () => {
+    return (
+      <div className="table-container">
+        <h3>Recent Run Test Case</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Job Run</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dummyTableData.map((order) => (
+              <tr key={order.id}>
+                <td>{order.name}</td>
+                <td>{order.jobRun}</td>
+                <td>{order.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="pagination">
+          <button>1</button>
+          <button>2</button>
+          <button>3</button>
+          <button>4</button>
+          <button>5</button>
+          <span>...</span>
+          <button>20</button>
+        </div>
+      </div>
     );
   };
 
   return (
-    <div className="mcw dashboardPage">
-      <div className="cv">
-        <div>
-        <TopPanel />
-        <ChartComponent />
-        </div>
-
-      </div>
-
+    <div className="container">
+      <TopPanel />
+      <ChartComponent />
+      <TableComponent />
     </div>
   );
 }

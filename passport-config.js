@@ -6,7 +6,8 @@ const mysql = require('mysql');
 function initialize(connection, passport) {
   const authenticateUser = async (username, password, done) => {
     connection.query('SELECT * FROM users WHERE username = ?', [username], async function(error, results, fields) {
-      if (results.length > 0) {
+      console.log(results)
+      if (results !== undefined) {
         try {
           if (await bcrypt.compare(password, results[0].password)) {
             const user = {
