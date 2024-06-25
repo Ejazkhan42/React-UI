@@ -111,8 +111,32 @@ function deleteUserById(userId) {
   })
 }
 
+function deleteEnvById(envId) {
+  const queryString = "DELETE from Env WHERE id = ?";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, [envId], function(error) {
+      if(error) {
+        console.log(error);
+      } else {
+        resolve("success")
+      }
+    })
+  })
+}
 function getUsersForAdminPanel() {
   const queryString = "SELECT id, username, Role_Id, created_at from Users";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, function(error, result) {
+      if(error) {
+        console.log(error);
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
+function getenv() {
+  const queryString = "SELECT id,envName , user_Id, module_id, instance_url, instance_username, instance_password from Env";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function(error, result) {
       if(error) {
@@ -138,7 +162,73 @@ function createNewUser(userDetails, hashedPassword) {
     })
   })
 }
+function createNewEnv(envDetails) {
+  // SQL query for upsert (Insert or Update)
+  const queryString = `
+    INSERT INTO env (envName, user_id, module_id, instance_url, instance_username, instance_password) 
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
 
+  // Array of values to be inserted or updated
+  const passedValues = [
+    envDetails.envName,
+    envDetails.user_id,
+    envDetails.module_id,
+    envDetails.instance_url,
+    envDetails.instance_username,
+    envDetails.instance_password
+  ];
+
+  // Return a promise for the database operation
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, passedValues, function (error) {
+      if (error) {
+        console.log(error);
+        reject(error); // Reject the promise with the error
+      } else {
+        resolve("success"); // Resolve the promise with success message
+      }
+    });
+  });
+}
+
+function updateEnv(envDetails) {
+  // SQL query for update
+  const queryString = `
+    UPDATE env 
+    SET envName = ?,
+        user_id=?, 
+        module_id = ?, 
+        instance_url=?,
+        instance_username = ?, 
+        instance_password = ?
+    WHERE id = ?;
+  `;
+
+  // Array of values to be updated
+  const passedValues = [
+
+    envDetails.envName,
+    envDetails.user_id,
+    envDetails.module_id,
+    envDetails.instance_url,
+    envDetails.instance_username,
+    envDetails.instance_password,
+    envDetails.id
+  ];
+
+  // Return a promise for the database operation
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, passedValues, function (error, results) {
+      if (error) {
+        console.log(error);
+        reject(error); // Reject the promise with the error
+      } else {
+        resolve(results.affectedRows); // Resolve with the number of affected rows
+      }
+    });
+  });
+}
 
 module.exports = {
   getByModule,
@@ -147,5 +237,10 @@ module.exports = {
   getDasboardData,
   deleteUserById,
   getUsersForAdminPanel,
-  createNewUser
+  createNewUser,
+  createNewEnv,
+  deleteEnvById,
+  getenv,
+  updateEnv
+
 };

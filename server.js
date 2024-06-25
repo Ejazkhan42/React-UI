@@ -15,27 +15,17 @@ const passport = require("passport");
 const cors = require("cors");
 const Jenkins = require("jenkins");
 const {
-
+  createNewEnv,
   getAllDataFromTarget,
-  getOrdersById,
-  getClientById,
-  getOrdersByClientId,
-  getProductsBySingleOrderId,
-  getProductsByMultipleOrderId,
-  deleteProductsById,
-  addMultipleProducts,
-  updateOrderById,
-  updateClientById,
-  getAllClientsWithOrdersCount,
-  addNewClient,
   getDasboardData,
-  addNewEvent,
-  addNewOrder,
   deleteUserById,
   getUsersForAdminPanel,
   createNewUser,
   getByModule,
   getTestCasesByModule,
+  deleteEnvById,
+  getenv,
+  updateEnv
 } = require("./queries.js");
 
 
@@ -371,6 +361,13 @@ app.get("/getusers", async (req, res) => {
 })
 // END OF GET USERS FOR ADMIN PANEL SECTION *
 
+app.get("/getenv", async (req, res) => {
+  const queryGetUsersForAdminPanel = await getenv();
+  Promise.resolve(queryGetUsersForAdminPanel).then((results) => {
+    res.send(results);
+  })
+})
+
 // DELETE USER BY ID SECTION *
 app.post("/deleteuser", async (req, res) => {
   let userId = req.body.userId;
@@ -380,7 +377,13 @@ app.post("/deleteuser", async (req, res) => {
   })
 });
 // DELETE USER BY ID SECTION *
-
+app.post("/deletenv", async (req, res) => {
+  let envId = req.body.envId;
+  const queryDeleteUser = await deleteEnvById(envId);
+  Promise.resolve(queryDeleteUser).then(() => {
+    res.send("success");
+  })
+});
 // CREATE NEW USER SECTION *
 app.post("/newuser", async (req, res) => {
   const userDetails = req.body.userDetails;
@@ -392,6 +395,20 @@ app.post("/newuser", async (req, res) => {
   })
 })
 // END OF CREATE NEW USER SECTION *
+app.post("/newenv", async (req, res) => {
+  const envDetails = req.body.envDetails;
+  const queryCreateNewUser = await createNewEnv(envDetails);
+  Promise.resolve(queryCreateNewUser).then(() => {
+    res.send("success");
+  })
+})
+app.post("/updateenv", async (req, res) => {
+  const envDetails = req.body.envDetails;
+  const queryCreateNewUser = await updateEnv(envDetails);
+  Promise.resolve(queryCreateNewUser).then(() => {
+    res.send("success");
+  })
+})
 
 const port = 5000;
 app.listen(port, () => `Server running on port ${port}`);
