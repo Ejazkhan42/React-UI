@@ -1,6 +1,13 @@
+body{
+  /* background-image: url('https://fa-esll-saasfademo1.ds-fa.oraclepdemos.com/fscmUI/images/applcore/uishell/globalRegion/redwood/bkgd_redwood.png'); */
+
+
+}
+
 .container {
   padding: 20px;
   font-family: Arial, sans-serif;
+
 }
 
 .top-panel {

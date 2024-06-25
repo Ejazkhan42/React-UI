@@ -14,6 +14,7 @@ import AdminRoute  from './AuthComponents/AdminRoute';
 import Sidebar from './Components/Sidebar';
 import Run from './Pages/runTest';
 import { AuthLoginInfo }  from './AuthComponents/AuthLogin';
+import TestCase from './Pages/TestCase';
 
 
 
@@ -71,6 +72,12 @@ function App() {
                     <Run/>
                   </PrivateRoute>
                 }/>
+                <Route path='/testcase' element={
+                  <PrivateRoute>
+                    <TestCase/>
+                  </PrivateRoute>
+                }/>
+
             </Routes>
             
       </BrowserRouter>

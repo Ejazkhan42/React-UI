@@ -4,6 +4,7 @@ const mysql = require('mysql');
 
 
 function initialize(connection, passport) {
+  // console.log(connection)
   const authenticateUser = async (username, password, done) => {
     connection.query('SELECT * FROM users WHERE username = ?', [username], async function(error, results, fields) {
       console.log(results)
