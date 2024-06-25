@@ -7,13 +7,13 @@ const flash = require('express-flash');
 var app = express();
 const FormData = require('form-data');
 const fs = require('fs');
-const multer=require('multer')
+const multer = require('multer')
 var bodyParser = require('body-parser');
 var path = require('path');
 var bcrypt = require('bcrypt');
 const passport = require("passport");
 const cors = require("cors");
-const Jenkins=require("jenkins");
+const Jenkins = require("jenkins");
 const {
 
   getAllDataFromTarget,
@@ -34,7 +34,7 @@ const {
   deleteUserById,
   getUsersForAdminPanel,
   createNewUser,
- getByModule,
+  getByModule,
   getTestCasesByModule,
 } = require("./queries.js");
 
@@ -55,6 +55,12 @@ const corsOptions = {
   credentials: true,
   optionSuccessStatus: 200
 };
+
+const jenkins = new Jenkins({
+  baseUrl: `${process.env.Jenkins_Type}:/${process.env.Jenkins_Username}:${process.env.Jenkins_Password}@${process.env.Jenkins_Url}:${process.env.Jenkins_Port}`,
+  crumbIssuer: true,
+  formData: FormData
+});
 
 const initializePassport = require('./passport-config');
 initializePassport(connection, passport);
@@ -79,13 +85,7 @@ app.post('/login', passport.authenticate('local'), (req, res) => {
 });
 app.get('/job', async (req, res) => {
   try {
-    // Initialize the Jenkins client
-    const jenkins = new Jenkins({
-      baseUrl: 'https://Ejaz.Ahmed:D01ngERP!01@jenkins.doingerp.com:443',
-      crumbIssuer: true // Set crumbIssuer to true if your Jenkins requires CSRF protection
-    });
 
-    // Fetch Jenkins info
     const info = await jenkins.job.list()
     // console.log(info);
 
@@ -99,13 +99,7 @@ app.get('/job', async (req, res) => {
 });
 app.get('/jobInfo', async (req, res) => {
   try {
-    // Initialize the Jenkins client
-    const jenkins = new Jenkins({
-      baseUrl: 'https://Ejaz.Ahmed:D01ngERP!01@jenkins.doingerp.com:443',
-      crumbIssuer: true // Set crumbIssuer to true if your Jenkins requires CSRF protection
-    });
 
-    // Extract the job name from query parameters
     const jobName = req.query.jobName;
 
     if (!jobName) {
@@ -140,17 +134,17 @@ const upload = multer({ storage: storage });
 // POST endpoint to handle file upload and trigger Jenkins build
 app.post('/build', upload.single('file'), async (req, res) => {
   try {
-    // Initialize Jenkins client
-    const jenkins = new Jenkins({
-      baseUrl: 'https://Ejaz.Ahmed:D01ngERP!01@jenkins.doingerp.com:443',
-      crumbIssuer: true,
-      formData:FormData
-    });
+    // // Initialize Jenkins client
+    // const jenkins = new Jenkins({
+    //   baseUrl: 'https://Ejaz.Ahmed:D01ngERP!01@jenkins.doingerp.com:443',
+    //   crumbIssuer: true,
+    //   formData:FormData
+    // });
 
     // Extract and validate the job name and other parameters
-    const { jobName, testCase, gridMode, browsers ,ProfilePath,} = req.body;
+    const { jobName, testCase, gridMode, browsers, ProfilePath, } = req.body;
     const file = req.file;
-    const Image=req.Image;
+    const Image = req.Image;
 
     if (!jobName) {
       return res.status(400).send('Job name is required');
@@ -169,7 +163,7 @@ app.post('/build', upload.single('file'), async (req, res) => {
       TestCase: testCase || '',
       GridMode: gridMode || '',
       Browsers: browsers || '',
-      ProfilePath: ProfilePath||'',
+      ProfilePath: ProfilePath || '',
     };
     console.log(parameters.File)
     // Trigger the Jenkins job build
@@ -191,37 +185,6 @@ app.post('/build', upload.single('file'), async (req, res) => {
   }
 });
 
-// app.post("/build",async(req,res)=>{
-//   try {
-//     // Initialize the Jenkins client
-//     const jenkins = new Jenkins({
-//       baseUrl: 'https://Ejaz.Ahmed:D01ngERP!01@jenkins.doingerp.com:443',
-//       crumbIssuer: true // Set crumbIssuer to true if your Jenkins requires CSRF protection
-//     });
-
-//     // Extract the job name from query parameters
-//     const build = req.body.build;
-
-//     if (!jobName) {
-//       return res.status(400).send('Job name is required');
-//     }
-
-//     // Fetch job info from Jenkins
-//     const info = await jenkins.job.build({
-//       name: build.JobName,
-//       parameters: { File: fs.createReadStream(`${build.File}`),TestCase:`${build.TestCase}`,GridMode:`${build.GridMode}`,Browsers:`${build.Browsers}` },
-//     });
-//     // console.log(info)
-//     // Send the info as a JSON response
-//     res.json(info);
-//   } catch (error) {
-//     // Handle any errors that occur
-//     console.error(error);
-//     res.status(500).send('Error retrieving Jenkins job info');
-//   }
-// })
-
-
 app.get('/logout', (req, res) => {
   req.logout();
   res.send("success");
@@ -240,15 +203,11 @@ app.get("/testcase", async (req, res) => {
   })
 })
 app.get("/module", async (req, res) => {
-  const user_id=req.query.user_id
+  const user_id = req.query.user_id
   const queryAllClientsWithOrdersCount = await getByModule(user_id);
   Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
     res.send(results);
   })
-})
-// END OF ALL CLIENTS SECTION *
-app.get("/logs",async(req,res)=>{
-  return "Log"
 })
 
 // ADD NEW CLIENT SECTION *
@@ -259,24 +218,141 @@ app.post("/newclient", async (req, res) => {
     res.send("success");
   })
 })
-// END OF ADDING NEW CLIENT SECTION *
 
-// CLIENT BY ID SECTION *
-app.get("/client_by_id", async (req, res) => {
-  const clientId = req.query.id;
+// Helper function to fetch job details with parallel requests
+const fetchJobDetails = async (job, path) => {
+  try {
+    const jobDetails = await jenkins.job.get(`${path}${job.name}`);
+    const buildDetails = await fetchBuildDetails(jobDetails);
 
-  const queryClientById = await getClientById(clientId);
-  const queryOrdersByClientId = await getOrdersByClientId(clientId);
-  const queryProductsByOrderId = await getProductsByMultipleOrderId(queryOrdersByClientId);
+    return {
+      name: job.name,
+      url: job.url,
+      color: job.color,
+      totalBuilds: buildDetails.total,
+      passedBuilds: buildDetails.passed,
+      failedBuilds: buildDetails.failed,
+      recentBuild: buildDetails.recentBuild
+    };
+  } catch (error) {
+    console.error(`Error fetching details for job: ${job.name}`, error);
+    return null; // Return null to indicate a failure fetching this job's details
+  }
+};
 
-  Promise.all([queryClientById, queryOrdersByClientId, queryProductsByOrderId]).then((results) => {
-    res.send(results);
+// Helper function to fetch build details for a job
+const fetchBuildDetails = async (jobDetails) => {
+  let total = 0;
+  let passed = 0;
+  let failed = 0;
+  let running = false;
+  let recentBuild = null;
+
+  // Fetch only the latest 10 builds to reduce the number of API calls
+  const recentBuilds = jobDetails.builds.slice(0, 10);
+
+  const buildPromises = recentBuilds.map(async (build) => {
+    try {
+      const buildInfo = await jenkins.build.get(jobDetails.fullName, build.number);
+      total++;
+      if (buildInfo.result === 'SUCCESS') {
+        passed++;
+      } else if (buildInfo.result === 'FAILURE') {
+        failed++;
+      } else if (buildInfo.building) {
+        running = true;
+      }
+
+      if (!recentBuild || buildInfo.timestamp > recentBuild.timestamp) {
+        recentBuild = {
+          name: jobDetails.name,
+          number: buildInfo.number,
+          result: buildInfo.result,
+          timestamp: buildInfo.timestamp,
+          duration: buildInfo.duration,
+          url: buildInfo.url
+        };
+      }
+    } catch (error) {
+      console.warn(`Build ${build.number} for job ${jobDetails.name} not found or error occurred`, error);
+    }
   });
+
+  await Promise.all(buildPromises);
+
+  return { total, passed, failed, running, recentBuild };
+};
+
+// Helper function to recursively fetch all jobs and their details with parallelization
+
+const fetchAllJobs = async (path = '') => {
+  const jobs = await jenkins.job.list(path);
+  let allJobs = [];
+  let totalBuilds = 0;
+  let passedBuilds = 0;
+  let failedBuilds = 0;
+  let runningJobs = [];
+  let recentJobs = [];
+
+  const jobPromises = jobs.map(async (job) => {
+    if (job._class === 'com.cloudbees.hudson.plugins.folder.Folder') {
+      const folderData = await fetchAllJobs(`${path}${job.name}/`);
+      allJobs = [...allJobs, ...folderData.jobs];
+      totalBuilds += folderData.totalBuilds;
+      passedBuilds += folderData.passedBuilds;
+      failedBuilds += folderData.failedBuilds;
+      runningJobs = [...runningJobs, ...folderData.runningJobs];
+      recentJobs = [...recentJobs, ...folderData.recentJobs];
+    } else {
+      const jobDetail = await fetchJobDetails(job, path);
+      if (jobDetail) {
+        allJobs.push(jobDetail);
+        totalBuilds += jobDetail.totalBuilds;
+        passedBuilds += jobDetail.passedBuilds;
+        failedBuilds += jobDetail.failedBuilds;
+        if (jobDetail.running) {
+          runningJobs.push({
+            name: job.name,
+            url: job.url,
+            status: 'running'
+          });
+        }
+        if (jobDetail.recentBuild) {
+          recentJobs.push(jobDetail.recentBuild);
+        }
+      }
+    }
+  });
+
+  await Promise.all(jobPromises);
+
+  return { jobs: allJobs, totalBuilds, passedBuilds, failedBuilds, runningJobs, recentJobs };
+};
+
+// API endpoint to get all Jenkins jobs and their details
+app.get('/jenkins', async (req, res) => {
+  try {
+    const data = await fetchAllJobs();
+    const response = {
+      totalJobs: data.jobs.length,
+      totalBuilds: data.totalBuilds,
+      passedBuilds: data.passedBuilds,
+      failedBuilds: data.failedBuilds,
+      jobs: data.jobs,
+      runningJobs: data.runningJobs,
+      recentJobs: data.recentJobs
+    };
+    res.json(response);
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    res.status(500).json({ error: 'Failed to fetch jobs' });
+  }
 });
-// END OF CLIENT BY ID SECTION *
+
+
 
 // DASHBOARD DATA SECTION *
-app.get("/dashboard_data", async (req,res) => {
+app.get("/dashboard_data", async (req, res) => {
   const queryDashboardData = await getDasboardData();
   Promise.resolve(queryDashboardData).then((results) => {
     res.send(results);
