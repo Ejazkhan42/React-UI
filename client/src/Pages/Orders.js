@@ -1,41 +1,27 @@
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import React, { useEffect, useState, useContext } from 'react';
-import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Button, Checkbox } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Grid, Card, CardContent, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
-import "./Styles/order.css";
+import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
+import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
+import SupervisorAccountRoundedIcon from '@mui/icons-material/SupervisorAccountRounded';
+import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import WorkIcon from '@mui/icons-material/Work';
+import './Styles/order.css';
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
-const getStyles = (name, selectedName, theme) => {
-  return {
-    fontWeight: selectedName === name ? theme.typography.fontWeightMedium : theme.typography.fontWeightRegular,
-  };
+const iconMap = {
+  // 'Payments': <PaymentsRoundedIcon style={{ fontSize: 40 }} />,
+  'Recruitment': <TrendingUpIcon style={{ fontSize: 40 }} />,
+  'Absence': <SupervisorAccountRoundedIcon style={{ fontSize: 40 }} />,
+  'Core Hr': <EventNoteRoundedIcon style={{ fontSize: 40 }} />,
+  // 'Work': <WorkIcon style={{ fontSize: 40 }} />
 };
 
 function Orders() {
-  const theme = useTheme();
   const navigate = useNavigate();
-  const [selectedModuleId, setSelectedModuleId] = useState('');
   const [modules, setModules] = useState([]);
-  const [testCases, setTestCases] = useState([]);
-  const [selectedTestCases, setSelectedTestCases] = useState([]); // State to hold selected test cases
   const ctx = useContext(AuthLoginInfo);
 
   useEffect(() => {
@@ -50,105 +36,35 @@ function Orders() {
     fetchModules();
   }, [ctx.id]);
 
-  useEffect(() => {
-    if (selectedModuleId) {
-      const fetchTestCases = async () => {
-        try {
-          const response = await axios.get(`http://localhost:5000/testcase?id=${selectedModuleId}`, { withCredentials: true });
-          setTestCases(response.data);
-        } catch (error) {
-          console.error('Error fetching test cases:', error);
-        }
-      };
-      fetchTestCases();
-    }
-  }, [selectedModuleId]);
-
-  const handleModuleChange = (event) => {
-    setSelectedModuleId(event.target.value);
-  };
-
-  const handleCheckboxChange = (event, testCaseId) => {
-    setSelectedTestCases((prev) => {
-      if (event.target.checked) {
-        return [...prev, testCaseId];
-      } else {
-        return prev.filter((id) => id !== testCaseId);
-      }
-    });
-  };
-
-  const handleRunClick = () => {
-    const selectedTestCaseNames = testCases
-      .filter((testCase) => selectedTestCases.includes(testCase.Id))
-      .map((testCase) => testCase.Test_Case)
-      .join(', ');
-
-    navigate('/run', { state: { testCaseString: selectedTestCaseNames } });
+  const handleCardClick = (moduleId, moduleName) => {
+    navigate('/testcase', { state: { moduleId, moduleName } });
   };
 
   return (
-    <div className="mcw">
-      <div className="">
-        <div className="">
-          <h1>Test Scripts</h1>
-          <div>
-            <FormControl sx={{ m: 1, width: 300 }} className="w-72">
-              <InputLabel id="demo-single-module-label">Modules</InputLabel>
-              <Select
-                labelId="demo-single-module-label"
-                id="demo-single-module"
-                value={selectedModuleId}
-                onChange={handleModuleChange}
-                input={<OutlinedInput label="Modules" />}
-                MenuProps={MenuProps}
-              >
-                {modules.map((module) => (
-                  <MenuItem
-                    key={module.Id}
-                    value={module.Id}
-                    style={getStyles(module.Id, selectedModuleId, theme)}
-                  >
-                    {module.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-
-          <div className="orderWrap">
-            <Table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400-table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Test Case Name</TableCell>
-                  <TableCell>Descriptions</TableCell>
-                  <TableCell>Select</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {testCases.map((testCase) => (
-                  <TableRow key={testCase.Id}>
-                    <TableCell>{testCase.Id}</TableCell>
-                    <TableCell>{testCase.Test_Case}</TableCell>
-                    <TableCell>{testCase.Description}</TableCell>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedTestCases.includes(testCase.Id)}
-                        onChange={(event) => handleCheckboxChange(event, testCase.Id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <Button variant="contained" color="primary" onClick={handleRunClick}>
-              Upload Data
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom align="center" style={{ fontSize: '3rem', color: 'white' }}>
+        Modules
+      </Typography>
+      <Grid container spacing={3} justifyContent="center">
+        {modules.map((module) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={module.Id}>
+            <Card 
+              className="module-card" 
+              onClick={() => handleCardClick(module.Id, module.name)}
+            >
+              <CardContent>
+                <Box display="flex" justifyContent="center" mb={2}>
+                  {iconMap[module.name] || <PaymentsRoundedIcon style={{ fontSize: 40 }} />}
+                </Box>
+                <Typography variant="h6" component="div" align="center" style={{ fontSize: '1.5rem' }}>
+                  {module.name}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 }
 

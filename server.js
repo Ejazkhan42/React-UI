@@ -45,6 +45,7 @@ var connection = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DATABASE,
   multipleStatements: true,
+  port: process.env.DB_PORT,
   timezone: 'utc',
 });
 
