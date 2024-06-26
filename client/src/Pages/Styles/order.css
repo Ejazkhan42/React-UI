@@ -1,3 +1,6 @@
+.order-container {
+  margin-left: 13%
+}
 .module-card {
   width: 80%;
   padding-top: 80%; /* 1:1 Aspect Ratio */
