@@ -192,6 +192,41 @@ function createNewEnv(envDetails) {
   });
 }
 
+function createNewLogs(logs) {
+  // SQL query for batch insertion
+  const queryString = `
+    INSERT INTO logs (test_name, start_time, end_time, test_status, build, job) VALUES ?
+  `;
+
+  // Extracting values from each log entry
+  const values = logs.map(log => [
+    log.test_name,
+    formatDateTime(log.start_time),
+    formatDateTime(log.end_time),
+    log.test_status,
+    log.build,
+    log.job
+  ]);
+
+  // Return a promise for the database operation
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, [values], function (error) {
+      if (error) {
+        console.log(error);
+        reject(error); // Reject the promise with the error
+      } else {
+        resolve("success"); // Resolve the promise with success message
+      }
+    });
+  });
+}
+
+function formatDateTime(dateTimeString) {
+  const date = new Date(dateTimeString);
+  const formattedDateTime = date.toISOString().slice(0, 19).replace('T', ' ');
+  return formattedDateTime;
+}
+
 function updateEnv(envDetails) {
   // SQL query for update
   const queryString = `
@@ -230,6 +265,51 @@ function updateEnv(envDetails) {
   });
 }
 
+function getBytest_case(test_case) {
+  const queryString = "SELECT componentName FROM flowview WHERE Test_Case=?";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, [test_case], function(error, results) {
+      if (error) {
+        reject(error);
+      } else {
+        const componentName = results.map(result => result.componentName);
+        const resultObject = {
+          Test_Case: test_case,
+          componentName: componentName
+        };
+        resolve(resultObject);
+      }
+    });
+  });
+}
+function getByflow(flow) {
+  const queryString = "SELECT Description, Cammand, Target, Value FROM compview WHERE componentName=?";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, [flow], function(error, results) {
+      if (error) {
+        reject(error);
+      } else {
+        // Map SQL query results to an array of objects
+        const componentSteps = results.map(result => {
+          return {
+            Cammand: result.Cammand,
+            Description: result.Description,
+            Target: result.Target,
+            Value: result.Value
+          };
+        });
+
+        // Construct the result object
+        const resultObject = {
+          [flow]: componentSteps
+        };
+
+        resolve(resultObject);
+      }
+    });
+  });
+}
+
 module.exports = {
   getByModule,
   getTestCasesByModule,
@@ -241,6 +321,7 @@ module.exports = {
   createNewEnv,
   deleteEnvById,
   getenv,
-  updateEnv
-
+  createNewLogs,
+  updateEnv,getByflow,
+  getBytest_case
 };
