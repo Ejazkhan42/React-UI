@@ -13,20 +13,24 @@ import {
   Checkbox,
   Grid,
   Box,
-  Typography
+  Typography,
+  IconButton
 } from '@mui/material';
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import axios from 'axios';
 import './Styles/testcasepage.css';
 
 const TestCasePage = () => {
   const location = useLocation();
-  const { moduleId, moduleName } = location.state;
+  const { moduleId, moduleName } = location.state || {};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const entriesPerPage = 5;
 
   useEffect(() => {
-    if (moduleId) {
+    if (moduleId !== null) {
       const fetchTestCases = async () => {
         try {
           const response = await axios.get(`http://localhost:5000/testcase?id=${moduleId}`, { withCredentials: true });
@@ -51,14 +55,21 @@ const TestCasePage = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reset to the first page on new search
   };
 
   const filteredTestCases = testCases.filter((testCase) =>
     testCase.Test_Case.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredTestCases.length / entriesPerPage);
+  const currentEntries = filteredTestCases.slice(
+    (currentPage - 1) * entriesPerPage,
+    currentPage * entriesPerPage
+  );
+
   const handleRunClick = () => {
-    const selectedTestCaseNames = filteredTestCases
+    const selectedTestCaseNames = currentEntries
       .filter((testCase) => selectedTestCases.includes(testCase.Id))
       .map((testCase) => testCase.Test_Case)
       .join(', ');
@@ -67,8 +78,16 @@ const TestCasePage = () => {
     // Add logic to handle selected test cases (e.g., navigation or API call)
   };
 
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
   return (
-    <Box p={3}>
+    <Box p={3} className="table-container">
       <Grid container spacing={3} alignItems="center">
         <Grid item xs={12} sm={8}>
           <Typography variant="h4">{moduleName}</Typography>
@@ -99,7 +118,7 @@ const TestCasePage = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {filteredTestCases.map((testCase) => (
+          {currentEntries.map((testCase) => (
             <TableRow key={testCase.Id} sx={{ backgroundColor: '#f9f9f9', '&:hover': { backgroundColor: '#f1f1f1' } }}>
               <TableCell style={{ fontSize: '1.5rem' }}>{testCase.Id}</TableCell>
               <TableCell style={{ fontSize: '1.5rem' }}>{testCase.Test_Case}</TableCell>
@@ -114,6 +133,18 @@ const TestCasePage = () => {
           ))}
         </TableBody>
       </Table>
+      <Grid container justifyContent="flex-end" spacing={2} sx={{ mt: 2 }}>
+        <Grid item>
+          <IconButton onClick={handlePreviousPage} disabled={currentPage === 1}>
+            <ArrowBack />
+          </IconButton>
+        </Grid>
+        <Grid item>
+          <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
+            <ArrowForward />
+          </IconButton>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

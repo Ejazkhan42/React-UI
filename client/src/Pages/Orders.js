@@ -41,7 +41,7 @@ function Orders() {
   };
 
   return (
-    <Box p={3}>
+    <Box p={3} className="order-container">
       <Typography variant="h4" gutterBottom align="center" style={{ fontSize: '3rem', color: 'white' }}>
         Modules
       </Typography>
