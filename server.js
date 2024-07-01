@@ -28,7 +28,8 @@ const {
   getBytest_case,
   getByflow,
   createNewLogs,
-  updateEnv
+  updateEnv,
+  Getlogs
 } = require("./queries.js");
 
 
@@ -339,12 +340,12 @@ app.post('/postlogs', async (req, res) => {
 });
 app.get('/getlogs', async (req, res) => {
   try {
-    const queryGetLogs = await GetNewLogs();
+    const queryGetLogs = await Getlogs();
     Promise.resolve(queryGetLogs).then((results) => {
     res.send(results);
   })
   } catch (error) {
-    console.error('Error creating logs:', error);
+    console.error('Error Get logs:', error);
     res.status(500).json({ error: 'Failed to Get logs' });
   }
 });
