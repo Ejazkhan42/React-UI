@@ -337,7 +337,7 @@ app.post('/postlogs', async (req, res) => {
     res.status(500).json({ error: 'Failed to create logs' });
   }
 });
-app.post('/getlogs', async (req, res) => {
+app.get('/getlogs', async (req, res) => {
   try {
     const queryGetLogs = await GetNewLogs();
     Promise.resolve(queryGetLogs).then((results) => {
