@@ -445,6 +445,11 @@ app.post("/newenv", async (req, res) => {
     res.send("success");
   })
 })
+app.post("/browser", async (req,res)=>{
+  const browser=req.body.browser
+  res.send(browser)
+})
+
 app.post("/updateenv", async (req, res) => {
   const envDetails = req.body.envDetails;
   const queryCreateNewUser = await updateEnv(envDetails);
