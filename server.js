@@ -323,15 +323,14 @@ const fetchAllJobs = async (path = '') => {
 };
 
 // API endpoint to get all Jenkins jobs and their details
-app.post('/logs', async (req, res) => {
+app.post('/postlogs', async (req, res) => {
   const logs = req.body.logs;
-  console.log(logs)
   if (!Array.isArray(logs)) {
     return res.status(400).json({ error: 'Logs should be an array' });
   }
 
   try {
-    const queryCreateNewUser = await createNewLogs(logs);
+    const queryCreateNewLogs = await createNewLogs(logs);
     res.send("success");
   } catch (error) {
     console.error('Error creating logs:', error);
@@ -339,13 +338,14 @@ app.post('/logs', async (req, res) => {
   }
 });
 app.post('/getlogs', async (req, res) => {
-  const logs = req.body.logs;
   try {
-    const queryCreateNewUser = await createNewLogs(logs);
-    res.send("success");
+    const queryGetLogs = await GetNewLogs();
+    Promise.resolve(queryGetLogs).then((results) => {
+    res.send(results);
+  })
   } catch (error) {
     console.error('Error creating logs:', error);
-    res.status(500).json({ error: 'Failed to create logs' });
+    res.status(500).json({ error: 'Failed to Get logs' });
   }
 });
 app.get("/getflow", async (req, res) => {
