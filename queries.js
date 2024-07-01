@@ -310,6 +310,19 @@ function getByflow(flow) {
   });
 }
 
+function Getlogs(){
+   const queryString = "SELECT * From logs";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, function(error, result) {
+      if(error) {
+        console.log(error);
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
+
 module.exports = {
   getByModule,
   getTestCasesByModule,
@@ -323,5 +336,6 @@ module.exports = {
   getenv,
   createNewLogs,
   updateEnv,getByflow,
-  getBytest_case
+  getBytest_case,
+  Getlogs
 };
