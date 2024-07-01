@@ -446,8 +446,8 @@ app.post("/newenv", async (req, res) => {
   })
 })
 app.post("/browser", async (req,res)=>{
-  const browser=req.body.browser
-  res.send(browser)
+  const session_id=req.query.session_id
+  res.send(session_id)
 })
 
 app.post("/updateenv", async (req, res) => {
