@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import "./Styles/run.css";
-import { useTheme } from '@mui/material/styles';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/material/styles';
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -23,40 +28,37 @@ const MenuProps = {
 
 function Run() {
   const location = useLocation();
-  const [testCaseString, setTestCaseString] = useState([]);
+  const navigate = useNavigate();
+  const { selectedTestCaseNames } = location.state || {};
+  const initialTestCaseString = selectedTestCaseNames ? selectedTestCaseNames.split(', ').map(item => item.replace(/"/g, '')) : [];
+  const [testCaseString, setTestCaseString] = useState(initialTestCaseString);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedBrowser, setSelectedBrowser] = useState('chrome');
   const [gridMode, setGridMode] = useState('on');
-  const[message,setMessages]=useState(null)
-
-  // Initialize testCaseString with selected test cases from location state
-  useEffect(() => {
-    const { testCaseString: initialSelected } = location.state || { testCaseString: '' };
-    if (initialSelected) {
-      // Parse the string and split by comma and remove surrounding double quotes
-      const parsedTestCaseString = initialSelected.split('","').map((item) => item.replace(/"/g, ''));
-      setTestCaseString(parsedTestCaseString);
-    }
-  }, [location.state]);
+  const [message, setMessage] = useState(null);
+  const [testCaseList, setTestCaseList] = useState([]);
 
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-    console.log(event.target.files[0]); // Debugging: Check the selected file
+    if (event.target.files !== undefined) {
+      setSelectedFile(event.target.files[0]);
+      // console.log(selectedFile)
+
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('jobName', 'TestCase');
-    formData.append('testCase', testCaseString.join(','));
+    formData.append('testCase', testCaseList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
     if (selectedFile) {
+      console.log(selectedFile)
       formData.append('file', selectedFile);
     }
-
+    console.log(formData)
     try {
-      
       const response = await fetch('http://localhost:5000/build', {
         method: 'POST',
         body: formData,
@@ -64,104 +66,134 @@ function Run() {
 
       if (response.ok) {
         const result = await response.json();
-        setMessages("Success")
-        // console.log('Success:', result);
-        // Handle success response
+        setMessage("Success");
+        // navigate('/testcase', { state: { jobName: 'TestCase', testCase: testCaseString.join(','), gridMode, browsers: selectedBrowser, file: selectedFile } });
+        navigate('/progress');
+
       } else {
         console.error('Error:', response.statusText);
-        // Handle error response
       }
     } catch (error) {
       console.error('Error:', error);
-      // Handle error
     }
+    // navigate('/progress');
+
   };
 
+  const handleTestCaseChange = (event) => {
+    const { value } = event.target;
+    // setTestCaseString(value);
+    if(value.length > 0){
+      setTestCaseList(value);      
+    }
+
+    console.log(testCaseList);
+  };
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
+
   return (
-    <div className='mcw'>
-      <div className=''>
-        <div className=''>
+    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }} className={'Base'}>
+      <Grid container spacing={2} sx={{ maxWidth: 600 }}>
+        <Grid item xs={12}>
           <h1>Run Tests</h1>
+        </Grid>
+        <Grid item xs={12}>
           <form onSubmit={handleSubmit}>
-            <div className='mb-3'>
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="demo-multiple-name-label">Test Cases</InputLabel>
-                <Select
-                  labelId="demo-multiple-name-label"
-                  id="demo-multiple-name"
-                  multiple
-                  value={testCaseString}
-                  onChange={(event) => setTestCaseString(event.target.value)}
-                  input={<OutlinedInput label="Test Cases" />}
-                  MenuProps={MenuProps}
-                >
-                  {testCaseString.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      {name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className='mb-3'>
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel  id="browser-select-label">Browser</InputLabel>
-                <Select
-                  className='form-control'
-                  labelId="browser-select-label"
-                  id="browser-select"
-                  value={selectedBrowser}
-                  onChange={(event) => setSelectedBrowser(event.target.value)}
-                  input={<OutlinedInput label="Browser" />}
-                  MenuProps={MenuProps}
-                >
-                  <MenuItem value="chrome">Chrome</MenuItem>
-                  <MenuItem value="firefox">Firefox</MenuItem>
-                  <MenuItem value="edge">Edge</MenuItem>
-                  <MenuItem value="safari">Safari</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-            <div className='mb-3'>
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="grid-mode-select-label">Grid Mode</InputLabel>
-                <Select className='form-control'
-                  labelId="grid-mode-select-label"
-                  id="grid-mode-select"
-                  value={gridMode}
-                  onChange={(event) => setGridMode(event.target.value)}
-                  input={<OutlinedInput label="Grid Mode" />}
-                  MenuProps={MenuProps}
-                >
-                  <MenuItem value="on">On</MenuItem>
-                  <MenuItem value="off">Off</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-            <div className='mb-3'>
-              <input
-                type="file"
-                className='form-control'
-                onChange={handleFileChange}
-                sx={{ m: 1, width: 300 }}
-                style={{ display: 'block', margin: '1em 0' }}
-              />
-            </div>
-            <div>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-multiple-checkbox-label">Test Cases</InputLabel>
+                  <Select
+                    labelId="demo-multiple-checkbox-label"
+                    id="demo-multiple-checkbox"
+                    multiple
+                    value={testCaseList}
+                    onChange={handleTestCaseChange}
+                    input={<OutlinedInput label="Test Cases" />}
+                    renderValue={(selected) => selected.join(', ')}
+                    MenuProps={MenuProps}
+                  >
+                    {testCaseString.map((testCase) => (
+                      <MenuItem key={testCase} value={testCase}>
+                        {/* <Checkbox checked={testCaseString.indexOf(testCase) > -1} /> */}
+                        <ListItemText primary={testCase} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel id="browser-select-label">Browser</InputLabel>
+                  <Select
+                    labelId="browser-select-label"
+                    id="browser-select"
+                    value={selectedBrowser}
+                    onChange={(event) => setSelectedBrowser(event.target.value)}
+                    input={<OutlinedInput label="Browser" />}
+                    MenuProps={MenuProps}
+                  >
+                    <MenuItem value="chrome">Chrome</MenuItem>
+                    <MenuItem value="firefox">Firefox</MenuItem>
+                    <MenuItem value="edge">Edge</MenuItem>
+                    <MenuItem value="safari">Safari</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel id="grid-mode-select-label">Grid Mode</InputLabel>
+                  <Select
+                    labelId="grid-mode-select-label"
+                    id="grid-mode-select"
+                    value={gridMode}
+                    onChange={(event) => setGridMode(event.target.value)}
+                    input={<OutlinedInput label="Grid Mode" />}
+                    MenuProps={MenuProps}
+                  >
+                    <MenuItem value="on">On</MenuItem>
+                    <MenuItem value="off">Off</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
               <Button
-                type="submit"
-                className='btn btn-primary'
+                component="label"
+                role={undefined}
                 variant="contained"
-                sx={{ m: 1, width: 300 }}
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+                // onClick={handleFileChange}
               >
-                Submit
+                Upload file
+                <VisuallyHiddenInput type="file" onChange={handleFileChange} />
               </Button>
-            </div>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                >
+                  Submit
+                </Button>
+              </Grid>
+            </Grid>
           </form>
           <div>{message}</div>
-        </div>
-      </div>
-    </div>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
 

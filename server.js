@@ -25,7 +25,11 @@ const {
   getTestCasesByModule,
   deleteEnvById,
   getenv,
-  updateEnv
+  getBytest_case,
+  getByflow,
+  createNewLogs,
+  updateEnv,
+  Getlogs
 } = require("./queries.js");
 
 
@@ -320,25 +324,64 @@ const fetchAllJobs = async (path = '') => {
 };
 
 // API endpoint to get all Jenkins jobs and their details
-app.get('/jenkins', async (req, res) => {
+app.post('/postlogs', async (req, res) => {
+  const logs = req.body.logs;
+  if (!Array.isArray(logs)) {
+    return res.status(400).json({ error: 'Logs should be an array' });
+  }
+
   try {
-    const data = await fetchAllJobs();
-    const response = {
-      totalJobs: data.jobs.length,
-      totalBuilds: data.totalBuilds,
-      passedBuilds: data.passedBuilds,
-      failedBuilds: data.failedBuilds,
-      jobs: data.jobs,
-      runningJobs: data.runningJobs,
-      recentJobs: data.recentJobs
-    };
-    res.json(response);
+    const queryCreateNewLogs = await createNewLogs(logs);
+    res.send("success");
   } catch (error) {
-    console.error('Error fetching jobs:', error);
-    res.status(500).json({ error: 'Failed to fetch jobs' });
+    console.error('Error creating logs:', error);
+    res.status(500).json({ error: 'Failed to create logs' });
   }
 });
+app.get('/getlogs', async (req, res) => {
+  try {
+    const queryGetLogs = await Getlogs();
+    Promise.resolve(queryGetLogs).then((results) => {
+    res.send(results);
+  })
+  } catch (error) {
+    console.error('Error Get logs:', error);
+    res.status(500).json({ error: 'Failed to Get logs' });
+  }
+});
+app.get("/getflow", async (req, res) => {
+  const test_case = req.query.test_case
+  console.log(test_case)
+  const queryAlltest_case = await getBytest_case(test_case);
+  Promise.resolve(queryAlltest_case).then((results) => {
+    res.send(results);
+  })
+})
 
+app.get("/getcomp", async (req, res) => {
+  const flow = req.query.flow
+  const queryAlltest_case = await getByflow(flow);
+  Promise.resolve(queryAlltest_case).then((results) => {
+    res.send(results);
+  })
+})
+
+// try {
+  //   const data = await fetchAllJobs();
+  //   const response = {
+  //     totalJobs: data.jobs.length,
+  //     totalBuilds: data.totalBuilds,
+  //     passedBuilds: data.passedBuilds,
+  //     failedBuilds: data.failedBuilds,
+  //     jobs: data.jobs,
+  //     runningJobs: data.runningJobs,
+  //     recentJobs: data.recentJobs
+  //   };
+  //   res.json(response);
+  // } catch (error) {
+  //   console.error('Error fetching jobs:', error);
+  //   res.status(500).json({ error: 'Failed to fetch jobs' });
+  // }
 
 
 // DASHBOARD DATA SECTION *
@@ -402,6 +445,11 @@ app.post("/newenv", async (req, res) => {
     res.send("success");
   })
 })
+app.post("/browser", async (req,res)=>{
+  const session_id=req.query.session_id
+  res.send(session_id)
+})
+
 app.post("/updateenv", async (req, res) => {
   const envDetails = req.body.envDetails;
   const queryCreateNewUser = await updateEnv(envDetails);

@@ -15,8 +15,9 @@ import Sidebar from './Components/Sidebar';
 import Run from './Pages/runTest';
 import { AuthLoginInfo }  from './AuthComponents/AuthLogin';
 import TestCase from './Pages/TestCase';
-
-
+import Progress from './Pages/Progress';
+import Instances from './Pages/Instances';
+import Business from './Pages/Business';
 
 
 function App() {
@@ -75,6 +76,24 @@ function App() {
                 <Route path='/testcase' element={
                   <PrivateRoute>
                     <TestCase/>
+                  </PrivateRoute>
+                }/>
+                
+                <Route path='/progress' element={
+                  <PrivateRoute>
+                    <Progress/>
+                  </PrivateRoute>
+                }/>
+              
+              <Route path='/instances' element={
+                  <PrivateRoute>
+                    <Instances/>
+                  </PrivateRoute>
+                }/>
+
+              <Route path='/business' element={
+                  <PrivateRoute>
+                    <Business/>
                   </PrivateRoute>
                 }/>
 

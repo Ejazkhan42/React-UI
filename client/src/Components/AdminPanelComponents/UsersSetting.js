@@ -1,9 +1,29 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Popup from "./../Popup";
-import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
-import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
+import {
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  IconButton,
+  Grid,
+} from "@mui/material";
+import {
+  DeleteForeverRounded as DeleteForeverRoundedIcon,
+  AccountCircleRounded as AccountCircleRoundedIcon,
+  AddCircleOutlineRounded as AddCircleOutlineRoundedIcon,
+} from "@mui/icons-material";
 import "./../Styles/usersSetting.css";
 
 function formatIsoDate(date) {
@@ -11,11 +31,13 @@ function formatIsoDate(date) {
 }
 
 function UsersSetting() {
-  const [usersData, setUsersData] = useState();
+  const [usersData, setUsersData] = useState([]);
   const [usersUpdated, setUsersUpdated] = useState(false);
-  const [popup, setPopup] = useState({
-    show: false,
-    id: null,
+  const [deleteUserId, setDeleteUserId] = useState(null);
+  const [newUserDetails, setNewUserDetails] = useState({
+    username: "",
+    password: "",
+    role: "",
   });
   const [newUserPopup, setNewUserPopup] = useState(false);
 
@@ -31,273 +53,194 @@ function UsersSetting() {
   }, [usersUpdated]);
 
   const handleDelete = (id) => {
-    setPopup({
-      show: true,
-      id,
-    });
+    setDeleteUserId(id);
   };
 
-  const deleteUserById = (userId) => {
+  const handleDeleteConfirm = () => {
     axios
       .post(
         "http://localhost:5000/deleteuser",
         {
-          userId,
+          userId: deleteUserId,
         },
         { withCredentials: true }
       )
       .then((res) => {
-        if (res.data == "success") {
+        if (res.data === "success") {
           setUsersUpdated(true);
-          setPopup({
-            show: false,
-            id: null,
-          });
+          setDeleteUserId(null);
         }
       });
   };
 
-  const AddNewUserSection = () => {
-    return (
-      <div className="addNewUserWrap">
-        <span className="addNewUserText">Add new User</span>
-        <button
-          className="addOrder"
-          onClick={() => {
-            setNewUserPopup(true);
-          }}
-        >
-          <AddCircleOutlineRoundedIcon /> Add
-        </button>
-      </div>
-    );
+  const handleAddNewUser = () => {
+    axios
+      .post(
+        "http://localhost:5000/newuser",
+        {
+          userDetails: newUserDetails,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        if (res.data === "success") {
+          setNewUserDetails({
+            username: "",
+            password: "",
+            role: "",
+          });
+          setUsersUpdated(true);
+          setNewUserPopup(false);
+        }
+      });
   };
 
-  const UsersDataTable = (props) => {
-    const filteredUsers = usersData?.filter((user) => {
-      if (props.isAdmin) {
-        return user.Role_Id == 1;
-      } else {
-        return user.Role_Id != 1;
-      }
+  const handleRoleInputChange = (event) => {
+    setNewUserDetails({
+      ...newUserDetails,
+      role: event.target.value,
     });
-
-    return filteredUsers != undefined ? (
-      filteredUsers?.map((user, index) => {
-        return (
-          <tr key={user.id} className={index % 2 != 0 ? "darkerTableBg" : ""}>
-            <td className="alignCenter">
-              <AccountCircleRoundedIcon className="maincolor" />
-            </td>
-            <td>{user.username}</td>
-            <td className="alignCenter">{formatIsoDate(user.created_at)}</td>
-            <td className="alignCenter">
-              <DeleteForeverRoundedIcon
-                className="clickable"
-                onClick={() => {
-                  handleDelete(user.id);
-                }}
-              />
-            </td>
-          </tr>
-        );
-      })
-    ) : (
-      <tr></tr>
-    );
   };
 
   const AdminUsers = () => {
+    const filteredUsers = usersData.filter((user) => user.Role_Id === 1);
+
     return (
       <div className="usersColumn">
         <div className="usersInfo">
-          <h3 className="usersInfoHeader">Admin users</h3>
-          <span className="usersInfoText">
+          <Typography variant="h5" className="usersInfoHeader" align="center">
+            Admin users
+          </Typography>
+          <Typography
+            variant="body1"
+            className="usersInfoText"
+            align="center"
+            style={{ fontSize: "1.2rem" }}
+          >
             Admins have access to all of the content, including all
             functionality of app, they also can create new users and remove or
             edit existing ones.
-          </span>
+          </Typography>
         </div>
         <div className="adminUsersTable">
-          <table className="usersTable">
-            <thead>
-              <tr>
-                <th className="alignCenter"></th>
-                <th className="alignCenter">Name</th>
-                <th className="alignCenter">Data created</th>
-                <th className="alignCenter"></th>
-              </tr>
-            </thead>
-            <tbody>{<UsersDataTable isAdmin={true} />}</tbody>
-          </table>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center"></TableCell>
+                  <TableCell align="center">Name</TableCell>
+                  <TableCell align="center">Data created</TableCell>
+                  <TableCell align="center"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredUsers.map((user, index) => (
+                  <TableRow
+                    key={user.id}
+                    className={index % 2 !== 0 ? "darkerTableBg" : ""}
+                  >
+                    <TableCell align="center">
+                      <AccountCircleRoundedIcon className="maincolor" />
+                    </TableCell>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell align="center">
+                      {formatIsoDate(user.created_at)}
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        className="clickable"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        <DeleteForeverRoundedIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
       </div>
     );
   };
 
   const NormalUsers = () => {
+    const filteredUsers = usersData.filter((user) => user.Role_Id !== 1);
+
     return (
       <div className="usersColumn">
         <div className="usersInfo">
-          <h3 className="usersInfoHeader">Normal users</h3>
-          <span className="usersInfoText">
+          <Typography variant="h5" className="usersInfoHeader" align="center">
+            Normal users
+          </Typography>
+          <Typography
+            variant="body1"
+            className="usersInfoText"
+            align="center"
+            style={{ fontSize: "1.2rem" }}
+          >
             Normal users have access to pages and subpages of: Orders, Clients,
             Calendar and Dashboard. They can add, edit and remove clients,
             orders, and events.
-          </span>
+          </Typography>
         </div>
-        <div className="adminUsersTable">
-          <table className="usersTable normalUsersTable">
-            <thead>
-              <tr>
-                <th className="alignCenter"></th>
-                <th className="alignCenter">Name</th>
-                <th className="alignCenter">Data created</th>
-                <th className="alignCenter"></th>
-              </tr>
-            </thead>
-            <tbody>{<UsersDataTable isAdmin={false} />}</tbody>
-          </table>
+        <div className="normalUsersTable">
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center"></TableCell>
+                  <TableCell align="center">Name</TableCell>
+                  <TableCell align="center">Data created</TableCell>
+                  <TableCell align="center"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredUsers.map((user, index) => (
+                  <TableRow
+                    key={user.id}
+                    className={index % 2 !== 0 ? "darkerTableBg" : ""}
+                  >
+                    <TableCell align="center">
+                      <AccountCircleRoundedIcon className="maincolor" />
+                    </TableCell>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell align="center">
+                      {formatIsoDate(user.created_at)}
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        className="clickable"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        <DeleteForeverRoundedIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
       </div>
     );
   };
 
-  const HandleDeletePopup = () => {
-    const handleDeleteFalse = () => {
-      setPopup({
-        show: false,
-        id: null,
-      });
-    };
+  const AddNewUserSection = () => {
     return (
-      <Popup trigger={popup.show} setTrigger={setPopup}>
-        <div className="popupWrap">
-          <h3>Are you sure you want to delete this user?</h3>
-          <div className="handleDeleteWrap">
-            <button
-              className="handleDeleteButton"
-              onClick={() => {
-                deleteUserById(popup.id);
-              }}
-            >
-              Yes
-            </button>
-            <button
-              className="handleDeleteButton"
-              onClick={() => {
-                handleDeleteFalse();
-              }}
-            >
-              No
-            </button>
-          </div>
-        </div>
-      </Popup>
-    );
-  };
-
-  const AddNewUserPopup = () => {
-    const [userDetails, setUserDetails] = useState({
-      username: "",
-      password: "",
-      role: "",
-    });
-
-    const addNewUser = () => {
-      axios
-        .post(
-          "http://localhost:5000/newuser",
-          {
-            userDetails,
-          },
-          { withCredentials: true }
-        )
-        .then((res) => {
-          if (res.data === "success") {
-            setUserDetails({
-              username: "",
-              password: "",
-              role: "",
-            });
-            setUsersUpdated(true);
-            setNewUserPopup(false);
-          }
-        });
-    };
-    return (
-      <Popup trigger={newUserPopup} setTrigger={setNewUserPopup}>
-        <div className="popupWrap">
-          <div className="productsSummary">
-            <h3 className="productSummaryLeft">Add new user</h3>
-          </div>
-
-          <div className="addNewOrderWrap">
-            <div className="addNewOrderForm">
-              <div className="orderDetails">
-                <div className="input-group">
-                  <input
-                    type="text"
-                    placeholder="Username"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={userDetails.username}
-                    onChange={(e) =>
-                      setUserDetails({
-                        ...userDetails,
-                        username: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={userDetails.password}
-                    onChange={(e) =>
-                      setUserDetails({
-                        ...userDetails,
-                        password: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                </div>
-                <div className="input-group">
-                  <div className="usersInfoText">
-                    If you want to user be an admin type 'admin' below.
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="User role"
-                    className="orderDetailsInput"
-                    value={userDetails.Role_Id}
-                    onChange={(e) =>
-                      setUserDetails({
-                        ...userDetails,
-                        role: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="submitWrap">
-            <div className="submitNewOrder">
-              <button
-                className="submitNewOrderBtn"
-                onClick={() => addNewUser()}
-              >
-                <AddCircleOutlineRoundedIcon />
-                <span className="addOrderText">Add</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </Popup>
+      <div className="addNewUserWrap">
+        <Typography variant="h6" className="addNewUserText">
+          Add new User
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddCircleOutlineRoundedIcon />}
+          onClick={() => setNewUserPopup(true)}
+        >
+          Add
+        </Button>
+      </div>
     );
   };
 
@@ -308,8 +251,85 @@ function UsersSetting() {
       <AdminUsers />
       <NormalUsers />
 
-      <HandleDeletePopup />
-      <AddNewUserPopup />
+      <Dialog
+        open={deleteUserId !== null}
+        onClose={() => setDeleteUserId(null)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Confirm deletion"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this user?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteUserId(null)} color="primary">
+            No
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="primary" autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={newUserPopup}
+        onClose={() => setNewUserPopup(false)}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Add New User</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="username"
+            label="Username"
+            type="text"
+            fullWidth
+            value={newUserDetails.username}
+            onChange={(e) =>
+              setNewUserDetails({
+                ...newUserDetails,
+                username: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            id="password"
+            label="Password"
+            type="password"
+            fullWidth
+            value={newUserDetails.password}
+            onChange={(e) =>
+              setNewUserDetails({
+                ...newUserDetails,
+                password: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            id="role"
+            label="Role"
+            type="text"
+            fullWidth
+            value={newUserDetails.role}
+            onChange={handleRoleInputChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewUserPopup(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddNewUser} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
