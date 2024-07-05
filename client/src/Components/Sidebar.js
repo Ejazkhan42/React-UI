@@ -7,6 +7,7 @@ import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
 import HomeIcon from "@mui/icons-material/Home";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MenuIcon from "@mui/icons-material/Menu";
+import { Avatar, Menu, MenuItem } from "@mui/material";
 
 const logout = () => {
   axios
@@ -23,30 +24,47 @@ const logout = () => {
 const NavbarSection = ({ ctx, toggleSidebar }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const isDashboard = location.pathname === "/";
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleAvatarClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <div>
       {ctx && (
         <nav className="mnb navbar navbar-default navbar-fixed-top">
           <div className="container-fluid">
-            
             <div className="navbar-header">
+              <div className="nav-icons-left">
+
+                {!isDashboard && <ArrowBackIcon onClick={() => navigate(-1)} style={{ cursor: 'pointer', marginRight: '10px' }}  />}
+                <span style={{ fontWeight: 'bolder', paddingRight: '10px', fontSize: '1.5rem' }}>Doing ERP</span>
+                <MenuIcon className="menu" onClick={toggleSidebar} style={{ cursor: 'pointer' }} />
+
+              </div>
               
-              <div className="nav-icons">
-              <div>
-              Doings ERP
-
+              <div className="nav-icons-right" style={{marginTop: '10px'}}>
+              <div style={{ marginRight: '10px',marginTop: '10px' }}>
+              <HomeIcon fontSize="large" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
               </div>
 
-                <MenuIcon className="menu" onClick={toggleSidebar} />
-                <HomeIcon onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
-                {!isDashboard && <ArrowBackIcon onClick={() => navigate(-1)} style={{ cursor: 'pointer' }} />}
+                <Avatar onClick={handleAvatarClick} style={{ cursor: 'pointer', backgroundColor: '#3f51b5', }}>
+                  {ctx.username[0].toUpperCase()}
+                </Avatar>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleAvatarClose}
+                >
+                  <MenuItem onClick={logout}>Logout</MenuItem>
+                </Menu>
               </div>
-            </div>
-            <div id="navbar" className="navbar-collapse collapse nav-extras">
-          
             </div>
           </div>
         </nav>
@@ -62,14 +80,7 @@ const SidebarSection = ({ ctx, sidebarClass, closeSidebar }) => {
         <div className={sidebarClass} id="msb">
           <nav className="navbar navbar-default" role="navigation">
             <div className="sidebar-header">
-              <ul className="nav navbar-nav navbar-right">
-                <li className="nav-item">
-                  <span><i className="fa fa-user"></i> Logged as: {ctx.username}</span>
-                </li>
-                <li className="nav-item logout" onClick={logout}>
-                  <span><i className="fa fa-logout"></i>Logout</span>
-                </li>
-              </ul>
+          
             </div>
             <div className="side-menu-container">
               <ul className="nav navbar-nav">

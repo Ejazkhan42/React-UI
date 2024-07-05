@@ -1,73 +1,80 @@
 import React, { useState } from "react";
-import "./Styles/adminPanel.css";
+import {
+  Typography,
+  AppBar,
+  Tabs,
+  Tab,
+  Box,
+  Container,
+  Paper,
+  Table,
+  TableContainer,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import UsersSetting from "./../Components/AdminPanelComponents/UsersSetting";
-import ConfigureSetting from "./../Components/AdminPanelComponents/ConfigureSetting";
+import "./Styles/adminPanel.css";
 
 function AdminPanel() {
-  const [selectedSetting, setSelectedSetting] = useState(0);
-  const componentsMap = {
-    usersSetting: UsersSetting,
-  };
+  const [selectedTab, setSelectedTab] = useState(0);
+
   const adminNavData = [
     {
       id: 0,
       title: "Users",
-      component: "usersSetting",
+      component: <UsersSetting />,
     },
+    // Add more tabs as needed
   ];
 
-  const CalendarWrap = (props) => {
-    return (
-      <div className="adminPanelWrap">
-        <div className="adminPanelHeader">
-          <h1>Admin pannel</h1>
-        </div>
-        {props.children}
-      </div>
-    );
-  };
-
-  const AdminPanelNav = () => {
-    return (
-      <div className="adminNav">
-        <ul className="adminNavList">
-          {adminNavData.map((val) => {
-            return (
-              <li
-                key={val.id}
-                className={`adminNavItem ${
-                  selectedSetting === val.id ? "active-setting" : ""
-                }`}
-                onClick={() => setSelectedSetting(val.id)}
-              >
-                {val.title}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    );
-  };
-
-  const ContentWrap = (props) => {
-    return (
-      <div className="contentWrap">
-        {adminNavData.map((val) => {
-          if (val.id === selectedSetting) {
-            const Component = componentsMap[val.component];
-            return <Component key={val.id} />;
-          }
-        })}
-      </div>
-    );
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
   };
 
   return (
-    <div className="mcw">
-      <CalendarWrap>
-        <AdminPanelNav />
-        <ContentWrap />
-      </CalendarWrap>
+    <Container maxWidth="lg">
+      <Typography variant="h2" align="center" gutterBottom>
+        Admin Panel
+      </Typography>
+      <AppBar position="static" color="default">
+        <Tabs
+          value={selectedTab}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+          aria-label="admin panel tabs"
+        >
+          {adminNavData.map((navItem) => (
+            <Tab key={navItem.id} label={navItem.title} />
+          ))}
+        </Tabs>
+      </AppBar>
+      <Box mt={3}>
+        {adminNavData.map((navItem) => (
+          <TabPanel key={navItem.id} value={selectedTab} index={navItem.id}>
+            {navItem.component}
+          </TabPanel>
+        ))}
+      </Box>
+    </Container>
+  );
+}
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box p={3}>{children}</Box>}
     </div>
   );
 }

@@ -1,15 +1,14 @@
-import React from 'react';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import LoginRoundedIcon from '@mui/icons-material/LoginRounded';
-import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded';
-import PeopleOutlineRoundedIcon from '@mui/icons-material/PeopleOutlineRounded';
-import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
-import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
+import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
 export const SidebarData = [
   {
     title: "Dashboard",
     icon: "fa-home",
     link: "/"
+  },
+  {
+    title: "Instances",
+    icon: "fa-home",
+    link: "/instances"
   },
   {
     title: "Job",
@@ -30,6 +29,12 @@ export const SidebarData = [
     title: "Admin pannel",
     icon: "fa-user",
     link: "/adminPannel",
+    role: 1
+  },
+  {
+    title: "Business",
+    icon: "fa-user",
+    link: "/business",
     role: 1
   }
 ];

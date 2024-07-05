@@ -8,7 +8,20 @@
   font-weight: bolder;
   padding: 10px;
 }
+.nav-icons-left{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 82%;
 
+}
+
+
+.nav-icons-right{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 body {
   margin-top: 50px;
   background-color: #fff;
@@ -62,7 +75,8 @@ body {
 
 .navbar-header {
   display: flex;
-  justify-content: flex-end;
+  /* justify-content: flex-end; */
+  justify-content: space-between;
   width: 100%;
   border-bottom: 1px solid #e7e7e7;
   margin-bottom: 20px;

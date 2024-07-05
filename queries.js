@@ -338,4 +338,4 @@ module.exports = {
   updateEnv,getByflow,
   getBytest_case,
   Getlogs
-};
+}
