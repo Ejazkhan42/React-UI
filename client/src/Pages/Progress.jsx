@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -11,7 +11,10 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Select,
+  MenuItem,
 } from '@mui/material';
+import VncScreen from './browser';
 import { styled } from '@mui/material/styles';
 import './Styles/progress.css';
 
@@ -86,6 +89,29 @@ const DataSetTable = () => {
 };
 
 const ResponsivePage = () => {
+  const [sessionIds, setSessionIds] = useState([
+    "46905dc55e88c4cdf273f30e6a980e82",
+    "98045786-7734-422d-89cc-5b7a5041e3cd",
+    "55c0e7d141dd0b95c807b4a254515b8c",
+  ]);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [vncConnectionStatus, setVncConnectionStatus] = useState("disconnected");
+
+  const handleConnect = () => {
+    if (selectedSession) {
+      setVncConnectionStatus("connecting");
+    }
+  };
+
+  const handleDisconnect = () => {
+    setSelectedSession(null);
+    setVncConnectionStatus("disconnected");
+  };
+
+  const handleSessionChange = (event) => {
+    setSelectedSession(event.target.value);
+  };
+
   return (
     <Container>
       <Box sx={{ mb: 4 }}>
@@ -114,13 +140,32 @@ const ResponsivePage = () => {
         </Grid>
         <Grid item xs={12} md={9}>
           <Box sx={{ height: '100%', width: '100%', minHeight: '500px' }}>
-            <iframe
-              title="ui-browser"
-              src="https://ui-browser.vercel.app/free-style/gaming-guest"
-              style={{ border: '0' }}
-              width={'100%'}
-              height={'100%'}              
-            ></iframe>
+            <Select
+              value={selectedSession}
+              onChange={handleSessionChange}
+              displayEmpty
+              fullWidth
+              variant="outlined"
+              disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}
+            >
+              <MenuItem value="" disabled>
+                Select Session ID
+              </MenuItem>
+              {sessionIds.map((sessionId) => (
+                <MenuItem key={sessionId} value={sessionId}>
+                  {sessionId}
+                </MenuItem>
+              ))}
+            </Select>
+            <button onClick={handleConnect} disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}>
+              LIVE VIEW
+            </button>
+            <button onClick={handleDisconnect} disabled={vncConnectionStatus === "disconnected"}>
+              Disconnect
+            </button>
+            {selectedSession && (
+              <VncScreen session={selectedSession} onUpdateState={setVncConnectionStatus} />
+            )}
           </Box>
         </Grid>
       </Grid>
