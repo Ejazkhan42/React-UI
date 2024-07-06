@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -11,9 +11,14 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Select,
+  MenuItem,
+  Button
 } from '@mui/material';
+import VncScreen from './Browser';
 import { styled } from '@mui/material/styles';
 import './Styles/progress.css';
+import axios from 'axios';
 
 const StyledPaper = styled(Paper)({
   padding: '16px',
@@ -86,6 +91,41 @@ const DataSetTable = () => {
 };
 
 const ResponsivePage = () => {
+  const [sessionIds, setSessionIds] = useState([{}]);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [vncConnectionStatus, setVncConnectionStatus] = useState("disconnected");
+
+  useEffect(() => {
+    axios.get("http://jenkins.doingerp.com:5000/getbrowser-id").then((res) => {
+      // console.log(res.data.browserId)
+      if (res.data.browserId) {
+
+        console.log(res.data)        
+        setSessionIds(res.data);
+        console.log(sessionIds)
+      } else {
+        console.error("Invalid response format:", res.data);
+      }
+    }).catch((error) => {
+      console.error("Error fetching session IDs:", error);
+    });
+  }, []);
+
+  const handleConnect = () => {
+    if (selectedSession) {
+      setVncConnectionStatus("connecting");
+    }
+  };
+
+  const handleDisconnect = () => {
+    setSelectedSession(null);
+    setVncConnectionStatus("disconnected");
+  };
+
+  const handleSessionChange = (event) => {
+    setSelectedSession(event.target.value);
+  };
+
   return (
     <Container>
       <Box sx={{ mb: 4 }}>
@@ -114,13 +154,35 @@ const ResponsivePage = () => {
         </Grid>
         <Grid item xs={12} md={9}>
           <Box sx={{ height: '100%', width: '100%', minHeight: '500px' }}>
-            <iframe
-              title="ui-browser"
-              src="https://ui-browser.vercel.app/free-style/gaming-guest"
-              style={{ border: '0' }}
-              width={'100%'}
-              height={'100%'}              
-            ></iframe>
+            <Select
+              value={selectedSession}
+              onChange={handleSessionChange}
+              displayEmpty
+              fullWidth
+              variant="outlined"
+              disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}
+            >
+              <MenuItem value="" disabled>
+                Select Session ID
+              </MenuItem>
+              
+                <MenuItem key={sessionIds.browserId} value={sessionIds.browserId}>
+                  {sessionIds.testcase}
+                </MenuItem>
+              
+            </Select>
+          <Box style={{marginTop: '10px'}}>
+              <Button variant="contained" color='secondary' onClick={handleConnect} disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}>
+                  LIVE VIEW
+                </Button>
+                <Button style={{marginLeft: '10px'}} variant="outlined" onClick={handleDisconnect} disabled={vncConnectionStatus === "disconnected"}>
+                  Disconnect
+              </Button>
+          </Box>
+
+            {selectedSession && (
+              <VncScreen session={selectedSession} onUpdateState={setVncConnectionStatus} />
+            )}
           </Box>
         </Grid>
       </Grid>

@@ -29,7 +29,8 @@ const {
   getByflow,
   createNewLogs,
   updateEnv,
-  Getlogs
+  Getlogs,
+  getroles
 } = require("./queries.js");
 
 
@@ -55,7 +56,7 @@ const jenkins = new Jenkins({
   crumbIssuer: true,
   formData: FormData
 });
-
+let browser=''
 const initializePassport = require('./passport-config');
 initializePassport(connection, passport);
 
@@ -113,7 +114,6 @@ app.get('/jobInfo', async (req, res) => {
 });
 
 
-// Multer configuration for file upload to local directory
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -125,20 +125,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// POST endpoint to handle file upload and trigger Jenkins build
-app.post('/build', upload.single('file'), async (req, res) => {
+// Adjust the upload middleware to handle multiple fields
+app.post('/build', upload.fields([
+  { name: 'file', maxCount: 1 }, // Assuming 'file' is the main file
+  { name: 'image', maxCount: 1 } // Assuming 'image' is the image file
+]), async (req, res) => {
   try {
-    // // Initialize Jenkins client
-    // const jenkins = new Jenkins({
-    //   baseUrl: 'https://Ejaz.Ahmed:D01ngERP!01@jenkins.doingerp.com:443',
-    //   crumbIssuer: true,
-    //   formData:FormData
-    // });
-
-    // Extract and validate the job name and other parameters
-    const { jobName, testCase, gridMode, browsers, ProfilePath, } = req.body;
-    const file = req.file;
-    const Image = req.Image;
+    const { jobName, testCase, gridMode, browsers, ProfilePath, Token } = req.body;
+    const file = req.files['file'][0]; // Access the main file
+    const image = req.files['image'][0]; // Access the image file
 
     if (!jobName) {
       return res.status(400).send('Job name is required');
@@ -148,19 +143,29 @@ app.post('/build', upload.single('file'), async (req, res) => {
       return res.status(400).send('File is required');
     }
 
-    // File path on the server (local uploads directory)
+    if (!image) {
+      return res.status(400).send('Image is required');
+    }
+
+    if (!Token) {
+      return res.status(400).send('Token is required');
+    }
+
+    // File paths on the server (local uploads directory)
     const localFilePath = file.path;
+    const localImagePath = image.path;
 
     // Prepare the parameters for the Jenkins job
     const parameters = {
-      FILE: fs.createReadStream(localFilePath), // Read stream of the uploaded file
+      FILE: fs.createReadStream(localFilePath),
+      Image: fs.createReadStream(localImagePath),
       TestCase: testCase || '',
       GridMode: gridMode || '',
       Browsers: browsers || '',
       ProfilePath: ProfilePath || '',
+      Token: Token || '',
     };
-    console.log(parameters.File)
-    // Trigger the Jenkins job build
+
     const info = await jenkins.job.build({
       name: jobName,
       parameters: parameters
@@ -172,12 +177,17 @@ app.post('/build', upload.single('file'), async (req, res) => {
     console.error('Error triggering Jenkins job:', error);
     res.status(500).send('Error triggering Jenkins job');
   } finally {
-    // Clean up the uploaded file from local directory
-    if (req.file) {
-      fs.unlinkSync(req.file.path); // Delete the uploaded file from uploads directory
+    // Clean up the uploaded files from local directory
+    if (req.files) {
+      Object.values(req.files).forEach(files => {
+        files.forEach(file => {
+          fs.unlinkSync(file.path); // Delete the uploaded files from uploads directory
+        });
+      });
     }
   }
 });
+
 
 app.get('/logout', (req, res) => {
   req.logout();
@@ -213,115 +223,6 @@ app.post("/newclient", async (req, res) => {
   })
 })
 
-// Helper function to fetch job details with parallel requests
-const fetchJobDetails = async (job, path) => {
-  try {
-    const jobDetails = await jenkins.job.get(`${path}${job.name}`);
-    const buildDetails = await fetchBuildDetails(jobDetails);
-
-    return {
-      name: job.name,
-      url: job.url,
-      color: job.color,
-      totalBuilds: buildDetails.total,
-      passedBuilds: buildDetails.passed,
-      failedBuilds: buildDetails.failed,
-      recentBuild: buildDetails.recentBuild
-    };
-  } catch (error) {
-    console.error(`Error fetching details for job: ${job.name}`, error);
-    return null; // Return null to indicate a failure fetching this job's details
-  }
-};
-
-// Helper function to fetch build details for a job
-const fetchBuildDetails = async (jobDetails) => {
-  let total = 0;
-  let passed = 0;
-  let failed = 0;
-  let running = false;
-  let recentBuild = null;
-
-  // Fetch only the latest 10 builds to reduce the number of API calls
-  const recentBuilds = jobDetails.builds.slice(0, 10);
-
-  const buildPromises = recentBuilds.map(async (build) => {
-    try {
-      const buildInfo = await jenkins.build.get(jobDetails.fullName, build.number);
-      total++;
-      if (buildInfo.result === 'SUCCESS') {
-        passed++;
-      } else if (buildInfo.result === 'FAILURE') {
-        failed++;
-      } else if (buildInfo.building) {
-        running = true;
-      }
-
-      if (!recentBuild || buildInfo.timestamp > recentBuild.timestamp) {
-        recentBuild = {
-          name: jobDetails.name,
-          number: buildInfo.number,
-          result: buildInfo.result,
-          timestamp: buildInfo.timestamp,
-          duration: buildInfo.duration,
-          url: buildInfo.url
-        };
-      }
-    } catch (error) {
-      console.warn(`Build ${build.number} for job ${jobDetails.name} not found or error occurred`, error);
-    }
-  });
-
-  await Promise.all(buildPromises);
-
-  return { total, passed, failed, running, recentBuild };
-};
-
-// Helper function to recursively fetch all jobs and their details with parallelization
-
-const fetchAllJobs = async (path = '') => {
-  const jobs = await jenkins.job.list(path);
-  let allJobs = [];
-  let totalBuilds = 0;
-  let passedBuilds = 0;
-  let failedBuilds = 0;
-  let runningJobs = [];
-  let recentJobs = [];
-
-  const jobPromises = jobs.map(async (job) => {
-    if (job._class === 'com.cloudbees.hudson.plugins.folder.Folder') {
-      const folderData = await fetchAllJobs(`${path}${job.name}/`);
-      allJobs = [...allJobs, ...folderData.jobs];
-      totalBuilds += folderData.totalBuilds;
-      passedBuilds += folderData.passedBuilds;
-      failedBuilds += folderData.failedBuilds;
-      runningJobs = [...runningJobs, ...folderData.runningJobs];
-      recentJobs = [...recentJobs, ...folderData.recentJobs];
-    } else {
-      const jobDetail = await fetchJobDetails(job, path);
-      if (jobDetail) {
-        allJobs.push(jobDetail);
-        totalBuilds += jobDetail.totalBuilds;
-        passedBuilds += jobDetail.passedBuilds;
-        failedBuilds += jobDetail.failedBuilds;
-        if (jobDetail.running) {
-          runningJobs.push({
-            name: job.name,
-            url: job.url,
-            status: 'running'
-          });
-        }
-        if (jobDetail.recentBuild) {
-          recentJobs.push(jobDetail.recentBuild);
-        }
-      }
-    }
-  });
-
-  await Promise.all(jobPromises);
-
-  return { jobs: allJobs, totalBuilds, passedBuilds, failedBuilds, runningJobs, recentJobs };
-};
 
 // API endpoint to get all Jenkins jobs and their details
 app.post('/postlogs', async (req, res) => {
@@ -366,22 +267,6 @@ app.get("/getcomp", async (req, res) => {
   })
 })
 
-// try {
-  //   const data = await fetchAllJobs();
-  //   const response = {
-  //     totalJobs: data.jobs.length,
-  //     totalBuilds: data.totalBuilds,
-  //     passedBuilds: data.passedBuilds,
-  //     failedBuilds: data.failedBuilds,
-  //     jobs: data.jobs,
-  //     runningJobs: data.runningJobs,
-  //     recentJobs: data.recentJobs
-  //   };
-  //   res.json(response);
-  // } catch (error) {
-  //   console.error('Error fetching jobs:', error);
-  //   res.status(500).json({ error: 'Failed to fetch jobs' });
-  // }
 
 
 // DASHBOARD DATA SECTION *
@@ -445,16 +330,25 @@ app.post("/newenv", async (req, res) => {
     res.send("success");
   })
 })
-app.post("/browser", async (req,res)=>{
-  const session_id=req.query.session_id
-  res.send(session_id)
+app.post("/postbrowser-id", async (req,res)=>{
+  browser = req.body;
+  console.log('Received browser ID:', browser);
+  res.send('Browser ID received successfully');
 })
-
+app.get("/getbrowser-id",async(req,res)=>{
+  res.send(browser)
+})
 app.post("/updateenv", async (req, res) => {
   const envDetails = req.body.envDetails;
   const queryCreateNewUser = await updateEnv(envDetails);
   Promise.resolve(queryCreateNewUser).then(() => {
     res.send("success");
+  })
+})
+app.get("/role", async(req,res)=>{
+  const queryGetUsersForAdminPanel = await getroles();
+  Promise.resolve(queryGetUsersForAdminPanel).then((results) => {
+    res.send(results);
   })
 })
 
