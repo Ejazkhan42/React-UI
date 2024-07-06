@@ -114,7 +114,6 @@ app.get('/jobInfo', async (req, res) => {
 });
 
 
-// Multer configuration for file upload to local directory
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -126,13 +125,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// POST endpoint to handle file upload and trigger Jenkins build
-app.post('/build', upload.single('file'), async (req, res) => {
+// Adjust the upload middleware to handle multiple fields
+app.post('/build', upload.fields([
+  { name: 'file', maxCount: 1 }, // Assuming 'file' is the main file
+  { name: 'image', maxCount: 1 } // Assuming 'image' is the image file
+]), async (req, res) => {
   try {
-
-    const { jobName, testCase, gridMode, browsers, ProfilePath, Token} = req.body;
-    const file = req.file;
-    const Image = req.Image;
+    const { jobName, testCase, gridMode, browsers, ProfilePath, Token } = req.body;
+    const file = req.files['file'][0]; // Access the main file
+    const image = req.files['image'][0]; // Access the image file
 
     if (!jobName) {
       return res.status(400).send('Job name is required');
@@ -141,21 +142,28 @@ app.post('/build', upload.single('file'), async (req, res) => {
     if (!file) {
       return res.status(400).send('File is required');
     }
-    if(!Token){
-      return res.status(400).send("Token is required")
+
+    if (!image) {
+      return res.status(400).send('Image is required');
     }
 
-    // File path on the server (local uploads directory)
+    if (!Token) {
+      return res.status(400).send('Token is required');
+    }
+
+    // File paths on the server (local uploads directory)
     const localFilePath = file.path;
+    const localImagePath = image.path;
 
     // Prepare the parameters for the Jenkins job
     const parameters = {
-      FILE: fs.createReadStream(localFilePath), // Read stream of the uploaded file
+      FILE: fs.createReadStream(localFilePath),
+      Image: fs.createReadStream(localImagePath),
       TestCase: testCase || '',
       GridMode: gridMode || '',
       Browsers: browsers || '',
       ProfilePath: ProfilePath || '',
-      Token:Token||'',
+      Token: Token || '',
     };
 
     const info = await jenkins.job.build({
@@ -169,12 +177,17 @@ app.post('/build', upload.single('file'), async (req, res) => {
     console.error('Error triggering Jenkins job:', error);
     res.status(500).send('Error triggering Jenkins job');
   } finally {
-    // Clean up the uploaded file from local directory
-    if (req.file) {
-      fs.unlinkSync(req.file.path); // Delete the uploaded file from uploads directory
+    // Clean up the uploaded files from local directory
+    if (req.files) {
+      Object.values(req.files).forEach(files => {
+        files.forEach(file => {
+          fs.unlinkSync(file.path); // Delete the uploaded files from uploads directory
+        });
+      });
     }
   }
 });
+
 
 app.get('/logout', (req, res) => {
   req.logout();
@@ -319,7 +332,7 @@ app.post("/newenv", async (req, res) => {
 })
 app.post("/postbrowser-id", async (req,res)=>{
   browser = req.body;
-  console.log('Received browser ID:', browser.browserId);
+  console.log('Received browser ID:', browser);
   res.send('Browser ID received successfully');
 })
 app.get("/getbrowser-id",async(req,res)=>{
