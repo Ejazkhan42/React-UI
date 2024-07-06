@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -13,10 +13,12 @@ import {
   Typography,
   Select,
   MenuItem,
+  Button
 } from '@mui/material';
-import VncScreen from './browser';
+import VncScreen from './Browser';
 import { styled } from '@mui/material/styles';
 import './Styles/progress.css';
+import axios from 'axios';
 
 const StyledPaper = styled(Paper)({
   padding: '16px',
@@ -89,13 +91,25 @@ const DataSetTable = () => {
 };
 
 const ResponsivePage = () => {
-  const [sessionIds, setSessionIds] = useState([
-    "46905dc55e88c4cdf273f30e6a980e82",
-    "98045786-7734-422d-89cc-5b7a5041e3cd",
-    "55c0e7d141dd0b95c807b4a254515b8c",
-  ]);
+  const [sessionIds, setSessionIds] = useState([{}]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [vncConnectionStatus, setVncConnectionStatus] = useState("disconnected");
+
+  useEffect(() => {
+    axios.get("http://jenkins.doingerp.com:5000/getbrowser-id").then((res) => {
+      // console.log(res.data.browserId)
+      if (res.data.browserId) {
+
+        console.log(res.data)        
+        setSessionIds(res.data);
+        console.log(sessionIds)
+      } else {
+        console.error("Invalid response format:", res.data);
+      }
+    }).catch((error) => {
+      console.error("Error fetching session IDs:", error);
+    });
+  }, []);
 
   const handleConnect = () => {
     if (selectedSession) {
@@ -151,18 +165,21 @@ const ResponsivePage = () => {
               <MenuItem value="" disabled>
                 Select Session ID
               </MenuItem>
-              {sessionIds.map((sessionId) => (
-                <MenuItem key={sessionId} value={sessionId}>
-                  {sessionId}
+              
+                <MenuItem key={sessionIds.browserId} value={sessionIds.browserId}>
+                  {sessionIds.testcase}
                 </MenuItem>
-              ))}
+              
             </Select>
-            <button onClick={handleConnect} disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}>
-              LIVE VIEW
-            </button>
-            <button onClick={handleDisconnect} disabled={vncConnectionStatus === "disconnected"}>
-              Disconnect
-            </button>
+          <Box style={{marginTop: '10px'}}>
+              <Button variant="contained" color='secondary' onClick={handleConnect} disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}>
+                  LIVE VIEW
+                </Button>
+                <Button style={{marginLeft: '10px'}} variant="outlined" onClick={handleDisconnect} disabled={vncConnectionStatus === "disconnected"}>
+                  Disconnect
+              </Button>
+          </Box>
+
             {selectedSession && (
               <VncScreen session={selectedSession} onUpdateState={setVncConnectionStatus} />
             )}
