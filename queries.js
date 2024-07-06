@@ -310,6 +310,18 @@ function getByflow(flow) {
   });
 }
 
+function getroles(){
+  const queryString = "SELECT * From role";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, function(error, result) {
+      if(error) {
+        console.log(error);
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
 function Getlogs(){
    const queryString = "SELECT * From logs";
   return new Promise((resolve, reject) => {
@@ -337,5 +349,6 @@ module.exports = {
   createNewLogs,
   updateEnv,getByflow,
   getBytest_case,
-  Getlogs
+  Getlogs,
+  getroles
 }

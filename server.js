@@ -29,7 +29,8 @@ const {
   getByflow,
   createNewLogs,
   updateEnv,
-  Getlogs
+  Getlogs,
+  getroles
 } = require("./queries.js");
 
 
@@ -329,6 +330,12 @@ app.post("/updateenv", async (req, res) => {
   const queryCreateNewUser = await updateEnv(envDetails);
   Promise.resolve(queryCreateNewUser).then(() => {
     res.send("success");
+  })
+})
+app.get("/role", async(req,res)=>{
+  const queryGetUsersForAdminPanel = await getroles();
+  Promise.resolve(queryGetUsersForAdminPanel).then((results) => {
+    res.send(results);
   })
 })
 
