@@ -24,12 +24,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import './Styles/testcasepage.css';
-import { v4 as uuid } from 'uuid'
-
-const uuidFromUuidV4 = () => {
-  const newUuid = uuid()
-  return newUuid
-}
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -51,20 +45,9 @@ const VisuallyHiddenInput = styled('input')({
   bottom: 0,
   left: 0,
   whiteSpace: 'nowrap',
-  width: 1,  
-});
-
-const VisuallyHiddenImageInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
   width: 1,
 });
+
 const TestCasePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,7 +64,7 @@ const TestCasePage = () => {
   const [message, setMessage] = useState(null);
   const [testCaseList, setTestCaseList] = useState([]);
   const [changeList, setChangeList] = useState([]);
-  const [selectedImageFile, setSelectedImageFile] = useState(null);
+
 
   const entriesPerPage = 5;
 
@@ -148,30 +131,19 @@ const TestCasePage = () => {
     }
   };
 
-  const handleImageFileChange = (event) => {
-    if (event.target.files !== undefined) {
-      setSelectedImageFile(event.target.files[0]);
-    }
-  }
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const id = uuidFromUuidV4();
-    console.log(id)
     const formData = new FormData();
     formData.append('jobName', 'TestCase');
     formData.append('testCase', testCaseList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
-    formData.append('Token', id);
     if (selectedFile) {
       formData.append('file', selectedFile);
     }
-    if (selectedImageFile) {
-      formData.append('image', selectedImageFile);
-    }
 
     try {
-      const response = await fetch('http://103.91.186.135:5000/build', {
+      const response = await fetch('http://localhost:5000/build', {
         method: 'POST',
         body: formData,
       });
@@ -343,21 +315,8 @@ const TestCasePage = () => {
                       startIcon={<CloudUploadIcon />}
                     >
                       Upload file
-                      <VisuallyHiddenInput type="file" name='file' onChange={handleFileChange} />
+                      <VisuallyHiddenInput type="file" onChange={handleFileChange} />
                     </Button>
-                    
-                    <Button
-                      component="label"
-                      role={undefined}
-                      variant="contained"
-                      tabIndex={-1}
-                      startIcon={<CloudUploadIcon />}
-                      style={{ marginLeft: '10px' }}
-                    >
-                      Upload image
-                      <VisuallyHiddenImageInput type="file" name='image' onChange={handleImageFileChange} />
-                    </Button>
-                  
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" variant="contained" fullWidth>

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import RFB from "@novnc/novnc/lib/rfb"; // Adjust the import path as per your setup
-import { CircularProgress } from "@mui/material";
+
 export default class VncScreen extends Component {
     constructor(props) {
         super(props);
@@ -111,14 +111,18 @@ export default class VncScreen extends Component {
             >
                 {loading && (
                     <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                    }}
+                        style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(255, 255, 255, 0.8)",
+                            display: "contents",
+                        }}
                     >
-                        <CircularProgress color="secondary" size={100}/>
+                        <p>Loading...</p>
+                        {/* Add spinner or loading animation here */}
                     </div>
                 )}
             </div>
