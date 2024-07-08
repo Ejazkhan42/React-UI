@@ -24,10 +24,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import './Styles/testcasepage.css';
-<<<<<<< HEAD
 import * as XLSX from 'xlsx';
-=======
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
 import { v4 as uuid } from 'uuid'
 
 const uuidFromUuidV4 = () => {
@@ -86,13 +83,9 @@ const TestCasePage = () => {
   const [testCaseList, setTestCaseList] = useState([]);
   const [changeList, setChangeList] = useState([]);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
-<<<<<<< HEAD
   const [excelData, setExcelData] = useState([]);
   const [selectEnv, setSelectEnv] = useState([]);
   const [selectedEnv,setSelectedEnv] = useState('');
-=======
-
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
   const entriesPerPage = 5;
 
 useEffect(() => {
@@ -175,27 +168,18 @@ useEffect(() => {
   const handleImageFileChange = (event) => {
     if (event.target.files !== undefined) {
       setSelectedImageFile(event.target.files[0]);
-<<<<<<< HEAD
 
-=======
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
     }
   }
   const handleSubmit = async (event) => {
     event.preventDefault();
-<<<<<<< HEAD
     
 
-=======
-    const id = uuidFromUuidV4();
-    console.log(id)
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
     const formData = new FormData();
     formData.append('jobName', 'TestCase');
     formData.append('testCase', testCaseList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
-<<<<<<< HEAD
 
     if(localStorage.getItem("token") !== null){
       console.log(localStorage.getItem("token"))
@@ -207,9 +191,6 @@ useEffect(() => {
       formData.append('Token', id);
     }
 
-=======
-    formData.append('Token', id);
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
     if (selectedFile) {
       formData.append('file', selectedFile);
     }

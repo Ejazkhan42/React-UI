@@ -13,7 +13,6 @@ import {
   Typography,
   Select,
   MenuItem,
-<<<<<<< HEAD
   Button,
   TablePagination,
 } from '@mui/material';
@@ -21,14 +20,6 @@ import VncScreen from './Browser';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-=======
-  Button
-} from '@mui/material';
-import VncScreen from './Browser';
-import { styled } from '@mui/material/styles';
-import './Styles/progress.css';
-import axios from 'axios';
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
 
 const StyledPaper = styled(Paper)({
   padding: '16px',
@@ -114,7 +105,6 @@ const DataSetTable = ({ excelData }) => {
 };
 
 const ResponsivePage = () => {
-<<<<<<< HEAD
   const location = useLocation();
   const { excelData } = location.state || { excelData: [] };
 
@@ -131,45 +121,18 @@ const ResponsivePage = () => {
       }
     }).catch((error) => {
       console.error('Error fetching session IDs:', error);
-=======
-  const [sessionIds, setSessionIds] = useState([{}]);
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [vncConnectionStatus, setVncConnectionStatus] = useState("disconnected");
-
-  useEffect(() => {
-    axios.get("http://jenkins.doingerp.com:5000/getbrowser-id").then((res) => {
-      // console.log(res.data.browserId)
-      if (res.data.browserId) {
-
-        console.log(res.data)        
-        setSessionIds(res.data);
-        console.log(sessionIds)
-      } else {
-        console.error("Invalid response format:", res.data);
-      }
-    }).catch((error) => {
-      console.error("Error fetching session IDs:", error);
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
     });
   }, []);
 
   const handleConnect = () => {
     if (selectedSession) {
-<<<<<<< HEAD
       setVncConnectionStatus('connecting');
-=======
-      setVncConnectionStatus("connecting");
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
     }
   };
 
   const handleDisconnect = () => {
     setSelectedSession(null);
-<<<<<<< HEAD
     setVncConnectionStatus('disconnected');
-=======
-    setVncConnectionStatus("disconnected");
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
   };
 
   const handleSessionChange = (event) => {
@@ -210,16 +173,11 @@ const ResponsivePage = () => {
               displayEmpty
               fullWidth
               variant="outlined"
-<<<<<<< HEAD
               disabled={vncConnectionStatus === 'connecting' || vncConnectionStatus === 'connected'}
-=======
-              disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
             >
               <MenuItem value="" disabled>
                 Select Session ID
               </MenuItem>
-<<<<<<< HEAD
               {sessionIds.map((session) => (
                 <MenuItem key={session.browserId} value={session.browserId}>
                   {session.testcase}
@@ -244,23 +202,6 @@ const ResponsivePage = () => {
                 Disconnect
               </Button>
             </Box>
-=======
-              
-                <MenuItem key={sessionIds.browserId} value={sessionIds.browserId}>
-                  {sessionIds.testcase}
-                </MenuItem>
-              
-            </Select>
-          <Box style={{marginTop: '10px'}}>
-              <Button variant="contained" color='secondary' onClick={handleConnect} disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}>
-                  LIVE VIEW
-                </Button>
-                <Button style={{marginLeft: '10px'}} variant="outlined" onClick={handleDisconnect} disabled={vncConnectionStatus === "disconnected"}>
-                  Disconnect
-              </Button>
-          </Box>
-
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
             {selectedSession && (
               <VncScreen session={selectedSession} onUpdateState={setVncConnectionStatus} />
             )}
