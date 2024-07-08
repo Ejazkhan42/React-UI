@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
   Box,
@@ -19,14 +19,17 @@ import {
   Paper,
 } from "@mui/material";
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
+import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
 
 function Instances() {
+  const ctx = useContext(AuthLoginInfo);
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(null);
   const [formData, setFormData] = useState({
     envName: "",
-    user_id: "",
-    module_id: "",
+    user_id: ctx.id,
     instance_url: "",
     instance_username: "",
     instance_password: "",
@@ -39,18 +42,41 @@ function Instances() {
         const response = await axios.get("http://localhost:5000/getenv", { withCredentials: true });
         setData(response.data);
       } catch (error) {
-        console.error('Error fetching environments:', error);
+        console.error("Error fetching environments:", error);
       }
     };
     fetchEnv();
   }, []);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (index = null) => {
+    if (index !== null) {
+      setIsEdit(true);
+      setCurrentIndex(index);
+      setFormData(data[index]);
+    } else {
+      setIsEdit(false);
+      setFormData({
+        envName: "",
+        user_id: ctx.id,
+        instance_url: "",
+        instance_username: "",
+        instance_password: "",
+        id: "",
+      });
+    }
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    setFormData({
+      envName: "",
+      user_id: ctx.id,
+      instance_url: "",
+      instance_username: "",
+      instance_password: "",
+      id: "",
+    });
   };
 
   const handleChange = (e) => {
@@ -60,20 +86,18 @@ function Instances() {
 
   const handleSubmit = async () => {
     try {
-      await axios.post("http://localhost:5000/newenv", formData, { withCredentials: true });
-      setData([...data, formData]);
-      setFormData({
-        envName: "",
-        user_id: "",
-        module_id: "",
-        instance_url: "",
-        instance_username: "",
-        instance_password: "",
-        id: "",
-      });
+      if (isEdit) {
+        await axios.put(`http://localhost:5000/updateenv/${formData.id}`, formData, { withCredentials: true });
+        const updatedData = [...data];
+        updatedData[currentIndex] = formData;
+        setData(updatedData);
+      } else {
+        await axios.post("http://localhost:5000/newenv", formData, { withCredentials: true });
+        setData([...data, formData]);
+      }
       handleClose();
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
     }
   };
 
@@ -84,28 +108,17 @@ function Instances() {
       const updatedData = data.filter((item, index) => index !== rowIndex);
       setData(updatedData);
     } catch (error) {
-      console.error('Error deleting environment:', error);
-    }
-  };
-
-  const handleUpdate = async (rowIndex) => {
-    try {
-      const idToUpdate = data[rowIndex].id;
-      await axios.put(`http://localhost:5000/updateenv/${idToUpdate}`, formData, { withCredentials: true });
-      const updatedData = [...data];
-      updatedData[rowIndex] = formData;
-      setData(updatedData);
-      handleClose();
-    } catch (error) {
-      console.error('Error updating environment:', error);
+      console.error("Error deleting environment:", error);
     }
   };
 
   return (
     <Container>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontSize: '1.2rem' }}>Instances</Typography>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleClickOpen}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography variant="h6" sx={{ fontSize: "1.2rem" }}>
+          Instances
+        </Typography>
+        <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
           Add
         </Button>
       </Box>
@@ -113,26 +126,22 @@ function Instances() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Env Name</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>User ID</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Module ID</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Instance URL</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Instance Username</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Instance Password</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Actions</TableCell>
+              <TableCell sx={{ fontSize: "1.2rem" }}>Env Name</TableCell>
+              <TableCell sx={{ fontSize: "1.2rem" }}>Instance URL</TableCell>
+              <TableCell sx={{ fontSize: "1.2rem" }}>Instance Username</TableCell>
+              <TableCell sx={{ fontSize: "1.2rem" }}>Instance Password</TableCell>
+              <TableCell sx={{ fontSize: "1.2rem" }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((row, index) => (
               <TableRow key={index}>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.envName}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.user_id}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.module_id}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.instance_url}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.instance_username}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.instance_password}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{row.envName}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_url}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_username}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_password}</TableCell>
                 <TableCell>
-                  <Button color="primary" startIcon={<EditIcon />} onClick={() => handleUpdate(index)}>
+                  <Button color="primary" startIcon={<EditIcon />} onClick={() => handleClickOpen(index)}>
                     Update
                   </Button>
                   <Button color="error" startIcon={<DeleteIcon />} onClick={() => handleDelete(index)}>
@@ -145,7 +154,7 @@ function Instances() {
         </Table>
       </TableContainer>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add Instance</DialogTitle>
+        <DialogTitle>{isEdit ? "Edit Instance" : "Add Instance"}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -157,30 +166,9 @@ function Instances() {
             variant="outlined"
             value={formData.envName}
             onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
+            sx={{ fontSize: "1.2rem" }}
           />
-          <TextField
-            margin="dense"
-            name="user_id"
-            label="User ID"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.user_id}
-            onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
-          />
-          <TextField
-            margin="dense"
-            name="module_id"
-            label="Module ID"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.module_id}
-            onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
-          />
+        
           <TextField
             margin="dense"
             name="instance_url"
@@ -190,7 +178,7 @@ function Instances() {
             variant="outlined"
             value={formData.instance_url}
             onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
+            sx={{ fontSize: "1.2rem" }}
           />
           <TextField
             margin="dense"
@@ -201,7 +189,7 @@ function Instances() {
             variant="outlined"
             value={formData.instance_username}
             onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
+            sx={{ fontSize: "1.2rem" }}
           />
           <TextField
             margin="dense"
@@ -212,18 +200,7 @@ function Instances() {
             variant="outlined"
             value={formData.instance_password}
             onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
-          />
-          <TextField
-            margin="dense"
-            name="id"
-            label="ID"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.id}
-            onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
+            sx={{ fontSize: "1.2rem" }}
           />
         </DialogContent>
         <DialogActions>
@@ -231,7 +208,7 @@ function Instances() {
             Cancel
           </Button>
           <Button onClick={handleSubmit} color="primary">
-            Add
+            {isEdit ? "Update" : "Add"}
           </Button>
         </DialogActions>
       </Dialog>

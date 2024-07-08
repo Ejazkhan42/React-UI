@@ -15,11 +15,13 @@ import {
   MenuItem,
   Button,
   TablePagination,
+  InputLabel
 } from '@mui/material';
 import VncScreen from './Browser';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import { Label } from '@mui/icons-material';
 
 const StyledPaper = styled(Paper)({
   padding: '16px',
@@ -167,6 +169,8 @@ const ResponsivePage = () => {
         </Grid>
         <Grid item xs={12} md={9}>
           <Box sx={{ height: '100%', width: '100%', minHeight: '500px' }}>
+          <InputLabel id="demo-multiple-checkbox-label">Select Session</InputLabel>
+
             <Select
               value={selectedSession}
               onChange={handleSessionChange}
@@ -208,7 +212,7 @@ const ResponsivePage = () => {
           </Box>
         </Grid>
       </Grid>
-      <Box sx={{ mt: 4 }}>
+      <Box sx={{ mt: 10 }}>
         <StyledPaper>
           <Typography variant="h6" gutterBottom>
             Data Set
