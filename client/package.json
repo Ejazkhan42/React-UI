@@ -28,12 +28,9 @@
     "react-window": "^1.8.10",
     "recharts": "^2.1.8",
     "uuid": "^10.0.0",
-<<<<<<< HEAD
     "web-vitals": "^1.1.2",
     "xlsx": "^0.18.5"
-=======
-    "web-vitals": "^1.1.2"
->>>>>>> a9bd9cf355893b94cbad90974d11a005bd34d4f2
+
   },
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",

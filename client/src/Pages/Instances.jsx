@@ -24,16 +24,13 @@ function Instances() {
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    environmentUrl: "",
-    devNumber: "",
-    username: "",
-    password: "",
     envName: "",
     user_id: "",
     module_id: "",
     instance_url: "",
     instance_username: "",
     instance_password: "",
+    id: "",
   });
 
   useEffect(() => {
@@ -41,11 +38,10 @@ function Instances() {
       try {
         const response = await axios.get("http://localhost:5000/getenv", { withCredentials: true });
         setData(response.data);
-        console.log(response.data);
       } catch (error) {
-        console.error('Error fetching modules:', error);
+        console.error('Error fetching environments:', error);
       }
-    }
+    };
     fetchEnv();
   }, []);
 
@@ -67,16 +63,13 @@ function Instances() {
       await axios.post("http://localhost:5000/newenv", formData, { withCredentials: true });
       setData([...data, formData]);
       setFormData({
-        username: "",
-        password: "",
-        environmentUrl: "",
-        devNumber: "",
         envName: "",
         user_id: "",
         module_id: "",
         instance_url: "",
         instance_username: "",
         instance_password: "",
+        id: "",
       });
       handleClose();
     } catch (error) {
@@ -86,26 +79,25 @@ function Instances() {
 
   const handleDelete = async (rowIndex) => {
     try {
-      const idToDelete = data[rowIndex]._id; // Assuming your instance data has an _id field
+      const idToDelete = data[rowIndex].id;
       await axios.delete(`http://localhost:5000/deletenv/${idToDelete}`, { withCredentials: true });
-      const updatedData = [...data];
-      updatedData.splice(rowIndex, 1);
+      const updatedData = data.filter((item, index) => index !== rowIndex);
       setData(updatedData);
     } catch (error) {
-      console.error('Error deleting instance:', error);
+      console.error('Error deleting environment:', error);
     }
   };
 
   const handleUpdate = async (rowIndex) => {
     try {
-      const idToUpdate = data[rowIndex]._id; // Assuming your instance data has an _id field
+      const idToUpdate = data[rowIndex].id;
       await axios.put(`http://localhost:5000/updateenv/${idToUpdate}`, formData, { withCredentials: true });
       const updatedData = [...data];
       updatedData[rowIndex] = formData;
       setData(updatedData);
       handleClose();
     } catch (error) {
-      console.error('Error updating instance:', error);
+      console.error('Error updating environment:', error);
     }
   };
 
@@ -121,10 +113,6 @@ function Instances() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Username</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Password</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Environment URL</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem' }}>Dev Number</TableCell>
               <TableCell sx={{ fontSize: '1.2rem' }}>Env Name</TableCell>
               <TableCell sx={{ fontSize: '1.2rem' }}>User ID</TableCell>
               <TableCell sx={{ fontSize: '1.2rem' }}>Module ID</TableCell>
@@ -137,10 +125,6 @@ function Instances() {
           <TableBody>
             {data.map((row, index) => (
               <TableRow key={index}>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.username}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.password}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.environmentUrl}</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem' }}>{row.devNumber}</TableCell>
                 <TableCell sx={{ fontSize: '1.2rem' }}>{row.envName}</TableCell>
                 <TableCell sx={{ fontSize: '1.2rem' }}>{row.user_id}</TableCell>
                 <TableCell sx={{ fontSize: '1.2rem' }}>{row.module_id}</TableCell>
@@ -165,50 +149,6 @@ function Instances() {
         <DialogContent>
           <TextField
             autoFocus
-            margin="dense"
-            name="username"
-            label="Username"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.username}
-            onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
-          />
-          <TextField
-            margin="dense"
-            name="password"
-            label="Password"
-            type="password"
-            fullWidth
-            variant="outlined"
-            value={formData.password}
-            onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
-          />
-          <TextField
-            margin="dense"
-            name="environmentUrl"
-            label="Environment URL"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.environmentUrl}
-            onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
-          />
-          <TextField
-            margin="dense"
-            name="devNumber"
-            label="Dev Number"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.devNumber}
-            onChange={handleChange}
-            sx={{ fontSize: '1.2rem' }}
-          />
-          <TextField
             margin="dense"
             name="envName"
             label="Env Name"
@@ -271,6 +211,17 @@ function Instances() {
             fullWidth
             variant="outlined"
             value={formData.instance_password}
+            onChange={handleChange}
+            sx={{ fontSize: '1.2rem' }}
+          />
+          <TextField
+            margin="dense"
+            name="id"
+            label="ID"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={formData.id}
             onChange={handleChange}
             sx={{ fontSize: '1.2rem' }}
           />
