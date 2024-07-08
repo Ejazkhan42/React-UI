@@ -173,7 +173,6 @@ function createNewEnv(envDetails) {
   const passedValues = [
     envDetails.envName,
     envDetails.user_id,
-    envDetails.module_id,
     envDetails.instance_url,
     envDetails.instance_username,
     envDetails.instance_password
@@ -245,7 +244,6 @@ function updateEnv(envDetails) {
 
     envDetails.envName,
     envDetails.user_id,
-    envDetails.module_id,
     envDetails.instance_url,
     envDetails.instance_username,
     envDetails.instance_password,
