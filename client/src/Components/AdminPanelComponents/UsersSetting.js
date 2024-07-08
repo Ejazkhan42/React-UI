@@ -18,6 +18,8 @@ import {
   TextField,
   IconButton,
   Grid,
+  Select,
+  MenuItem
 } from "@mui/material";
 import {
   DeleteForeverRounded as DeleteForeverRoundedIcon,
@@ -39,8 +41,19 @@ function UsersSetting() {
     password: "",
     role: "",
   });
-  const [newUserPopup, setNewUserPopup] = useState(false);
-
+    const [newUserPopup, setNewUserPopup] = useState(false);
+    const [role, setRole] = useState([]);
+    const [selectRole, setSelectRole] = useState("Select Role");
+    useEffect(() => {
+        axios
+          .get(`http://localhost:5000/role`, { withCredentials: true })
+          .then((res) => {
+            if (res.data != null) {
+              setRole(res.data);
+              
+            }
+          });
+    })
   useEffect(() => {
     axios
       .get(`http://localhost:5000/getusers`, { withCredentials: true })
@@ -95,11 +108,14 @@ function UsersSetting() {
       });
   };
 
-  const handleRoleInputChange = (event) => {
+
+  const selectRoleInputChange = (event) => {
+    setSelectRole(event.target.value);
     setNewUserDetails({
       ...newUserDetails,
-      role: event.target.value,
+      role: selectRole
     });
+
   };
 
   const AdminUsers = () => {
@@ -311,15 +327,14 @@ function UsersSetting() {
               })
             }
           />
-          <TextField
-            margin="dense"
-            id="role"
-            label="Role"
-            type="text"
-            fullWidth
-            value={newUserDetails.role}
-            onChange={handleRoleInputChange}
-          />
+   
+        
+          <Select value={selectRole} onChange={selectRoleInputChange} style={{ width: '100%' }}>
+            {role.map((name) => (
+             <MenuItem value={name.Id}>{name.Role_Name}</MenuItem>
+            ))}
+          </Select>
+       
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setNewUserPopup(false)} color="primary">

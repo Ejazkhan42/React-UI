@@ -46,33 +46,17 @@ function Homepage() {
   const processChartData = (data) => {
     const pieCounts = { Pass: 0, Fail: 0, Running: 0 };
     const lineCounts = {};
-    const uniqueTests = [];
 
     data.forEach((item) => {
       pieCounts[item.test_status] += 1;
       const testMonth = new Date(item.start_time).toLocaleString("default", { month: "short" });
       if (!lineCounts[testMonth]) {
-        lineCounts[testMonth] = { month: testMonth, Pass: 0, Fail: 0, Running: 0 };
+        lineCounts[testMonth] = { month: testMonth };
       }
-      lineCounts[testMonth][item.test_status] += 1;
-      if (!uniqueTests.includes(item.test_name)) {
-        uniqueTests.push(item.test_name);
+      if (!lineCounts[testMonth][item.test_name]) {
+        lineCounts[testMonth][item.test_name] = 0;
       }
-    });
-
-    // Count the number of times each test case occurs per month
-    const monthlyTestCounts = {};
-    uniqueTests.forEach(testName => {
-      monthlyTestCounts[testName] = {};
-      data.forEach(item => {
-        if (item.test_name === testName) {
-          const testMonth = new Date(item.start_time).toLocaleString("default", { month: "short" });
-          if (!monthlyTestCounts[testName][testMonth]) {
-            monthlyTestCounts[testName][testMonth] = 0;
-          }
-          monthlyTestCounts[testName][testMonth] += 1;
-        }
-      });
+      lineCounts[testMonth][item.test_name] += 1;
     });
 
     setPieData([
@@ -81,15 +65,7 @@ function Homepage() {
       { name: "Running", value: pieCounts.Running }
     ]);
 
-    const lineDataArray = [];
-    for (let month in lineCounts) {
-      const monthData = { month };
-      uniqueTests.forEach(testName => {
-        monthData[testName] = monthlyTestCounts[testName][month] || 0;
-      });
-      lineDataArray.push(monthData);
-    }
-
+    const lineDataArray = Object.values(lineCounts);
     setLineData(lineDataArray);
   };
 
@@ -152,6 +128,22 @@ function Homepage() {
   };
 
   const ChartComponent = () => {
+    const specifiedNames = [
+      "Recruiting Campaigns",
+      "Offer Management",
+      "Requisition Management",
+      "Candidate Management",
+      "Onboarding",
+      "Selection",
+      "Candidate Management",
+      "Agency Management",
+      "Candidate Application",
+      "Hiring",
+      "Configuration"
+    ];
+
+    const uniqueNames = [...new Set(lineData.flatMap(data => Object.keys(data)).filter(name => name !== 'month'))];
+
     return (
       <div className="chart-container">
         <div className="line-chart">
@@ -162,9 +154,9 @@ function Homepage() {
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Legend />
-              {Object.keys(lineData[0] || {}).filter(key => key !== 'month').map(testName => (
-                <Line key={testName} type="monotone" dataKey={testName} />
+              <Legend payload={specifiedNames.map((name, index) => ({ id: name, value: name, type: 'line', color: `#${Math.floor(Math.random()*16777215).toString(16)}` }))} />
+              {uniqueNames.map(name => (
+                <Line key={name} type="monotone" dataKey={name} />
               ))}
             </LineChart>
           </ResponsiveContainer>

@@ -18,7 +18,7 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 
 function Instances() {
   const [data, setData] = useState([]);
@@ -84,6 +84,31 @@ function Instances() {
     }
   };
 
+  const handleDelete = async (rowIndex) => {
+    try {
+      const idToDelete = data[rowIndex]._id; // Assuming your instance data has an _id field
+      await axios.delete(`http://localhost:5000/deletenv/${idToDelete}`, { withCredentials: true });
+      const updatedData = [...data];
+      updatedData.splice(rowIndex, 1);
+      setData(updatedData);
+    } catch (error) {
+      console.error('Error deleting instance:', error);
+    }
+  };
+
+  const handleUpdate = async (rowIndex) => {
+    try {
+      const idToUpdate = data[rowIndex]._id; // Assuming your instance data has an _id field
+      await axios.put(`http://localhost:5000/updateenv/${idToUpdate}`, formData, { withCredentials: true });
+      const updatedData = [...data];
+      updatedData[rowIndex] = formData;
+      setData(updatedData);
+      handleClose();
+    } catch (error) {
+      console.error('Error updating instance:', error);
+    }
+  };
+
   return (
     <Container>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -106,6 +131,7 @@ function Instances() {
               <TableCell sx={{ fontSize: '1.2rem' }}>Instance URL</TableCell>
               <TableCell sx={{ fontSize: '1.2rem' }}>Instance Username</TableCell>
               <TableCell sx={{ fontSize: '1.2rem' }}>Instance Password</TableCell>
+              <TableCell sx={{ fontSize: '1.2rem' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -121,6 +147,14 @@ function Instances() {
                 <TableCell sx={{ fontSize: '1.2rem' }}>{row.instance_url}</TableCell>
                 <TableCell sx={{ fontSize: '1.2rem' }}>{row.instance_username}</TableCell>
                 <TableCell sx={{ fontSize: '1.2rem' }}>{row.instance_password}</TableCell>
+                <TableCell>
+                  <Button color="primary" startIcon={<EditIcon />} onClick={() => handleUpdate(index)}>
+                    Update
+                  </Button>
+                  <Button color="error" startIcon={<DeleteIcon />} onClick={() => handleDelete(index)}>
+                    Delete
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

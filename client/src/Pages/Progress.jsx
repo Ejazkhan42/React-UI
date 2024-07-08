@@ -13,12 +13,13 @@ import {
   Typography,
   Select,
   MenuItem,
-  Button
+  Button,
+  TablePagination,
 } from '@mui/material';
 import VncScreen from './Browser';
 import { styled } from '@mui/material/styles';
-import './Styles/progress.css';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 const StyledPaper = styled(Paper)({
   padding: '16px',
@@ -49,77 +50,89 @@ const LogItem = styled('div')(({ theme, active }) => ({
   },
 }));
 
-const DataSetTable = () => {
-  const rows = [
-    { id: 1, type: 'Standard', use: 'Position', bu: 'US1', jobName: 'Admin', positionName: 'Admin', title: 'Admin 1', location: 'US' },
-    { id: 2, type: 'Pipeline', use: 'Job', bu: 'US2', jobName: 'Admin', positionName: 'Admin', title: 'Admin 2', location: 'AU' },
-    { id: 3, type: 'Standard', use: 'Job', bu: 'US3', jobName: 'Accountant', positionName: 'Accountant', title: 'Accountant 1', location: 'US' },
-  ];
+const DataSetTable = ({ excelData }) => {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const paginatedData = excelData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell fontSize="1.2rem">S.No</TableCell>
-            <TableCell>Requisition Type</TableCell>
-            <TableCell>Use</TableCell>
-            <TableCell>BU</TableCell>
-            <TableCell>Job Name</TableCell>
-            <TableCell>Position Name</TableCell>
-            <TableCell>Requisition Title</TableCell>
-            <TableCell>Locations</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.id}</TableCell>
-              <TableCell>{row.type}</TableCell>
-              <TableCell>{row.use}</TableCell>
-              <TableCell>{row.bu}</TableCell>
-              <TableCell>{row.jobName}</TableCell>
-              <TableCell>{row.positionName}</TableCell>
-              <TableCell>{row.title}</TableCell>
-              <TableCell>{row.location}</TableCell>
+    <Paper>
+      <Typography variant="h4" align="center" gutterBottom>
+        Excel Data
+      </Typography>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {excelData.length > 0 &&
+                Object.keys(excelData[0]).map((key) => (
+                  <TableCell key={key} sx={{ fontSize: '1.2rem' }}>{key}</TableCell>
+                ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {paginatedData.map((row, index) => (
+              <TableRow key={index}>
+                {Object.values(row).map((value, cellIndex) => (
+                  <TableCell key={cellIndex} sx={{ fontSize: '1.2rem' }}>{value}</TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={excelData.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Paper>
   );
 };
 
 const ResponsivePage = () => {
-  const [sessionIds, setSessionIds] = useState([{}]);
+  const location = useLocation();
+  const { excelData } = location.state || { excelData: [] };
+
+  const [sessionIds, setSessionIds] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
-  const [vncConnectionStatus, setVncConnectionStatus] = useState("disconnected");
+  const [vncConnectionStatus, setVncConnectionStatus] = useState('disconnected');
 
   useEffect(() => {
-    axios.get("http://jenkins.doingerp.com:5000/getbrowser-id").then((res) => {
-      // console.log(res.data.browserId)
+    axios.get('http://jenkins.doingerp.com:5000/getbrowser-id').then((res) => {
       if (res.data.browserId) {
-
-        console.log(res.data)        
-        setSessionIds(res.data);
-        console.log(sessionIds)
+        setSessionIds([res.data]);
       } else {
-        console.error("Invalid response format:", res.data);
+        console.error('Invalid response format:', res.data);
       }
     }).catch((error) => {
-      console.error("Error fetching session IDs:", error);
+      console.error('Error fetching session IDs:', error);
     });
   }, []);
 
   const handleConnect = () => {
     if (selectedSession) {
-      setVncConnectionStatus("connecting");
+      setVncConnectionStatus('connecting');
     }
   };
 
   const handleDisconnect = () => {
     setSelectedSession(null);
-    setVncConnectionStatus("disconnected");
+    setVncConnectionStatus('disconnected');
   };
 
   const handleSessionChange = (event) => {
@@ -133,7 +146,7 @@ const ResponsivePage = () => {
           <Typography variant="h6" gutterBottom fontSize={'1.5rem'}>
             Running
           </Typography>
-          <Typography variant="body2" fontSize={'1.2rem'}>
+          <Typography variant="body2" fontSize={'1.1.2rem'}>
             Requisition Management &gt; Create Job Requisition
           </Typography>
         </StyledPaper>
@@ -160,26 +173,35 @@ const ResponsivePage = () => {
               displayEmpty
               fullWidth
               variant="outlined"
-              disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}
+              disabled={vncConnectionStatus === 'connecting' || vncConnectionStatus === 'connected'}
             >
               <MenuItem value="" disabled>
                 Select Session ID
               </MenuItem>
-              
-                <MenuItem key={sessionIds.browserId} value={sessionIds.browserId}>
-                  {sessionIds.testcase}
+              {sessionIds.map((session) => (
+                <MenuItem key={session.browserId} value={session.browserId}>
+                  {session.testcase}
                 </MenuItem>
-              
+              ))}
             </Select>
-          <Box style={{marginTop: '10px'}}>
-              <Button variant="contained" color='secondary' onClick={handleConnect} disabled={vncConnectionStatus === "connecting" || vncConnectionStatus === "connected"}>
-                  LIVE VIEW
-                </Button>
-                <Button style={{marginLeft: '10px'}} variant="outlined" onClick={handleDisconnect} disabled={vncConnectionStatus === "disconnected"}>
-                  Disconnect
+            <Box style={{ marginTop: '10px' }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleConnect}
+                disabled={vncConnectionStatus === 'connecting' || vncConnectionStatus === 'connected'}
+              >
+                LIVE VIEW
               </Button>
-          </Box>
-
+              <Button
+                style={{ marginLeft: '10px' }}
+                variant="outlined"
+                onClick={handleDisconnect}
+                disabled={vncConnectionStatus === 'disconnected'}
+              >
+                Disconnect
+              </Button>
+            </Box>
             {selectedSession && (
               <VncScreen session={selectedSession} onUpdateState={setVncConnectionStatus} />
             )}
@@ -191,7 +213,7 @@ const ResponsivePage = () => {
           <Typography variant="h6" gutterBottom>
             Data Set
           </Typography>
-          <DataSetTable />
+          <DataSetTable excelData={excelData} />
         </StyledPaper>
       </Box>
     </Container>

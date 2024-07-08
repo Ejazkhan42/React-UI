@@ -24,6 +24,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import './Styles/testcasepage.css';
+import * as XLSX from 'xlsx';
 import { v4 as uuid } from 'uuid'
 
 const uuidFromUuidV4 = () => {
@@ -82,8 +83,18 @@ const TestCasePage = () => {
   const [testCaseList, setTestCaseList] = useState([]);
   const [changeList, setChangeList] = useState([]);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
-
+  const [excelData, setExcelData] = useState([]);
+  const [selectEnv, setSelectEnv] = useState([]);
+  const [selectedEnv,setSelectedEnv] = useState('');
   const entriesPerPage = 5;
+
+useEffect(() => {
+  axios.get(`http://localhost:5000/getenv`, { withCredentials: true }).then((res) => {
+    if (res.data != null) {
+      setSelectEnv(res.data);
+    }
+  })
+});
 
   useEffect(() => {
     if (moduleId !== null) {
@@ -142,27 +153,44 @@ const TestCasePage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     if (event.target.files !== undefined) {
       setSelectedFile(event.target.files[0]);
+      const file = event.target.files[0];
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
+      setExcelData(jsonData);
     }
   };
 
   const handleImageFileChange = (event) => {
     if (event.target.files !== undefined) {
       setSelectedImageFile(event.target.files[0]);
+
     }
   }
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const id = uuidFromUuidV4();
-    console.log(id)
+    
+
     const formData = new FormData();
     formData.append('jobName', 'TestCase');
     formData.append('testCase', testCaseList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
-    formData.append('Token', id);
+
+    if(localStorage.getItem("token") !== null){
+      console.log(localStorage.getItem("token"))
+      formData.append('Token', localStorage.getItem("token"));
+    }else{
+      const id = uuidFromUuidV4();
+      localStorage.setItem("token", id);
+      console.log(localStorage.getItem("token"))
+      formData.append('Token', id);
+    }
+
     if (selectedFile) {
       formData.append('file', selectedFile);
     }
@@ -179,7 +207,7 @@ const TestCasePage = () => {
       if (response.ok) {
         const result = await response.json();
         setMessage("Success");
-        navigate('/progress');
+        navigate('/progress', { state: { excelData } });
       } else {
         console.error('Error:', response.statusText);
       }
@@ -196,7 +224,13 @@ const TestCasePage = () => {
    }
 
   };
-
+const handleSelectEnvChange = (event) => {
+  const { value } = event.target;
+  if (value != null) {
+    setSelectedEnv(value);
+  }
+  
+}
   const handleCloseModal = () => {
     setOpenModal(false);
   };
@@ -295,6 +329,27 @@ const TestCasePage = () => {
                         {testCaseList.map((testCase) => (
                           <MenuItem key={testCase} value={testCase}>
                             <ListItemText primary={testCase} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-multiple-checkbox-label">Select Env</InputLabel>
+                      <Select
+                        labelId="demo-multiple-checkbox-label"
+                        id="demo-multiple-checkbox"
+                        multiple
+                        value={selectedEnv}
+                        onChange={handleSelectEnvChange}
+                        input={<OutlinedInput label="Test Cases" />}
+                        renderValue={(selected) => selected.join(', ')}
+                        MenuProps={MenuProps}
+                      >
+                        {selectEnv.map((env) => (
+                          <MenuItem key={env} value={env}>
+                            <ListItemText primary={env} />
                           </MenuItem>
                         ))}
                       </Select>

@@ -74,6 +74,11 @@ export default function Login() {
                 variant="contained"
                 // color="primary"
                 onClick={login}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    login();
+                  }
+                }}
                 className="sign-in-button"
                 style={{ background: "#333", fontSize:"1.5rem" }}
               >
