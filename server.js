@@ -133,7 +133,7 @@ app.post('/build', upload.fields([
   try {
     const { jobName, testCase, gridMode, browsers, ProfilePath, Token } = req.body;
     const file = req.files['file'][0]; // Access the main file
-    const image = req.files['image'][0]; // Access the image file
+    const image = req.files['image']? req.files['image'][0] : null;; // Access the image file
 
     if (!jobName) {
       return res.status(400).send('Job name is required');
@@ -143,29 +143,26 @@ app.post('/build', upload.fields([
       return res.status(400).send('File is required');
     }
 
-    if (!image) {
-      return res.status(400).send('Image is required');
-    }
-
     if (!Token) {
       return res.status(400).send('Token is required');
     }
 
     // File paths on the server (local uploads directory)
     const localFilePath = file.path;
-    const localImagePath = image.path;
+    const localImagePath =image? image.path : null;;
 
     // Prepare the parameters for the Jenkins job
     const parameters = {
       FILE: fs.createReadStream(localFilePath),
-      Image: fs.createReadStream(localImagePath),
       TestCase: testCase || '',
       GridMode: gridMode || '',
       Browsers: browsers || '',
       ProfilePath: ProfilePath || '',
       Token: Token || '',
     };
-
+    if (localImagePath) {
+      parameters.Image = fs.createReadStream(localImagePath); // Add image parameter only if provided
+    }
     const info = await jenkins.job.build({
       name: jobName,
       parameters: parameters
