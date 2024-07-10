@@ -86,13 +86,14 @@ function Instances() {
 
   const handleSubmit = async () => {
     try {
+      const requestBody = { envDetails: formData };
       if (isEdit) {
-        await axios.put(`http://localhost:5000/updateenv/${formData.id}`, formData, { withCredentials: true });
+        await axios.post("http://localhost:5000/updateenv", requestBody, { withCredentials: true });
         const updatedData = [...data];
         updatedData[currentIndex] = formData;
         setData(updatedData);
       } else {
-        await axios.post("http://localhost:5000/newenv", formData, { withCredentials: true });
+        await axios.post("http://localhost:5000/newenv", requestBody, { withCredentials: true });
         setData([...data, formData]);
       }
       handleClose();
@@ -104,7 +105,7 @@ function Instances() {
   const handleDelete = async (rowIndex) => {
     try {
       const idToDelete = data[rowIndex].id;
-      await axios.delete(`http://localhost:5000/deletenv/${idToDelete}`, { withCredentials: true });
+      await axios.post("http://localhost:5000/deletenv", { envId: idToDelete }, { withCredentials: true });
       const updatedData = data.filter((item, index) => index !== rowIndex);
       setData(updatedData);
     } catch (error) {
@@ -141,12 +142,8 @@ function Instances() {
                 <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_username}</TableCell>
                 <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_password}</TableCell>
                 <TableCell>
-                  <Button color="primary" startIcon={<EditIcon />} onClick={() => handleClickOpen(index)}>
-                    Update
-                  </Button>
-                  <Button color="error" startIcon={<DeleteIcon />} onClick={() => handleDelete(index)}>
-                    Delete
-                  </Button>
+                  <Button startIcon={<EditIcon />} onClick={() => handleClickOpen(index)} />
+                  <Button startIcon={<DeleteIcon />} onClick={() => handleDelete(index)} />
                 </TableCell>
               </TableRow>
             ))}
@@ -157,57 +154,42 @@ function Instances() {
         <DialogTitle>{isEdit ? "Edit Instance" : "Add Instance"}</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
             margin="dense"
-            name="envName"
             label="Env Name"
-            type="text"
-            fullWidth
-            variant="outlined"
+            name="envName"
             value={formData.envName}
             onChange={handleChange}
-            sx={{ fontSize: "1.2rem" }}
+            fullWidth
           />
-        
+          
           <TextField
             margin="dense"
-            name="instance_url"
             label="Instance URL"
-            type="text"
-            fullWidth
-            variant="outlined"
+            name="instance_url"
             value={formData.instance_url}
             onChange={handleChange}
-            sx={{ fontSize: "1.2rem" }}
+            fullWidth
           />
           <TextField
             margin="dense"
-            name="instance_username"
             label="Instance Username"
-            type="text"
-            fullWidth
-            variant="outlined"
+            name="instance_username"
             value={formData.instance_username}
             onChange={handleChange}
-            sx={{ fontSize: "1.2rem" }}
+            fullWidth
           />
           <TextField
             margin="dense"
-            name="instance_password"
             label="Instance Password"
-            type="password"
-            fullWidth
-            variant="outlined"
+            name="instance_password"
             value={formData.instance_password}
             onChange={handleChange}
-            sx={{ fontSize: "1.2rem" }}
+            fullWidth
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} color="primary">
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleSubmit} color="primary" variant="contained">
             {isEdit ? "Update" : "Add"}
           </Button>
         </DialogActions>
