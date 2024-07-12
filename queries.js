@@ -136,7 +136,7 @@ function getUsersForAdminPanel() {
   })
 }
 function getenv() {
-  const queryString = "SELECT id,envName , user_Id, module_id, instance_url, instance_username, instance_password from Env";
+  const queryString = "SELECT id,envName , user_Id, instance_url, instance_username, instance_password from Env";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function(error, result) {
       if(error) {
@@ -165,7 +165,7 @@ function createNewUser(userDetails, hashedPassword) {
 function createNewEnv(envDetails) {
   // SQL query for upsert (Insert or Update)
   const queryString = `
-    INSERT INTO env (envName, user_id, module_id, instance_url, instance_username, instance_password) 
+    INSERT INTO env (envName, user_id, instance_url, instance_username, instance_password) 
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
@@ -263,46 +263,70 @@ function updateEnv(envDetails) {
   });
 }
 
-function getBytest_case(test_case) {
-  const queryString = "SELECT componentName FROM flowview WHERE Test_Case=?";
+function getByTestCase(test_name) {
+  const queryString = "SELECT Test_Case, component_name, Description, cammand as Command, Target, Value FROM flow_view WHERE Test_Case=?";
+
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [test_case], function(error, results) {
+    connection.query(queryString, [test_name], function (error, results) {
       if (error) {
         reject(error);
       } else {
-        const componentName = results.map(result => result.componentName);
-        const resultObject = {
-          Test_Case: test_case,
-          componentName: componentName
-        };
-        resolve(resultObject);
+        const formattedData = {};
+
+        results.forEach(row => {
+          const { component_name, Description, Command, Target, Value } = row;
+
+          // Initialize test case object if it doesn't exist
+          if (!formattedData[test_name]) {
+            formattedData[test_name] = {};
+          }
+
+
+          if (!formattedData[test_name][component_name]) {
+            formattedData[test_name][component_name] = [];
+          }
+
+          // Add the row data to the component array
+          formattedData[test_name][component_name].push({
+            Target,
+            Command,
+            Value,
+            Description
+          });
+        });
+
+        resolve(formattedData);
       }
     });
   });
 }
-function getByflow(flow) {
-  const queryString = "SELECT Description, Cammand, Target, Value FROM compview WHERE componentName=?";
+
+
+// function getBytest_case(test_case) {
+// const queryString = "SELECT Test_Case,component_name,Description,cammand as Command,Target,VALUE FROM flow_view WHERE Test_Case=?";
+//   return new Promise((resolve, reject) => {
+//     connection.query(queryString, [test_case], function(error, results) {
+//       if (error) {
+//         reject(error);
+//       } else {
+//         const componentName = results.map(result => result.componentName);
+//         const resultObject = {
+//           Test_Case: test_case,
+//           componentName: componentName
+//         };
+//         resolve(resultObject);
+//       }
+//     });
+//   });
+// }
+function getByobject() {
+  const queryString = "SELECT * FROM objects_view";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [flow], function(error, results) {
+    connection.query(queryString, function(error, results) {
       if (error) {
         reject(error);
       } else {
-        // Map SQL query results to an array of objects
-        const componentSteps = results.map(result => {
-          return {
-            Cammand: result.Cammand,
-            Description: result.Description,
-            Target: result.Target,
-            Value: result.Value
-          };
-        });
-
-        // Construct the result object
-        const resultObject = {
-          [flow]: componentSteps
-        };
-
-        resolve(resultObject);
+        resolve(results);
       }
     });
   });
@@ -310,6 +334,18 @@ function getByflow(flow) {
 
 function getroles(){
   const queryString = "SELECT * From role";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, function(error, result) {
+      if(error) {
+        console.log(error);
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
+function getscenario(){
+  const queryString = "SELECT * From s_m_view";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function(error, result) {
       if(error) {
@@ -345,8 +381,10 @@ module.exports = {
   deleteEnvById,
   getenv,
   createNewLogs,
-  updateEnv,getByflow,
-  getBytest_case,
+  updateEnv,
+  getByobject,
+  getByTestCase,
   Getlogs,
-  getroles
+  getroles,
+  getscenario,
 }
