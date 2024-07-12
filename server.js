@@ -25,12 +25,13 @@ const {
   getTestCasesByModule,
   deleteEnvById,
   getenv,
-  getBytest_case,
-  getByflow,
+  getByTestCase,
+  getByobject,
   createNewLogs,
   updateEnv,
   Getlogs,
-  getroles
+  getroles,
+  getscenario
 } = require("./queries.js");
 
 
@@ -248,18 +249,17 @@ app.get('/getlogs', async (req, res) => {
   }
 });
 app.get("/getflow", async (req, res) => {
-  const test_case = req.query.test_case
-  console.log(test_case)
-  const queryAlltest_case = await getBytest_case(test_case);
-  Promise.resolve(queryAlltest_case).then((results) => {
+  const test_name = req.query.test_name
+  console.log(test_name)
+  const queryByTestCase = await getByTestCase(test_name);
+  Promise.resolve(queryByTestCase).then((results) => {
     res.send(results);
   })
 })
 
-app.get("/getcomp", async (req, res) => {
-  const flow = req.query.flow
-  const queryAlltest_case = await getByflow(flow);
-  Promise.resolve(queryAlltest_case).then((results) => {
+app.get("/getobject", async (req, res) => {
+  const queryAllobjects = await getByobject();
+  Promise.resolve(queryAllobjects).then((results) => {
     res.send(results);
   })
 })
@@ -292,6 +292,12 @@ app.get("/getenv", async (req, res) => {
     res.send(results);
   })
 })
+app.get("/scenario", async (req, res) => {
+  const queryGetscenario = await getscenario();
+  Promise.resolve(queryGetscenario).then((results) => {
+    res.send(results);
+  })
+})
 
 // DELETE USER BY ID SECTION *
 app.post("/deleteuser", async (req, res) => {
@@ -321,7 +327,7 @@ app.post("/newuser", async (req, res) => {
 })
 // END OF CREATE NEW USER SECTION *
 app.post("/newenv", async (req, res) => {
-  const envDetails = req.body.envDetails;
+  const envDetails = req.body;
   const queryCreateNewUser = await createNewEnv(envDetails);
   Promise.resolve(queryCreateNewUser).then(() => {
     res.send("success");
@@ -336,7 +342,7 @@ app.get("/getbrowser-id",async(req,res)=>{
   res.send(browser)
 })
 app.post("/updateenv", async (req, res) => {
-  const envDetails = req.body.envDetails;
+  const envDetails = req.body;
   const queryCreateNewUser = await updateEnv(envDetails);
   Promise.resolve(queryCreateNewUser).then(() => {
     res.send("success");
