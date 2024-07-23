@@ -1,0 +1,17 @@
+/* Styles/clients.css */
+
+
+  
+  .contentOrderWrap {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centers the content vertically */
+    width: 100%;
+  }
+  
+  .clientsTableWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the content horizontally within the flex container */
+  }
+  

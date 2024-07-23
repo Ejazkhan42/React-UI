@@ -31,7 +31,11 @@ const {
   updateEnv,
   Getlogs,
   getroles,
+<<<<<<< HEAD
   getscenario
+=======
+  getByCustomer
+>>>>>>> 2d5de75 (env page and test case page)
 } = require("./queries.js");
 
 
@@ -211,6 +215,17 @@ app.get("/module", async (req, res) => {
     res.send(results);
   })
 })
+
+//Get Customer
+app.get("/customer", async (req, res) => {
+  const user_id = req.query.user_id
+  const queryAllClientsWithOrdersCount = await getByCustomer(user_id);
+  Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
+    res.send(results);
+  })
+})
+
+
 
 // ADD NEW CLIENT SECTION *
 app.post("/newclient", async (req, res) => {

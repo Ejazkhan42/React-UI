@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -15,40 +15,42 @@ import {
   MenuItem,
   Button,
   TablePagination,
-  InputLabel
-} from '@mui/material';
-import VncScreen from './Browser';
-import { styled } from '@mui/material/styles';
-import axios from 'axios';
-import { useLocation } from 'react-router-dom';
-import { Label } from '@mui/icons-material';
+  InputLabel,
+} from "@mui/material";
+import VncScreen from "./Browser";
+import { styled } from "@mui/material/styles";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { Label } from "@mui/icons-material";
 
 const StyledPaper = styled(Paper)({
-  padding: '16px',
-  marginBottom: '16px',
-  textAlign: 'left',
-  color: '#333',
+  padding: "16px",
+  marginBottom: "16px",
+  textAlign: "left",
+  color: "#333",
 });
 
-const SystemLog = styled('div')({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  gap: '8px',
+const SystemLog = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  gap: "8px",
 });
 
-const LogItem = styled('div')(({ theme, active }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
+const LogItem = styled("div")(({ theme, active }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
   color: active ? theme.palette.primary.main : theme.palette.text.secondary,
-  '&:before': {
+  "&:before": {
     content: '""',
-    display: 'inline-block',
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    backgroundColor: active ? theme.palette.primary.main : theme.palette.grey[400],
+    display: "inline-block",
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    backgroundColor: active
+      ? theme.palette.primary.main
+      : theme.palette.grey[400],
   },
 }));
 
@@ -65,7 +67,10 @@ const DataSetTable = ({ excelData }) => {
     setPage(0);
   };
 
-  const paginatedData = excelData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedData = excelData.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
 
   return (
     <Paper>
@@ -78,7 +83,9 @@ const DataSetTable = ({ excelData }) => {
             <TableRow>
               {excelData.length > 0 &&
                 Object.keys(excelData[0]).map((key) => (
-                  <TableCell key={key} sx={{ fontSize: '1.2rem' }}>{key}</TableCell>
+                  <TableCell key={key} sx={{ fontSize: "1.2rem" }}>
+                    {key}
+                  </TableCell>
                 ))}
             </TableRow>
           </TableHead>
@@ -86,7 +93,9 @@ const DataSetTable = ({ excelData }) => {
             {paginatedData.map((row, index) => (
               <TableRow key={index}>
                 {Object.values(row).map((value, cellIndex) => (
-                  <TableCell key={cellIndex} sx={{ fontSize: '1.2rem' }}>{value}</TableCell>
+                  <TableCell key={cellIndex} sx={{ fontSize: "1.2rem" }}>
+                    {value}
+                  </TableCell>
                 ))}
               </TableRow>
             ))}
@@ -112,29 +121,33 @@ const ResponsivePage = () => {
 
   const [sessionIds, setSessionIds] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
-  const [vncConnectionStatus, setVncConnectionStatus] = useState('disconnected');
+  const [vncConnectionStatus, setVncConnectionStatus] =
+    useState("disconnected");
 
   useEffect(() => {
-    axios.get('http://jenkins.doingerp.com:5000/getbrowser-id').then((res) => {
-      if (res.data.browserId) {
-        setSessionIds([res.data]);
-      } else {
-        console.error('Invalid response format:', res.data);
-      }
-    }).catch((error) => {
-      console.error('Error fetching session IDs:', error);
-    });
-  }, []);
+    axios
+      .get("http://jenkins.doingerp.com:5000/getbrowser-id")
+      .then((res) => {
+        if (res.data.browserId) {
+          setSessionIds([res.data]);
+        } else {
+          console.error("Invalid response format:", res.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching session IDs:", error);
+      });
+  });
 
   const handleConnect = () => {
     if (selectedSession) {
-      setVncConnectionStatus('connecting');
+      setVncConnectionStatus("connecting");
     }
   };
 
   const handleDisconnect = () => {
     setSelectedSession(null);
-    setVncConnectionStatus('disconnected');
+    setVncConnectionStatus("disconnected");
   };
 
   const handleSessionChange = (event) => {
@@ -145,10 +158,10 @@ const ResponsivePage = () => {
     <Container>
       <Box sx={{ mb: 4 }}>
         <StyledPaper>
-          <Typography variant="h6" gutterBottom fontSize={'1.5rem'}>
+          <Typography variant="h6" gutterBottom fontSize={"1.5rem"}>
             Running
           </Typography>
-          <Typography variant="body2" fontSize={'1.1.2rem'}>
+          <Typography variant="body2" fontSize={"1.1.2rem"}>
             Requisition Management &gt; Create Job Requisition
           </Typography>
         </StyledPaper>
@@ -168,8 +181,10 @@ const ResponsivePage = () => {
           </StyledPaper>
         </Grid>
         <Grid item xs={12} md={9}>
-          <Box sx={{ height: '100%', width: '100%', minHeight: '500px' }}>
-          <InputLabel id="demo-multiple-checkbox-label">Select Session</InputLabel>
+          <Box sx={{ height: "100%", width: "100%", minHeight: "500px" }}>
+            <InputLabel id="demo-multiple-checkbox-label">
+              Select Session
+            </InputLabel>
 
             <Select
               value={selectedSession}
@@ -177,7 +192,10 @@ const ResponsivePage = () => {
               displayEmpty
               fullWidth
               variant="outlined"
-              disabled={vncConnectionStatus === 'connecting' || vncConnectionStatus === 'connected'}
+              disabled={
+                vncConnectionStatus === "connecting" ||
+                vncConnectionStatus === "connected"
+              }
             >
               <MenuItem value="" disabled>
                 Select Session ID
@@ -188,26 +206,32 @@ const ResponsivePage = () => {
                 </MenuItem>
               ))}
             </Select>
-            <Box style={{ marginTop: '10px' }}>
+            <Box style={{ marginTop: "10px" }}>
               <Button
                 variant="contained"
                 color="secondary"
                 onClick={handleConnect}
-                disabled={vncConnectionStatus === 'connecting' || vncConnectionStatus === 'connected'}
+                disabled={
+                  vncConnectionStatus === "connecting" ||
+                  vncConnectionStatus === "connected"
+                }
               >
                 LIVE VIEW
               </Button>
               <Button
-                style={{ marginLeft: '10px' }}
+                style={{ marginLeft: "10px" }}
                 variant="outlined"
                 onClick={handleDisconnect}
-                disabled={vncConnectionStatus === 'disconnected'}
+                disabled={vncConnectionStatus === "disconnected"}
               >
                 Disconnect
               </Button>
             </Box>
             {selectedSession && (
-              <VncScreen session={selectedSession} onUpdateState={setVncConnectionStatus} />
+              <VncScreen
+                session={selectedSession}
+                onUpdateState={setVncConnectionStatus}
+              />
             )}
           </Box>
         </Grid>

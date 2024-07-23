@@ -13,15 +13,24 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { TableCell, TableContainer, Table, TableHead, TableBody, TableRow, Paper, Typography, IconButton } from "@mui/material";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import {
+  TableCell,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  Paper,
+  Typography,
+  TablePagination,
+} from "@mui/material";
+import LibraryBooksRoundedIcon from "@mui/icons-material/LibraryBooksRounded";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
+import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 import "./Styles/homepage.css";
 import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
-import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
-import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
-import SupervisorAccountRoundedIcon from "@mui/icons-material/SupervisorAccountRounded";
-import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
 
 function Homepage() {
   const ctx = useContext(AuthLoginInfo);
@@ -29,8 +38,8 @@ function Homepage() {
   const [dashboardData, setDashboardData] = useState([]);
   const [pieData, setPieData] = useState([]);
   const [lineData, setLineData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     axios
@@ -44,83 +53,102 @@ function Homepage() {
   }, []);
 
   const processChartData = (data) => {
-    const pieCounts = { Pass: 0, Fail: 0, Running: 0 };
-    const lineCounts = {};
-
+    // Aggregate pie chart data
+    const pieCounts = { pass: 0, fail: 0, running: 0 };
     data.forEach((item) => {
       pieCounts[item.test_status] += 1;
-      const testMonth = new Date(item.start_time).toLocaleString("default", { month: "short" });
-      if (!lineCounts[testMonth]) {
-        lineCounts[testMonth] = { month: testMonth };
-      }
-      if (!lineCounts[testMonth][item.test_name]) {
-        lineCounts[testMonth][item.test_name] = 0;
-      }
-      lineCounts[testMonth][item.test_name] += 1;
     });
-
     setPieData([
-      { name: "Pass", value: pieCounts.Pass },
-      { name: "Fail", value: pieCounts.Fail },
-      { name: "Running", value: pieCounts.Running }
+      { name: "Pass", value: pieCounts.pass },
+      { name: "Fail", value: pieCounts.fail },
+      { name: "Running", value: pieCounts.running },
     ]);
 
-    const lineDataArray = Object.values(lineCounts);
-    setLineData(lineDataArray);
+    // Aggregate line chart data
+    const lineCounts = {};
+    data.forEach((item) => {
+      const date = new Date(item.start_time).toLocaleDateString("default", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+      if (!lineCounts[date]) {
+        lineCounts[date] = { date };
+      }
+      if (!lineCounts[date][item.test_name]) {
+        lineCounts[date][item.test_name] = 0;
+      }
+      lineCounts[date][item.test_name] += 1;
+    });
+    setLineData(Object.values(lineCounts));
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Fail":
+      case "fail":
         return { color: "red", borderColor: "darkred" };
-      case "Pass":
+      case "pass":
         return { color: "green", borderColor: "darkgreen" };
-      case "Running":
+      case "running":
         return { color: "orange", borderColor: "darkorange" };
       default:
         return { color: "black", borderColor: "transparent" };
     }
   };
 
+  const scrollToTable = () => {
+    const tableElement = document.getElementById("table-component");
+    tableElement.scrollIntoView({ behavior: "smooth" });
+  };
+
   const TopPanel = () => {
     return (
       <div className="top-panel">
-        <div className="card">
+        <div className="card" onClick={scrollToTable}>
           <div className="card-content">
-            <h3>Total Test Passed</h3>
+            <h3>Total Cases in Library</h3>
             <div className="card-icon">
-              <PaymentsRoundedIcon />
+              <LibraryBooksRoundedIcon />
             </div>
-            <h1>{pieData.find(d => d.name === "Pass")?.value || 0}</h1>
-          </div>
-        </div>
-        <div className="card">
-          <div className="card-icon">
-            <TrendingUpRoundedIcon />
-          </div>
-          <div className="card-content">
-            <h3>Total Failed Test Case</h3>
-            <h1>{pieData.find(d => d.name === "Fail")?.value || 0}</h1>
-          </div>
-        </div>
-        <div className="card">
-          <div className="card-icon">
-            <SupervisorAccountRoundedIcon />
-          </div>
-          <div className="card-content">
-            <h3>Total Test Case</h3>
             <h1>{dashboardData.length}</h1>
           </div>
         </div>
-        <div className="card">
-          <div className="card-icon">
-            <EventNoteRoundedIcon />
-          </div>
+        <div className="card" onClick={scrollToTable}>
           <div className="card-content">
-            <h3>Running</h3>
-            <h1>{(pieData.find(d => d.name === "Running")?.value || 0) / dashboardData.length * 100}%</h1>
+            <h3>Total Cases Run</h3>
+            <div className="card-icon">
+              <PlayArrowRoundedIcon />
+            </div>
+            <h1>{pieData.reduce((acc, d) => acc + d.value, 0)}</h1>
+          </div>
+        </div>
+        <div className="card" onClick={scrollToTable}>
+          <div className="card-content">
+            <h3>Total Cases in Progress</h3>
+            <div className="card-icon">
+              <EventNoteRoundedIcon />
+            </div>
+            <h1>{pieData.find((d) => d.name === "Running")?.value || 0}</h1>
+          </div>
+        </div>
+        <div className="card" onClick={scrollToTable}>
+          <div className="card-content">
+            <h3>Total Failed</h3>
+            <div className="card-icon">
+              <TrendingUpRoundedIcon />
+            </div>
+            <h1>{pieData.find((d) => d.name === "Fail")?.value || 0}</h1>
+          </div>
+        </div>
+        <div className="card" onClick={scrollToTable}>
+          <div className="card-content">
+            <h3>Total Passed</h3>
+            <div className="card-icon">
+              <PaymentsRoundedIcon />
+            </div>
+            <h1>{pieData.find((d) => d.name === "Pass")?.value || 0}</h1>
           </div>
         </div>
       </div>
@@ -128,7 +156,7 @@ function Homepage() {
   };
 
   const ChartComponent = () => {
-    const specifiedNames = [
+    const customNames = [
       "Recruiting Campaigns",
       "Offer Management",
       "Requisition Management",
@@ -139,24 +167,32 @@ function Homepage() {
       "Agency Management",
       "Candidate Application",
       "Hiring",
-      "Configuration"
+      "Configuration",
     ];
-
-    const uniqueNames = [...new Set(lineData.flatMap(data => Object.keys(data)).filter(name => name !== 'month'))];
 
     return (
       <div className="chart-container">
         <div className="line-chart">
           <h3>Performance</h3>
           <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={lineData.slice(-3)} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <LineChart
+              data={lineData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
+              <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Legend payload={specifiedNames.map((name, index) => ({ id: name, value: name, type: 'line', color: `#${Math.floor(Math.random()*16777215).toString(16)}` }))} />
-              {uniqueNames.map(name => (
-                <Line key={name} type="monotone" dataKey={name} />
+              <Legend
+                payload={customNames.map((name, index) => ({
+                  id: name,
+                  type: "line",
+                  value: name,
+                  color: "#8884d8",
+                }))}
+              />
+              {customNames.map((name) => (
+                <Line key={name} type="monotone" dataKey={name} stroke="#8884d8" />
               ))}
             </LineChart>
           </ResponsiveContainer>
@@ -173,9 +209,13 @@ function Homepage() {
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
+                label
               >
                 {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
@@ -184,7 +224,10 @@ function Homepage() {
           <div className="legend">
             {pieData.map((entry, index) => (
               <div key={`legend-${index}`}>
-                <span className="legend-color" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                <span
+                  className="legend-color"
+                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                ></span>
                 {entry.name}
               </div>
             ))}
@@ -194,28 +237,23 @@ function Homepage() {
     );
   };
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
   };
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handleRowsPerPageChange = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
-  const handleNextPage = () => {
-    const totalPages = Math.ceil(dashboardData.length / itemsPerPage);
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const slicedData = dashboardData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const slicedData = dashboardData.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   const TableComponent = () => {
     return (
-      <div className="table-container">
+      <div className="table-container" id="table-component">
         <h3>Recent Run Test Case</h3>
         <TableContainer component={Paper}>
           <Table>
@@ -229,10 +267,23 @@ function Homepage() {
             <TableBody>
               {slicedData.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell style={{ fontSize: "1.2rem" }}>{row.test_name}</TableCell>
-                  <TableCell style={{ fontSize: "1.2rem" }}>{new Date(row.start_time).toLocaleString()}</TableCell>
+                  <TableCell style={{ fontSize: "1.2rem" }}>
+                    {row.test_name}
+                  </TableCell>
+                  <TableCell style={{ fontSize: "1.2rem" }}>
+                    {new Date(row.start_time).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
-                    <span style={{ padding: "6px 12px", borderRadius: "4px", ...getStatusColor(row.test_status) }}>
+                    <span
+                      style={{
+                        ...getStatusColor(row.test_status),
+                        padding: "6px 12px",
+                        borderRadius: "4px",
+                        border: `1px solid ${
+                          getStatusColor(row.test_status).borderColor
+                        }`,
+                      }}
+                    >
                       {row.test_status}
                     </span>
                   </TableCell>
@@ -240,22 +291,21 @@ function Homepage() {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            component="div"
+            count={dashboardData.length}
+            page={page}
+            onPageChange={handlePageChange}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleRowsPerPageChange}
+          />
         </TableContainer>
-        <div className="pagination">
-          <IconButton onClick={handlePrevPage} disabled={currentPage === 1}>
-            <NavigateBeforeIcon />
-          </IconButton>
-          <Typography variant="body1">{currentPage}</Typography>
-          <IconButton onClick={handleNextPage} disabled={currentPage === Math.ceil(dashboardData.length / itemsPerPage)}>
-            <NavigateNextIcon />
-          </IconButton>
-        </div>
       </div>
     );
   };
 
   return (
-    <div className="container">
+    <div style={{ marginLeft: "20%", marginRight: "20%" }}>
       <TopPanel />
       <ChartComponent />
       <TableComponent />
@@ -264,4 +314,3 @@ function Homepage() {
 }
 
 export default Homepage;
-// Total cases in library, total cases run, , total cases in progress, total, failed, total passed

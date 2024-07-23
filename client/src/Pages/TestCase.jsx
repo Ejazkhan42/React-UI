@@ -1,36 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Box,
+  Container,
+  Grid,
+  Paper,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
+  Typography,
+  Checkbox,
+  Button,
+  Modal,
   FormControl,
   InputLabel,
-  OutlinedInput,
-  Button,
-  Checkbox,
-  Grid,
-  Box,
-  Typography,
-  IconButton,
-  Modal,
   Select,
   MenuItem,
+  OutlinedInput,
   ListItemText,
+  IconButton,
+  TextField,
+  TablePagination,
 } from '@mui/material';
 import { ArrowBack, ArrowForward, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
-import './Styles/testcasepage.css';
 import * as XLSX from 'xlsx';
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid } from 'uuid';
 
 const uuidFromUuidV4 = () => {
-  const newUuid = uuid()
-  return newUuid
-}
+  const newUuid = uuid();
+  return newUuid;
+};
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -43,6 +48,13 @@ const MenuProps = {
   },
 };
 
+const StyledPaper = styled(Paper)({
+  padding: '16px',
+  marginBottom: '16px',
+  textAlign: 'left',
+  color: '#333',
+});
+
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -52,7 +64,7 @@ const VisuallyHiddenInput = styled('input')({
   bottom: 0,
   left: 0,
   whiteSpace: 'nowrap',
-  width: 1,  
+  width: 1,
 });
 
 const VisuallyHiddenImageInput = styled('input')({
@@ -66,16 +78,17 @@ const VisuallyHiddenImageInput = styled('input')({
   whiteSpace: 'nowrap',
   width: 1,
 });
+
 const TestCasePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { moduleId, moduleName } = location.state || {};
+  const { moduleId } = location.state || {};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [openModal, setOpenModal] = useState(false); // State for modal visibility
-
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [openModal, setOpenModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedBrowser, setSelectedBrowser] = useState('chrome');
   const [gridMode, setGridMode] = useState('on');
@@ -85,23 +98,30 @@ const TestCasePage = () => {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [excelData, setExcelData] = useState([]);
   const [selectEnv, setSelectEnv] = useState([]);
-  const [selectedEnv,setSelectedEnv] = useState('');
-  const entriesPerPage = 5;
+  const [selectedEnv, setSelectedEnv] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-useEffect(() => {
-  axios.get(`http://localhost:5000/getenv`, { withCredentials: true }).then((res) => {
-    if (res.data != null) {
-      setSelectEnv(res.data);
-    }
-  })
-});
+  useEffect(() => {
+    axios.get('http://localhost:5000/getenv', { withCredentials: true })
+      .then((res) => {
+        if (res.data != null) {
+          setSelectEnv(res.data);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     if (moduleId !== null) {
       const fetchTestCases = async () => {
         try {
           const response = await axios.get(`http://localhost:5000/testcase?id=${moduleId}`, { withCredentials: true });
-          setTestCases(response.data);
+          if (localStorage.getItem('testcases') == null) {
+            localStorage.setItem('testcases', JSON.stringify(response.data));
+          }
+          if (localStorage.getItem('testcases') !== null) {
+            const cases = JSON.parse(localStorage.getItem('testcases'));
+            setTestCases(cases);
+          }
         } catch (error) {
           console.error('Error fetching test cases:', error);
         }
@@ -122,35 +142,23 @@ useEffect(() => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setCurrentPage(1); // Reset to the first page on new search
+    setCurrentPage(0); // Reset to the first page on new search
   };
 
   const filteredTestCases = testCases.filter((testCase) =>
     testCase.Test_Case.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredTestCases.length / entriesPerPage);
-  const currentEntries = filteredTestCases.slice(
-    (currentPage - 1) * entriesPerPage,
-    currentPage * entriesPerPage
-  );
+  const paginatedData = filteredTestCases.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage);
 
   const handleRunClick = () => {
-    const selectedTestCaseNames = currentEntries
+    const selectedTestCaseNames = paginatedData
       .filter((testCase) => selectedTestCases.includes(testCase.Id))
       .map((testCase) => testCase.Test_Case)
       .join(', ');
 
     setTestCaseList(selectedTestCaseNames ? selectedTestCaseNames.split(', ').map(item => item.replace(/"/g, '')) : []);
     setOpenModal(true); // Open the modal
-  };
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
   const handleFileChange = async (event) => {
@@ -168,26 +176,22 @@ useEffect(() => {
   const handleImageFileChange = (event) => {
     if (event.target.files !== undefined) {
       setSelectedImageFile(event.target.files[0]);
-
     }
-  }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
-
     const formData = new FormData();
     formData.append('jobName', 'TestCase');
     formData.append('testCase', testCaseList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
 
-    if(localStorage.getItem("token") !== null){
-      console.log(localStorage.getItem("token"))
-      formData.append('Token', localStorage.getItem("token"));
-    }else{
+    if (localStorage.getItem('token') !== null) {
+      formData.append('Token', localStorage.getItem('token'));
+    } else {
       const id = uuidFromUuidV4();
-      localStorage.setItem("token", id);
-      console.log(localStorage.getItem("token"))
+      localStorage.setItem('token', id);
       formData.append('Token', id);
     }
 
@@ -206,7 +210,7 @@ useEffect(() => {
 
       if (response.ok) {
         const result = await response.json();
-        setMessage("Success");
+        setMessage('Success');
         navigate('/progress', { state: { excelData } });
       } else {
         console.error('Error:', response.statusText);
@@ -218,82 +222,80 @@ useEffect(() => {
 
   const handleTestCaseChange = (event) => {
     const { value } = event.target;
-    // setTestCaseList(value.length > 0 ? value : []);
-   if (value.length > 0) {
-    setChangeList(value);
-   }
-
+    if (value.length > 0) {
+      setChangeList(value);
+    }
   };
-const handleSelectEnvChange = (event) => {
-  const { value } = event.target;
-  if (value != null) {
-    setSelectedEnv(value);
-  }
-  
-}
+
+  const handleSelectEnvChange = (event) => {
+    const { value } = event.target;
+    if (value != null) {
+      setSelectedEnv(value);
+    }
+  };
+
   const handleCloseModal = () => {
     setOpenModal(false);
   };
 
   return (
-    <Box p={3} className="table-container">
-      <Grid container spacing={3} alignItems="center">
-        <Grid item xs={12} sm={8}>
-          <Typography variant="h4">{moduleName}</Typography>
-        </Grid>
-        <Grid item xs={12} sm={4} display="flex" justifyContent="space-between">
-          <FormControl variant="outlined" fullWidth>
-            <InputLabel htmlFor="search">Search</InputLabel>
-            <OutlinedInput
-              id="search"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              label="Search"
-              style={{ fontSize: '1.5rem' }} // Increased font size for input
-            />
-          </FormControl>
-          <Button variant="contained" color="primary" onClick={handleRunClick} sx={{ ml: 2 }} style={{ fontSize: '1.5rem' }}>
+    <Box sx={{ p: 4, marginLeft: '20%', marginRight: '20%' }}>
+      <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
+        <Box>
+          <TextField
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search"
+            variant="outlined"
+            size="small"
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleRunClick()}
+            sx={{ ml: 2 }}
+          >
             Run
           </Button>
-        </Grid>
-      </Grid>
-      <Table sx={{ mt: 3, borderCollapse: 'separate', borderSpacing: '0 10px' }}>
-        <TableHead className="table-head">
-          <TableRow>
-            <TableCell style={{ fontSize: '1.5rem' }}>ID</TableCell>
-            <TableCell style={{ fontSize: '1.5rem' }}>Test Case Name</TableCell>
-            <TableCell style={{ fontSize: '1.5rem' }}>Description</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {currentEntries.map((testCase) => (
-            <TableRow key={testCase.Id} sx={{ backgroundColor: '#f9f9f9', '&:hover': { backgroundColor: '#f1f1f1' } }}>
-              <TableCell style={{ fontSize: '1.5rem' }}>
-                {testCase.Id}
-                <Checkbox
-                  checked={selectedTestCases.includes(testCase.Id)}
-                  onChange={(event) => handleCheckboxChange(event, testCase.Id)}
-                />
-              </TableCell>
-              <TableCell style={{ fontSize: '1.5rem' }}>{testCase.Test_Case}</TableCell>
-              <TableCell style={{ fontSize: '1.5rem' }}>{testCase.Description}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Grid container justifyContent="flex-end" spacing={2} sx={{ mt: 2 }}>
-        <Grid item>
-          <IconButton onClick={handlePreviousPage} disabled={currentPage === 1}>
-            <ArrowBack />
-          </IconButton>
-        </Grid>
-        <Grid item>
-          <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
-            <ArrowForward />
-          </IconButton>
-        </Grid>
-      </Grid>
-
+        </Box>
+      </Box>
+      <StyledPaper>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell padding="checkbox"></TableCell>
+                <TableCell align="left" sx={{ fontSize: '1.2rem' }}>Test Case</TableCell>
+                <TableCell align="left" sx={{ fontSize: '1.2rem' }}>Description</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paginatedData.map((testCase) => (
+                <TableRow key={testCase.Id}>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={selectedTestCases.includes(testCase.Id)}
+                      onChange={(event) => handleCheckboxChange(event, testCase.Id)}
+                    />
+                  </TableCell>
+                  <TableCell align="left">{testCase.Test_Case}</TableCell>
+                  <TableCell align="left">{testCase.Description}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredTestCases.length}
+          rowsPerPage={rowsPerPage}
+          page={currentPage}
+          onPageChange={(event, newPage) => setCurrentPage(newPage)}
+          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+        />
+      </StyledPaper>
+    
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box sx={{ 
           position: 'absolute', 

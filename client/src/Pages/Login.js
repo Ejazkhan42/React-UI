@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Container, Paper, Typography, TextField, Button, Box, Link, MenuItem, Select, FormControl, InputLabel, Grid } from '@mui/material';
+import { Container, Paper, Typography, TextField, Button, Box, Link, MenuItem, Select, FormControl, InputLabel, IconButton } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LanguageIcon from '@mui/icons-material/Language';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
 import './Styles/login.css';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [language, setLanguage] = useState('English');
 
   const login = () => {
@@ -17,11 +20,15 @@ export default function Login() {
       password
     }, { withCredentials: true }).then(res => {
       if (res.data === 'success') {
-        window.location.href = '/';
+        window.location.href = '/customers';
       }
     }).catch(error => {
       console.error('Login error:', error);
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -31,7 +38,7 @@ export default function Login() {
           Sign In
         </Typography>
         <Typography variant="h2" className="login-subtitle">
-          Oracle Applications Cloud
+          Doings ERP
         </Typography>
       </div>
       <Container className="login-content" style={{ display: 'flex', justifyContent: 'center' }}>
@@ -57,11 +64,18 @@ export default function Login() {
                 variant="standard"
                 fullWidth
                 margin="dense"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 style={{ marginLeft: 10, fontSize:"1.5rem" }}
+                InputProps={{
+                  endAdornment: (
+                    <IconButton onClick={togglePasswordVisibility}>
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  )
+                }}
               />
             </Box>
             <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>

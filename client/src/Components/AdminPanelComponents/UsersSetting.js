@@ -19,7 +19,7 @@ import {
   IconButton,
   Grid,
   Select,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import {
   DeleteForeverRounded as DeleteForeverRoundedIcon,
@@ -41,19 +41,18 @@ function UsersSetting() {
     password: "",
     role: "",
   });
-    const [newUserPopup, setNewUserPopup] = useState(false);
-    const [role, setRole] = useState([]);
-    const [selectRole, setSelectRole] = useState("Select Role");
-    useEffect(() => {
-        axios
-          .get(`http://localhost:5000/role`, { withCredentials: true })
-          .then((res) => {
-            if (res.data != null) {
-              setRole(res.data);
-              
-            }
-          });
-    })
+  const [newUserPopup, setNewUserPopup] = useState(false);
+  const [role, setRole] = useState([]);
+  const [selectRole, setSelectRole] = useState("Select Role");
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/role`, { withCredentials: true })
+      .then((res) => {
+        if (res.data != null) {
+          setRole(res.data);
+        }
+      });
+  });
   useEffect(() => {
     axios
       .get(`http://localhost:5000/getusers`, { withCredentials: true })
@@ -76,7 +75,7 @@ function UsersSetting() {
         {
           userId: deleteUserId,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       )
       .then((res) => {
         if (res.data === "success") {
@@ -93,7 +92,7 @@ function UsersSetting() {
         {
           userDetails: newUserDetails,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       )
       .then((res) => {
         if (res.data === "success") {
@@ -108,18 +107,16 @@ function UsersSetting() {
       });
   };
 
-
   const selectRoleInputChange = (event) => {
     setSelectRole(event.target.value);
     setNewUserDetails({
       ...newUserDetails,
-      role: selectRole
+      role: selectRole,
     });
-
   };
 
   const AdminUsers = () => {
-    const filteredUsers = usersData.filter((user) => user.Role_Id === 1);
+    const filteredUsers = usersData.filter((user) => user.role_id === 1);
 
     return (
       <div className="usersColumn">
@@ -181,7 +178,7 @@ function UsersSetting() {
   };
 
   const NormalUsers = () => {
-    const filteredUsers = usersData.filter((user) => user.Role_Id !== 1);
+    const filteredUsers = usersData.filter((user) => user.role_id !== 1);
 
     return (
       <div className="usersColumn">
@@ -273,9 +270,7 @@ function UsersSetting() {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Confirm deletion"}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{"Confirm deletion"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Are you sure you want to delete this user?
@@ -327,14 +322,16 @@ function UsersSetting() {
               })
             }
           />
-   
-        
-          <Select value={selectRole} onChange={selectRoleInputChange} style={{ width: '100%' }}>
+
+          <Select
+            value={selectRole}
+            onChange={selectRoleInputChange}
+            style={{ width: "100%" }}
+          >
             {role.map((name) => (
-             <MenuItem value={name.Id}>{name.Role_Name}</MenuItem>
+              <MenuItem value={name.Id}>{name.Role_Name}</MenuItem>
             ))}
           </Select>
-       
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setNewUserPopup(false)} color="primary">

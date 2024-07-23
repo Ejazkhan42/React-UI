@@ -18,7 +18,8 @@ import TestCase from './Pages/TestCase';
 import Progress from './Pages/Progress';
 import Instances from './Pages/Instances';
 import Business from './Pages/Business';
-
+import Customers from './Pages/Customers';
+import Env from './Pages/Env';
 
 function App() {
     const ctx = useContext(AuthLoginInfo);
@@ -96,6 +97,20 @@ function App() {
                     <Business/>
                   </PrivateRoute>
                 }/>
+
+
+            <Route path='/customers' element={
+                  <PrivateRoute>
+                    <Customers/>
+                  </PrivateRoute>
+                }/>
+            <Route path='/env' element={
+                  <PrivateRoute>
+                    <Env/>
+                  </PrivateRoute>
+                }/>
+            
+
 
             </Routes>
             

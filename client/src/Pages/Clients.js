@@ -3,11 +3,17 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Styles/clients.css";
 import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
-import Popup from "../Components/Popup";
-import SearchBar from "../Components/SearchBar";
-import Pagination from "../Components/Pagination";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import ReadMoreRoundedIcon from "@mui/icons-material/ReadMoreRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
+import SearchBar from "../Components/SearchBar";
+import Pagination from "../Components/Pagination";
 
 function Clients() {
   const ctx = useContext(AuthLoginInfo);
@@ -17,10 +23,9 @@ function Clients() {
   const [buttonPopup, setButtonPopup] = useState(false);
   const [filterId, setFilterId] = useState("");
 
-
-   const handleSearchChange = (newFilteredData) => {
-     setFilteredData(newFilteredData);
-   };
+  const handleSearchChange = (newFilteredData) => {
+    setFilteredData(newFilteredData);
+  };
 
   useEffect(() => {
     setNewOrderSubmitted(false);
@@ -28,27 +33,15 @@ function Clients() {
       .get("http://localhost:5000/clients", { withCredentials: true })
       .then((res) => {
         if (res.data != null) {
-          setClientsData(
-            res.data[0].map((t1) => ({
-              ...t1,
-              ...res.data[1].find((t2) => t2.client_id === t1.client_id),
-            }))
-          );
-          setFilteredData(
-            res.data[0].map((t1) => ({
-              ...t1,
-              ...res.data[1].find((t2) => t2.client_id === t1.client_id),
-            }))
-          );
+          const clientsCombined = res.data[0].map((t1) => ({
+            ...t1,
+            ...res.data[1].find((t2) => t2.client_id === t1.client_id),
+          }));
+          setClientsData(clientsCombined);
+          setFilteredData(clientsCombined);
         }
       });
   }, [newOrderSubmitted]);
-
- 
-  console.log("c", clientsData);
-  console.log("f", filteredData);
-
-  
 
   const ClientsTable = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -58,18 +51,15 @@ function Clients() {
       (currentPage - 1) * itemsPerPage,
       (currentPage - 1) * itemsPerPage + itemsPerPage
     );
-    const computedClientsLength = computedClients.length;
 
     return (
       <>
-        {" "}
         <div className="tableResultsWrap">
-          {" "}
           <div className="resultsSpan">
             Showing
-            <font className="resultsBold"> {computedClientsLength} </font>
+            <span className="resultsBold"> {computedClients.length} </span>
             of
-            <font className="resultsBold"> {totalClients} </font>
+            <span className="resultsBold"> {totalClients} </span>
             results
           </div>
           <Pagination
@@ -79,7 +69,7 @@ function Clients() {
             onPageChange={(page) => setCurrentPage(page)}
           />
         </div>
-        <table>
+        <table style={{ width: "247%", marginBottom: "0", marginLeft: "-71%" }}>
           <thead>
             <tr>
               <th>Client ID</th>
@@ -87,29 +77,26 @@ function Clients() {
               <th>Phone</th>
               <th>City</th>
               <th>Orders count</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
-            {computedClients.map((client, i) => {
-              return (
-                <tr key={i}>
-                  <td>
-                    <font className="maincolor">#</font>
-                    {client.client_id}
-                  </td>
-                  <td>{client.client}</td>
-                  <td>{client.phone}</td>
-                  <td>{client.city}</td>
-                  <td>{client.ordersCount ? client.ordersCount : "0"}</td>
-                  <td className="maincolor">
-                    <Link to={`/clients/${client.client_id}`}>
-                      <ReadMoreRoundedIcon />
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
+            {computedClients.map((client, i) => (
+              <tr key={i}>
+                <td>
+                  <span className="maincolor">#</span>
+                  {client.client_id}
+                </td>
+                <td>{client.client}</td>
+                <td>{client.phone}</td>
+                <td>{client.city}</td>
+                <td>{client.ordersCount ? client.ordersCount : "0"}</td>
+                <td className="maincolor">
+                  <Link to={`/clients/${client.client_id}`}>
+                    <ReadMoreRoundedIcon />
+                  </Link>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </>
@@ -150,136 +137,118 @@ function Clients() {
               workerName: ctx.username,
             });
             setNewOrderSubmitted(true);
+            setButtonPopup(false);
           }
         });
     };
 
     return (
-      <Popup trigger={buttonPopup} setTrigger={setButtonPopup}>
-        <div className="popupWrap">
-          <div className="productsSummary">
-            <h3 className="productSummaryLeft">Add new client</h3>
-          </div>
-
-          <div className="addNewOrderWrap">
-            <div className="addNewOrderForm">
-              <div className="orderDetails">
-                <div className="input-group">
-                  <input
-                    type="text"
-                    placeholder="Client name"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={clientDetails.clientName}
-                    onChange={(e) =>
-                      setClientDetails({
-                        ...clientDetails,
-                        clientName: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Phone number"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={clientDetails.phone}
-                    onChange={(e) =>
-                      setClientDetails({
-                        ...clientDetails,
-                        phone: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                </div>
-                <div className="input-group">
-                  <input
-                    type="textarea"
-                    placeholder="Client details"
-                    className="orderDetailsInput"
-                    value={clientDetails.clientDetails}
-                    onChange={(e) =>
-                      setClientDetails({
-                        ...clientDetails,
-                        clientDetails: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                </div>
-                <div className="input-group">
-                  <input
-                    type="text"
-                    placeholder="Country"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={clientDetails.country}
-                    onChange={(e) =>
-                      setClientDetails({
-                        ...clientDetails,
-                        country: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Street, home/appartment number"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={clientDetails.street}
-                    onChange={(e) =>
-                      setClientDetails({
-                        ...clientDetails,
-                        street: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                </div>
-                <div className="input-group">
-                  <input
-                    type="text"
-                    placeholder="City"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={clientDetails.city}
-                    onChange={(e) =>
-                      setClientDetails({
-                        ...clientDetails,
-                        city: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Postal code"
-                    className="orderDetailsInput orderDetailsInputHalf"
-                    value={clientDetails.postalCode}
-                    onChange={(e) =>
-                      setClientDetails({
-                        ...clientDetails,
-                        postalCode: e.target.value,
-                      })
-                    }
-                    required="required"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="submitWrap">
-            <div className="submitNewOrder">
-              <button
-                className="submitNewOrderBtn"
-                onClick={() => addNewOrder()}
-              >
-                <AddCircleOutlineRoundedIcon />
-                <span className="addOrderText">Add</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </Popup>
+      <Dialog open={buttonPopup} onClose={() => setButtonPopup(false)}>
+        <DialogTitle>Add New Client</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Client Name"
+            type="text"
+            fullWidth
+            value={clientDetails.clientName}
+            onChange={(e) =>
+              setClientDetails({
+                ...clientDetails,
+                clientName: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Phone Number"
+            type="text"
+            fullWidth
+            value={clientDetails.phone}
+            onChange={(e) =>
+              setClientDetails({
+                ...clientDetails,
+                phone: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Client Details"
+            type="text"
+            fullWidth
+            multiline
+            rows={4}
+            value={clientDetails.clientDetails}
+            onChange={(e) =>
+              setClientDetails({
+                ...clientDetails,
+                clientDetails: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Country"
+            type="text"
+            fullWidth
+            value={clientDetails.country}
+            onChange={(e) =>
+              setClientDetails({
+                ...clientDetails,
+                country: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Street, Home/Apartment Number"
+            type="text"
+            fullWidth
+            value={clientDetails.street}
+            onChange={(e) =>
+              setClientDetails({
+                ...clientDetails,
+                street: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="City"
+            type="text"
+            fullWidth
+            value={clientDetails.city}
+            onChange={(e) =>
+              setClientDetails({
+                ...clientDetails,
+                city: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Postal Code"
+            type="text"
+            fullWidth
+            value={clientDetails.postalCode}
+            onChange={(e) =>
+              setClientDetails({
+                ...clientDetails,
+                postalCode: e.target.value,
+              })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setButtonPopup(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={addNewOrder} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     );
   };
 
@@ -295,15 +264,9 @@ function Clients() {
                 handleSearchChange={handleSearchChange}
                 dataType="clients"
               />
-              <button
-                className="addOrder"
-                onClick={() => {
-                  setButtonPopup(true);
-                }}
-              >
+              <IconButton color="primary" onClick={() => setButtonPopup(true)}>
                 <AddCircleOutlineRoundedIcon />
-                <span className="addOrderText">Add</span>
-              </button>
+              </IconButton>
             </div>
           </div>
           <div className="orderWrap">
@@ -311,7 +274,6 @@ function Clients() {
           </div>
         </div>
       </div>
-
       <AddClients />
     </div>
   );

@@ -10,10 +10,27 @@
 }
 .nav-icons-left{
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
-  margin-right: 82%;
+  /* margin-right: 82%; */
 
+}
+.breadcrumb-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 5rem;
+  color: #3f51b5;
+}
+
+.breadcrumb-container a {
+  color: #3f51b5;
+  text-decoration: none;
+  margin-right: 5px;
+}
+
+.breadcrumb-container a:hover {
+  text-decoration: underline;
 }
 
 
@@ -47,7 +64,7 @@ body {
 
 /* Main sidebar */
 .msb {
-  margin-top: 2.5%;
+  margin-top: 3.5%;
   width: 200px;
   background-color: #F5F7F9;
   position: fixed;
