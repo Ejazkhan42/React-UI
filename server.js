@@ -31,8 +31,10 @@ const {
   updateEnv,
   Getlogs,
   getroles,
+  newReports,
   getscenario,
-  getByCustomer,
+  getByTestCases,
+  getByCustomer
 } = require("./queries.js");
 
 
@@ -114,6 +116,14 @@ app.get('/jobInfo', async (req, res) => {
     res.status(500).send('Error retrieving Jenkins job info');
   }
 });
+
+app.get("/customers", async (req, res) => {
+  const user_id = req.query.user_id
+  const queryAllClientsWithOrdersCount = await getByCustomer(user_id);
+  Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
+    res.send(results);
+  })
+})
 
 
 const storage = multer.diskStorage({
@@ -213,17 +223,6 @@ app.get("/module", async (req, res) => {
   })
 })
 
-//Get Customer
-app.get("/customer", async (req, res) => {
-  const user_id = req.query.user_id
-  const queryAllClientsWithOrdersCount = await getByCustomer(user_id);
-  Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
-    res.send(results);
-  })
-})
-
-
-
 // ADD NEW CLIENT SECTION *
 app.post("/newclient", async (req, res) => {
   const clientDetails = req.body.clientDetails;
@@ -262,6 +261,12 @@ app.get('/getlogs', async (req, res) => {
 });
 app.get("/getflow", async (req, res) => {
   const test_name = req.query.test_name
+  if(!test_name){
+    const queryByTestCase = await getByTestCases();
+    Promise.resolve(queryByTestCase).then((results) => {
+      res.send(results);
+    })
+  }
   console.log(test_name)
   const queryByTestCase = await getByTestCase(test_name);
   Promise.resolve(queryByTestCase).then((results) => {
@@ -345,6 +350,16 @@ app.post("/newenv", async (req, res) => {
     res.send("success");
   })
 })
+
+app.post("/reportslogs", async (req,res)=>{
+  const reports= req.body;
+ const queryCreateReport = await newReports(reports);
+  Promise.resolve(queryCreateReport).then(() => {
+    res.send("success");
+  })
+
+})
+
 app.post("/postbrowser-id", async (req,res)=>{
   browser = req.body;
   console.log('Received browser ID:', browser);
