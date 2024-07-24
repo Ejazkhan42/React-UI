@@ -13,6 +13,9 @@ var connection = mysql.createPool({
   timezone: 'utc',
 });
 
+// cusotmer_view
+
+// name, envName, instance_url, instance_username, instance_password, username`
 function getAllDataFromTarget(target) {
   const queryString = `SELECT * from ${target}`;
   return new Promise((resolve, reject) => {
@@ -83,28 +86,28 @@ function getByCustomer(user_id) {
   // SQL query to get test cases based on the module name
   const queryString = "SELECT * FROM customer_view WHERE id=?;";
   
-  
   // Return a promise that resolves with the result of the query
   return new Promise((resolve, reject) => {
-      connection.query(queryString, [user_id], function (error, result) {
-          if (error) {
-              console.error("Error executing query:", error);
-              reject(error);
-          } else {
-              // Process the result to the desired format
-              const formattedResult = result.reduce((acc, curr) => {
-                  const { name, id, ...rest } = curr;
-                  if (!acc[name]) {
-                      acc[name] = [];
-                  }
-                  acc[name].push(rest);
-                  return acc;
-              }, {});
-              resolve(formattedResult);
+    connection.query(queryString, [user_id], function (error, result) {
+      if (error) {
+        console.error("Error executing query:", error);
+        reject(error);
+      } else {
+        // Process the result to the desired format
+        const formattedResult = result.reduce((acc, curr) => {
+          const { name, id, ...rest } = curr;
+          if (!acc[name]) {
+            acc[name] = [];
           }
-      });
+          acc[name].push(rest);
+          return acc;
+        }, {});
+        resolve(formattedResult);
+      }
+    });
   });
-  }
+}
+
 
 
 function getDasboardData() {
@@ -151,6 +154,7 @@ function deleteEnvById(envId) {
     })
   })
 }
+
 function getUsersForAdminPanel() {
   const queryString = "SELECT id, username, Role_Id, created_at from Users";
   return new Promise((resolve, reject) => {
@@ -163,8 +167,14 @@ function getUsersForAdminPanel() {
     })
   })
 }
+
 function getenv() {
+<<<<<<< HEAD
   const queryString = "SELECT id,envName , user_Id, instance_url, instance_username, instance_password from Env";
+=======
+  const queryString =
+    "SELECT id,envName , user_Id, module_id, instance_url, instance_username, instance_password from Env";
+>>>>>>> 2d5de75 (env page and test case page)
   return new Promise((resolve, reject) => {
     connection.query(queryString, function(error, result) {
       if(error) {
@@ -190,10 +200,15 @@ function createNewUser(userDetails, hashedPassword) {
     })
   })
 }
+
 function createNewEnv(envDetails) {
   // SQL query for upsert (Insert or Update)
   const queryString = `
+<<<<<<< HEAD
     INSERT INTO env (envName, user_id, instance_url, instance_username, instance_password) 
+=======
+    INSERT INTO env (envName, user_id, module_id, instance_url, instance_username, instance_password)
+>>>>>>> 2d5de75 (env page and test case page)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
@@ -201,6 +216,7 @@ function createNewEnv(envDetails) {
   const passedValues = [
     envDetails.envName,
     envDetails.user_id,
+    envDetails.module_id,
     envDetails.instance_url,
     envDetails.instance_username,
     envDetails.instance_password
@@ -308,7 +324,6 @@ function getByTestCase(test_name) {
             formattedData[test_name] = {};
           }
 
-
           if (!formattedData[test_name][component_name]) {
             formattedData[test_name][component_name] = [];
           }
@@ -323,50 +338,42 @@ function getByTestCase(test_name) {
         });
 
         resolve(formattedData);
-      }
-    });
-  });
-}
-
-function getByTestCases() {
-  const queryString = `SELECT DISTINCT Test_Case, component_name, Description, cammand as Command, Target, Value FROM flow_view`;
-
-  return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, results) {
+=======
+    connection.query(queryString, [test_case], function (error, results) {
       if (error) {
         reject(error);
       } else {
-        const formattedData = {};
-
-        results.forEach(row => {
-          const { Test_Case, component_name, Description, Command, Target, Value } = row;
-
-          // Initialize test case object if it doesn't exist
-          if (!formattedData[Test_Case]) {
-            formattedData[Test_Case] = {};
-          }
-
-          if (!formattedData[Test_Case][component_name]) {
-            formattedData[Test_Case][component_name] = [];
-          }
-
-          // Add the row data to the component array
-          formattedData[Test_Case][component_name].push({
-            Target,
-            Command,
-            Value,
-            Description
-          });
-        });
-
-        resolve(formattedData);
+        const componentName = results.map((result) => result.componentName);
+        const resultObject = {
+          Test_Case: test_case,
+          componentName: componentName,
+        };
+        resolve(resultObject);
+>>>>>>> 2d5de75 (env page and test case page)
       }
     });
   });
 }
+<<<<<<< HEAD
 
 
-
+// function getBytest_case(test_case) {
+// const queryString = "SELECT Test_Case,component_name,Description,cammand as Command,Target,VALUE FROM flow_view WHERE Test_Case=?";
+//   return new Promise((resolve, reject) => {
+//     connection.query(queryString, [test_case], function(error, results) {
+//       if (error) {
+//         reject(error);
+//       } else {
+//         const componentName = results.map(result => result.componentName);
+//         const resultObject = {
+//           Test_Case: test_case,
+//           componentName: componentName
+//         };
+//         resolve(resultObject);
+//       }
+//     });
+//   });
+// }
 function getByobject() {
   const queryString = "SELECT * FROM objects_view";
   return new Promise((resolve, reject) => {
@@ -375,23 +382,50 @@ function getByobject() {
         reject(error);
       } else {
         resolve(results);
+=======
+function getByflow(flow) {
+  const queryString =
+    "SELECT Description, Cammand, Target, Value FROM compview WHERE componentName=?";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, [flow], function (error, results) {
+      if (error) {
+        reject(error);
+      } else {
+        // Map SQL query results to an array of objects
+        const componentSteps = results.map((result) => {
+          return {
+            Cammand: result.Cammand,
+            Description: result.Description,
+            Target: result.Target,
+            Value: result.Value,
+          };
+        });
+
+        // Construct the result object
+        const resultObject = {
+          [flow]: componentSteps,
+        };
+
+        resolve(resultObject);
+>>>>>>> 2d5de75 (env page and test case page)
       }
     });
   });
 }
 
-function getroles(){
+function getroles() {
   const queryString = "SELECT * From role";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
       }
-    })
-  })
+    });
+  });
 }
+<<<<<<< HEAD
 function getscenario(){
   const queryString = "SELECT * From s_m_view";
   return new Promise((resolve, reject) => {
@@ -406,9 +440,13 @@ function getscenario(){
 }
 function Getlogs(){
    const queryString = "SELECT * From logs";
+=======
+function Getlogs() {
+  const queryString = "SELECT * From logs";
+>>>>>>> 2d5de75 (env page and test case page)
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -456,24 +494,28 @@ if (reportDetails.screenshot) {
 
 
 module.exports = {
-  getByModule,
-  getTestCasesByModule,
   getAllDataFromTarget,
-  getDasboardData,
   deleteUserById,
+  deleteEnvById,
+  getDasboardData,
   getUsersForAdminPanel,
   createNewUser,
   createNewEnv,
-  deleteEnvById,
   getenv,
   createNewLogs,
   updateEnv,
+<<<<<<< HEAD
   getByobject,
   getByTestCase,
   Getlogs,
   getroles,
   getscenario,
-  newReports,
-  getByTestCases,
-  getByCustomer
 }
+=======
+  getByflow,
+  getBytest_case,
+  Getlogs,
+  getroles,
+  getByCustomer
+};
+>>>>>>> 2d5de75 (env page and test case page)
