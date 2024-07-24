@@ -1,45 +1,45 @@
-const { query } = require("express");
-const fs = require("fs");
-var mysql = require("mysql");
+const { query } = require('express');
+const fs=require("fs")
+var mysql = require('mysql');
+
 
 var connection = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DATABASE,
-  port: process.env.DB_PORT,
+  port:process.env.DB_PORT,
   multipleStatements: true,
-  timezone: "utc",
+  timezone: 'utc',
 });
 
-// cusotmer_view
-
-// name, envName, instance_url, instance_username, instance_password, username`
 function getAllDataFromTarget(target) {
   const queryString = `SELECT * from ${target}`;
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, result) {
-      if (error) {
+    connection.query(queryString, function(error, result) {
+      if(error) {
         console.log(error);
       } else {
         resolve(result);
       }
-    });
-  });
+    })
+  })
 }
+
+
 
 function getTestCasesByModule(moduleName) {
   // SQL query to get test cases based on the module name
   const queryString = `
     SELECT tcn.*
     FROM testcase tcn
-    JOIN modules m ON tcn.Modules_id = m.id
-    WHERE m.id = ?;
+    JOIN Modules m ON tcn.Modules_Id = m.Id
+    WHERE m.Id = ?;
   `;
 
   // Return a promise that resolves with the result of the query
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [moduleName], function (error, result) {
+    connection.query(queryString, [moduleName], function(error, result) {
       if (error) {
         console.error("Error executing query:", error);
         reject(error);
@@ -54,21 +54,21 @@ function getByModule(user_id) {
   // SQL query to get test cases based on the module name
   const queryString = `
 SELECT
-m.id AS Id,
-m.name AS name
-FROM
-users u
-INNER JOIN usermodulesaccess uma ON
-u.id = uma.user_id
-INNER JOIN modules m ON
-m.id = uma.Modules_id
-WHERE
-u.id = ?;
+    m.Id As Id,
+    m.name AS name
+FROM 
+    users u
+INNER JOIN 
+    usermodulesaccess uma ON u.id = uma.user_id
+INNER JOIN 
+    Modules m ON m.Id = uma.Modules_id
+WHERE 
+    u.id = ?;
 `;
 
   // Return a promise that resolves with the result of the query
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [user_id], function (error, result) {
+    connection.query(queryString,[user_id], function(error, result) {
       if (error) {
         console.error("Error executing query:", error);
         reject(error);
@@ -78,7 +78,6 @@ u.id = ?;
     });
   });
 }
-
 
 function getByCustomer(user_id) {
   // SQL query to get test cases based on the module name
@@ -108,7 +107,6 @@ function getByCustomer(user_id) {
   }
 
 
-
 function getDasboardData() {
   const queryString = `
   SELECT * from clients as clients;
@@ -116,98 +114,86 @@ function getDasboardData() {
   SELECT * from calendar where deadlineDate >= curdate() and DATEDIFF(deadlineDate, CURDATE()) <= 5 order by deadlineDate asc limit 2
   `;
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, result) {
-      if (error) {
+    connection.query(queryString, function(error, result) {
+      if(error) {
         console.log(error);
       } else {
         resolve(result);
       }
-    });
-  });
+    })
+  })
 }
+
+
 
 function deleteUserById(userId) {
   const queryString = "DELETE from Users WHERE id = ?";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [userId], function (error) {
-      if (error) {
+    connection.query(queryString, [userId], function(error) {
+      if(error) {
         console.log(error);
       } else {
-        resolve("success");
+        resolve("success")
       }
-    });
-  });
+    })
+  })
 }
 
 function deleteEnvById(envId) {
   const queryString = "DELETE from Env WHERE id = ?";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [envId], function (error) {
-      if (error) {
+    connection.query(queryString, [envId], function(error) {
+      if(error) {
         console.log(error);
       } else {
-        resolve("success");
+        resolve("success")
       }
-    });
-  });
+    })
+  })
 }
 function getUsersForAdminPanel() {
-  const queryString = "SELECT id, username, role_id, created_at from Users";
+  const queryString = "SELECT id, username, Role_Id, created_at from Users";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, result) {
-      if (error) {
+    connection.query(queryString, function(error, result) {
+      if(error) {
         console.log(error);
       } else {
         resolve(result);
       }
-    });
-  });
+    })
+  })
 }
 function getenv() {
-<<<<<<< HEAD
   const queryString = "SELECT id,envName , user_Id, instance_url, instance_username, instance_password from Env";
-=======
-  const queryString =
-    "SELECT id,envName , user_Id, module_id, instance_url, instance_username, instance_password from Env";
->>>>>>> 2d5de75 (env page and test case page)
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, result) {
-      if (error) {
+    connection.query(queryString, function(error, result) {
+      if(error) {
         console.log(error);
       } else {
         resolve(result);
       }
-    });
-  });
+    })
+  })
 }
 
 function createNewUser(userDetails, hashedPassword) {
   const queryString = "INSERT into Users VALUES ('', ?, ?, ?, ?)";
   const currentDate = new Date();
-  const passedValues = [
-    userDetails.username,
-    hashedPassword,
-    userDetails.role_id,
-    currentDate,
-  ];
+  const passedValues = [userDetails.username, hashedPassword, userDetails.role_id, currentDate];
   return new Promise((resolve, reject) => {
-    connection.query(queryString, passedValues, function (error) {
-      if (error) {
+    connection.query(queryString, passedValues, function(error) {
+      if(error) {
         console.log(error);
       } else {
         resolve("success");
       }
-    });
-  });
+    })
+  })
 }
 function createNewEnv(envDetails) {
   // SQL query for upsert (Insert or Update)
   const queryString = `
-<<<<<<< HEAD
     INSERT INTO env (envName, user_id, instance_url, instance_username, instance_password) 
-=======
-    INSERT INTO env (envName, user_id, module_id, instance_url, instance_username, instance_password)
->>>>>>> 2d5de75 (env page and test case page)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
@@ -217,7 +203,7 @@ function createNewEnv(envDetails) {
     envDetails.user_id,
     envDetails.instance_url,
     envDetails.instance_username,
-    envDetails.instance_password,
+    envDetails.instance_password
   ];
 
   // Return a promise for the database operation
@@ -240,13 +226,13 @@ function createNewLogs(logs) {
   `;
 
   // Extracting values from each log entry
-  const values = logs.map((log) => [
+  const values = logs.map(log => [
     log.test_name,
     formatDateTime(log.start_time),
     formatDateTime(log.end_time),
     log.test_status,
     log.build,
-    log.job,
+    log.job
   ]);
 
   // Return a promise for the database operation
@@ -264,30 +250,31 @@ function createNewLogs(logs) {
 
 function formatDateTime(dateTimeString) {
   const date = new Date(dateTimeString);
-  const formattedDateTime = date.toISOString().slice(0, 19).replace("T", " ");
+  const formattedDateTime = date.toISOString().slice(0, 19).replace('T', ' ');
   return formattedDateTime;
 }
 
 function updateEnv(envDetails) {
   // SQL query for update
   const queryString = `
-    UPDATE env
+    UPDATE env 
     SET envName = ?,
-        user_id=?,
+        user_id=?, 
         instance_url=?,
-        instance_username = ?,
+        instance_username = ?, 
         instance_password = ?
     WHERE id = ?;
   `;
 
   // Array of values to be updated
   const passedValues = [
+
     envDetails.envName,
     envDetails.user_id,
     envDetails.instance_url,
     envDetails.instance_username,
     envDetails.instance_password,
-    envDetails.id,
+    envDetails.id
   ];
 
   // Return a promise for the database operation
@@ -304,10 +291,9 @@ function updateEnv(envDetails) {
 }
 
 function getByTestCase(test_name) {
-  const queryString = "SELECT Test_Case, component_name, Description, cammand as Command, Target, Value FROM flow_view WHERE Test_Case=?";
+  const queryString = "SELECT DISTINCT Test_Case, component_name, Description, cammand as Command, Target, Value FROM flow_view WHERE Test_Case=?";
 
   return new Promise((resolve, reject) => {
-<<<<<<< HEAD
     connection.query(queryString, [test_name], function (error, results) {
       if (error) {
         reject(error);
@@ -337,42 +323,50 @@ function getByTestCase(test_name) {
         });
 
         resolve(formattedData);
-=======
-    connection.query(queryString, [test_case], function (error, results) {
-      if (error) {
-        reject(error);
-      } else {
-        const componentName = results.map((result) => result.componentName);
-        const resultObject = {
-          Test_Case: test_case,
-          componentName: componentName,
-        };
-        resolve(resultObject);
->>>>>>> 2d5de75 (env page and test case page)
       }
     });
   });
 }
-<<<<<<< HEAD
+
+function getByTestCases() {
+  const queryString = `SELECT DISTINCT Test_Case, component_name, Description, cammand as Command, Target, Value FROM flow_view`;
+
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, function (error, results) {
+      if (error) {
+        reject(error);
+      } else {
+        const formattedData = {};
+
+        results.forEach(row => {
+          const { Test_Case, component_name, Description, Command, Target, Value } = row;
+
+          // Initialize test case object if it doesn't exist
+          if (!formattedData[Test_Case]) {
+            formattedData[Test_Case] = {};
+          }
+
+          if (!formattedData[Test_Case][component_name]) {
+            formattedData[Test_Case][component_name] = [];
+          }
+
+          // Add the row data to the component array
+          formattedData[Test_Case][component_name].push({
+            Target,
+            Command,
+            Value,
+            Description
+          });
+        });
+
+        resolve(formattedData);
+      }
+    });
+  });
+}
 
 
-// function getBytest_case(test_case) {
-// const queryString = "SELECT Test_Case,component_name,Description,cammand as Command,Target,VALUE FROM flow_view WHERE Test_Case=?";
-//   return new Promise((resolve, reject) => {
-//     connection.query(queryString, [test_case], function(error, results) {
-//       if (error) {
-//         reject(error);
-//       } else {
-//         const componentName = results.map(result => result.componentName);
-//         const resultObject = {
-//           Test_Case: test_case,
-//           componentName: componentName
-//         };
-//         resolve(resultObject);
-//       }
-//     });
-//   });
-// }
+
 function getByobject() {
   const queryString = "SELECT * FROM objects_view";
   return new Promise((resolve, reject) => {
@@ -381,50 +375,23 @@ function getByobject() {
         reject(error);
       } else {
         resolve(results);
-=======
-function getByflow(flow) {
-  const queryString =
-    "SELECT Description, Cammand, Target, Value FROM compview WHERE componentName=?";
-  return new Promise((resolve, reject) => {
-    connection.query(queryString, [flow], function (error, results) {
-      if (error) {
-        reject(error);
-      } else {
-        // Map SQL query results to an array of objects
-        const componentSteps = results.map((result) => {
-          return {
-            Cammand: result.Cammand,
-            Description: result.Description,
-            Target: result.Target,
-            Value: result.Value,
-          };
-        });
-
-        // Construct the result object
-        const resultObject = {
-          [flow]: componentSteps,
-        };
-
-        resolve(resultObject);
->>>>>>> 2d5de75 (env page and test case page)
       }
     });
   });
 }
 
-function getroles() {
+function getroles(){
   const queryString = "SELECT * From role";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, result) {
-      if (error) {
+    connection.query(queryString, function(error, result) {
+      if(error) {
         console.log(error);
       } else {
         resolve(result);
       }
-    });
-  });
+    })
+  })
 }
-<<<<<<< HEAD
 function getscenario(){
   const queryString = "SELECT * From s_m_view";
   return new Promise((resolve, reject) => {
@@ -439,20 +406,54 @@ function getscenario(){
 }
 function Getlogs(){
    const queryString = "SELECT * From logs";
-=======
-function Getlogs() {
-  const queryString = "SELECT * From logs";
->>>>>>> 2d5de75 (env page and test case page)
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, result) {
-      if (error) {
+    connection.query(queryString, function(error, result) {
+      if(error) {
         console.log(error);
       } else {
         resolve(result);
       }
+    })
+  })
+}
+
+function newReports(reportDetails) {
+if (reportDetails.screenshot) {
+        const screenshotPath = `./screenshots/${Date.now()}.png`;
+        fs.writeFileSync(screenshotPath, reports.screenshot, 'base64');
+        reportDetails.screenshotPath = screenshotPath;
+    }
+  const queryString = `
+    INSERT INTO test_results (test_name, step_name, step_description, step_status,screenshotPath, executionTime, buildNo, browser_id, token) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
+  `;
+
+  // Array of values to be inserted
+  const passedValues = [
+    reportDetails.test_name,
+    reportDetails.step_name,
+    reportDetails.step_description,
+    reportDetails.step_status,
+    reportDetails.screenshotPath || null,
+    reportDetails.executionTime,
+    reportDetails.buildNo,
+    reportDetails.browser_id,
+    reportDetails.token
+  ];
+
+  // Return a promise for the database operation
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, passedValues, function (error) {
+      if (error) {
+        console.log(error);
+        reject(error); // Reject the promise with the error
+      } else {
+        resolve("success"); // Resolve the promise with success message
+      }
     });
   });
 }
+
 
 module.exports = {
   getByModule,
@@ -467,18 +468,12 @@ module.exports = {
   getenv,
   createNewLogs,
   updateEnv,
-<<<<<<< HEAD
   getByobject,
   getByTestCase,
   Getlogs,
   getroles,
   getscenario,
-}
-=======
-  getByflow,
-  getBytest_case,
-  Getlogs,
-  getroles,
+  newReports,
+  getByTestCases,
   getByCustomer
-};
->>>>>>> 2d5de75 (env page and test case page)
+}
