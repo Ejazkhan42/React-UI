@@ -31,11 +31,9 @@ const {
   updateEnv,
   Getlogs,
   getroles,
-<<<<<<< HEAD
-  getscenario
-=======
+  getscenario,
   getByCustomer
->>>>>>> 2d5de75 (env page and test case page)
+
 } = require("./queries.js");
 
 
