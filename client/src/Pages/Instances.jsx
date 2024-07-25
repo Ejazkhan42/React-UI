@@ -141,6 +141,7 @@ function Instances() {
                 <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_url}</TableCell>
                 <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_username}</TableCell>
                 <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_password}</TableCell>
+                 <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_password}</TableCell>
                 <TableCell>
                   <Button startIcon={<EditIcon />} onClick={() => handleClickOpen(index)} />
                   <Button startIcon={<DeleteIcon />} onClick={() => handleDelete(index)} />

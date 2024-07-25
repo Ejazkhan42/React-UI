@@ -16,9 +16,9 @@ export const SidebarData = [
     link: "/job"
   },
   {
-    title: "Clients",
+    title: "client",
     icon: "fa-users",
-    link: "/clients"
+    link: "/client"
   },
   {
     title: "Calendar",

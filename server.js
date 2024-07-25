@@ -117,10 +117,26 @@ app.get('/jobInfo', async (req, res) => {
   }
 });
 
-app.get("/customers", async (req, res) => {
+app.get("/customer", async (req, res) => {
   const user_id = req.query.user_id
   const queryAllClientsWithOrdersCount = await getByCustomer(user_id);
   Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
+    res.send(results);
+  })
+})
+
+app.post("/customerupdate", async (req, res) => {
+  const customers = req.body
+  const queryAddcustomers = await getByAddCustomer(customers);
+  Promise.resolve(queryAddcustomers).then((results) => {
+    res.send(results);
+  })
+})
+
+app.post("/addcustomer", async (req, res) => {
+  const customers = req.body
+  const queryAddcustomers = await getByAddCustomer(customers);
+  Promise.resolve(queryAddcustomers).then((results) => {
     res.send(results);
   })
 })
@@ -344,7 +360,7 @@ app.post("/newuser", async (req, res) => {
 })
 // END OF CREATE NEW USER SECTION *
 app.post("/newenv", async (req, res) => {
-  const envDetails = req.body;
+  const envDetails = req.body.envDetails;
   const queryCreateNewUser = await createNewEnv(envDetails);
   Promise.resolve(queryCreateNewUser).then(() => {
     res.send("success");
@@ -369,7 +385,7 @@ app.get("/getbrowser-id",async(req,res)=>{
   res.send(browser)
 })
 app.post("/updateenv", async (req, res) => {
-  const envDetails = req.body;
+  const envDetails = req.body.envDetails;
   const queryCreateNewUser = await updateEnv(envDetails);
   Promise.resolve(queryCreateNewUser).then(() => {
     res.send("success");

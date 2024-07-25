@@ -13,6 +13,7 @@ var connection = mysql.createPool({
   timezone: 'utc',
 });
 
+
 function getAllDataFromTarget(target) {
   const queryString = `SELECT * from ${target}`;
   return new Promise((resolve, reject) => {
@@ -31,10 +32,7 @@ function getAllDataFromTarget(target) {
 function getTestCasesByModule(moduleName) {
   // SQL query to get test cases based on the module name
   const queryString = `
-    SELECT tcn.*
-    FROM testcase tcn
-    JOIN Modules m ON tcn.Modules_Id = m.Id
-    WHERE m.Id = ?;
+    SELECT * FROM Script_View where Modules_id=?;
   `;
 
   // Return a promise that resolves with the result of the query
@@ -52,19 +50,7 @@ function getTestCasesByModule(moduleName) {
 
 function getByModule(user_id) {
   // SQL query to get test cases based on the module name
-  const queryString = `
-SELECT
-    m.Id As Id,
-    m.name AS name
-FROM 
-    users u
-INNER JOIN 
-    usermodulesaccess uma ON u.id = uma.user_id
-INNER JOIN 
-    Modules m ON m.Id = uma.Modules_id
-WHERE 
-    u.id = ?;
-`;
+  const queryString = `SELECT * FROM Modules_View Where User_id=?`;
 
   // Return a promise that resolves with the result of the query
   return new Promise((resolve, reject) => {
@@ -91,7 +77,6 @@ function getByCustomer(user_id) {
               console.error("Error executing query:", error);
               reject(error);
           } else {
-              // Process the result to the desired format
               const formattedResult = result.reduce((acc, curr) => {
                   const { name, id, ...rest } = curr;
                   if (!acc[name]) {
@@ -127,7 +112,7 @@ function getDasboardData() {
 
 
 function deleteUserById(userId) {
-  const queryString = "DELETE from Users WHERE id = ?";
+  const queryString = "DELETE from users WHERE id = ?";
   return new Promise((resolve, reject) => {
     connection.query(queryString, [userId], function(error) {
       if(error) {
@@ -140,7 +125,7 @@ function deleteUserById(userId) {
 }
 
 function deleteEnvById(envId) {
-  const queryString = "DELETE from Env WHERE id = ?";
+  const queryString = "DELETE from env WHERE id = ?";
   return new Promise((resolve, reject) => {
     connection.query(queryString, [envId], function(error) {
       if(error) {
@@ -151,8 +136,11 @@ function deleteEnvById(envId) {
     })
   })
 }
+
+
+
 function getUsersForAdminPanel() {
-  const queryString = "SELECT id, username, Role_Id, created_at from Users";
+  const queryString = "SELECT id, username, role_id, created_at from users";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function(error, result) {
       if(error) {
@@ -163,8 +151,10 @@ function getUsersForAdminPanel() {
     })
   })
 }
+
+
 function getenv() {
-  const queryString = "SELECT id,envName , user_Id, instance_url, instance_username, instance_password from Env";
+  const queryString = "SELECT id,envName , user_Id, instance_url, instance_username, instance_password from env";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function(error, result) {
       if(error) {
@@ -193,18 +183,19 @@ function createNewUser(userDetails, hashedPassword) {
 function createNewEnv(envDetails) {
   // SQL query for upsert (Insert or Update)
   const queryString = `
-    INSERT INTO env (envName, user_id, instance_url, instance_username, instance_password) 
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
+  INSERT INTO env (envName, user_id, instance_url, instance_username, instance_password) 
+  VALUES (?,?,?,?,?)
+`;
 
-  // Array of values to be inserted or updated
-  const passedValues = [
-    envDetails.envName,
-    envDetails.user_id,
-    envDetails.instance_url,
-    envDetails.instance_username,
-    envDetails.instance_password
-  ];
+// Array of values to be inserted or updated
+const passedValues = [
+  envDetails.envName,
+  envDetails.user_id,
+  envDetails.instance_url,
+  envDetails.instance_username,
+  envDetails.instance_password
+];
+  
 
   // Return a promise for the database operation
   return new Promise((resolve, reject) => {
@@ -255,36 +246,38 @@ function formatDateTime(dateTimeString) {
 }
 
 function updateEnv(envDetails) {
-  // SQL query for update
   const queryString = `
-    UPDATE env 
-    SET envName = ?,
-        user_id=?, 
-        module_id = ?, 
-        instance_url=?,
-        instance_username = ?, 
-        instance_password = ?
-    WHERE id = ?;
-  `;
+  UPDATE env 
+  SET envName = ?, 
+      user_Id = ?, 
+      instance_url = ?, 
+      instance_username = ?, 
+      instance_password = ? 
+  WHERE id = ?;
+`;
 
-  // Array of values to be updated
-  const passedValues = [
+// Array of values to be updated
+console.log('envDetails:', envDetails);
 
-    envDetails.envName,
-    envDetails.user_id,
-    envDetails.instance_url,
-    envDetails.instance_username,
-    envDetails.instance_password,
-    envDetails.id
-  ];
+const passedValues = [
+  envDetails.envName,          // Test
+  envDetails.user_Id,          // 1 (Ensure column name is user_id)
+  envDetails.instance_url,     // https://hdbg-test.login.us2.oraclecloud.com/
+  envDetails.instance_username,// herbert.george@nexinfo.com
+  envDetails.instance_password,// Nexinfo@12312qqw
+  envDetails.id                // 1
+];
+
 
   // Return a promise for the database operation
+  console.log('Values being used:', passedValues);
   return new Promise((resolve, reject) => {
     connection.query(queryString, passedValues, function (error, results) {
       if (error) {
         console.log(error);
         reject(error); // Reject the promise with the error
       } else {
+        console.log(results)
         resolve(results.affectedRows); // Resolve with the number of affected rows
       }
     });
@@ -393,6 +386,8 @@ function getroles(){
     })
   })
 }
+
+
 function getscenario(){
   const queryString = "SELECT * From s_m_view";
   return new Promise((resolve, reject) => {
@@ -405,6 +400,8 @@ function getscenario(){
     })
   })
 }
+
+
 function Getlogs(){
    const queryString = "SELECT * From logs";
   return new Promise((resolve, reject) => {
@@ -417,6 +414,7 @@ function Getlogs(){
     })
   })
 }
+
 
 function newReports(reportDetails) {
 if (reportDetails.screenshot) {
