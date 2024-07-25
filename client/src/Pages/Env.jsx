@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import { useLocation, useNavigate } from 'react-router-dom';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub'; // Example icon
 
+const APPI_URL=process.env.REACT_APP_APPI_URL
 let env
 
 const EnvPage = () => {

@@ -21,6 +21,7 @@ import {
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
 
+const APPI_URL=process.env.REACT_APP_APPI_URL
 function Instances() {
   const ctx = useContext(AuthLoginInfo);
   const [data, setData] = useState([]);
@@ -39,7 +40,7 @@ function Instances() {
   useEffect(() => {
     const fetchEnv = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/getenv", { withCredentials: true });
+        const response = await axios.get(`${APPI_URL}/getenv`, { withCredentials: true });
         setData(response.data);
       } catch (error) {
         console.error("Error fetching environments:", error);
@@ -88,12 +89,12 @@ function Instances() {
     try {
       const requestBody = { envDetails: formData };
       if (isEdit) {
-        await axios.post("http://localhost:5000/updateenv", requestBody, { withCredentials: true });
+        await axios.post(`${APPI_URL}/updateenv`, requestBody, { withCredentials: true });
         const updatedData = [...data];
         updatedData[currentIndex] = formData;
         setData(updatedData);
       } else {
-        await axios.post("http://localhost:5000/newenv", requestBody, { withCredentials: true });
+        await axios.post(`${APPI_URL}/newenv`, requestBody, { withCredentials: true });
         setData([...data, formData]);
       }
       handleClose();
@@ -105,7 +106,7 @@ function Instances() {
   const handleDelete = async (rowIndex) => {
     try {
       const idToDelete = data[rowIndex].id;
-      await axios.post("http://localhost:5000/deletenv", { envId: idToDelete }, { withCredentials: true });
+      await axios.post(`${APPI_URL}/deletenv`, { envId: idToDelete }, { withCredentials: true });
       const updatedData = data.filter((item, index) => index !== rowIndex);
       setData(updatedData);
     } catch (error) {

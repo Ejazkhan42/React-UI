@@ -27,7 +27,7 @@ import {
   AddCircleOutlineRounded as AddCircleOutlineRoundedIcon,
 } from "@mui/icons-material";
 import "./../Styles/usersSetting.css";
-
+const APPI_URL=process.env.REACT_APP_APPI_URL
 function formatIsoDate(date) {
   return date.split("T")[0];
 }
@@ -46,7 +46,7 @@ function UsersSetting() {
   const [selectRole, setSelectRole] = useState("Select Role");
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/role`, { withCredentials: true })
+      .get(`${APPI_URL}/role`, { withCredentials: true })
       .then((res) => {
         if (res.data != null) {
           setRole(res.data);
@@ -55,7 +55,7 @@ function UsersSetting() {
   });
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/getusers`, { withCredentials: true })
+      .get(`${APPI_URL}/getusers`, { withCredentials: true })
       .then((res) => {
         if (res.data != null) {
           setUsersUpdated(false);
@@ -71,7 +71,7 @@ function UsersSetting() {
   const handleDeleteConfirm = () => {
     axios
       .post(
-        "http://localhost:5000/deleteuser",
+        `${APPI_URL}/deleteuser`,
         {
           userId: deleteUserId,
         },
@@ -88,7 +88,7 @@ function UsersSetting() {
   const handleAddNewUser = () => {
     axios
       .post(
-        "http://localhost:5000/newuser",
+        `${APPI_URL}/newuser`,
         {
           userDetails: newUserDetails,
         },
@@ -329,7 +329,7 @@ function UsersSetting() {
             style={{ width: "100%" }}
           >
             {role.map((name) => (
-              <MenuItem value={name.Id}>{name.Role_Name}</MenuItem>
+              <MenuItem value={name.id}>{name.role_name}</MenuItem>
             ))}
           </Select>
         </DialogContent>

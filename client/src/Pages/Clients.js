@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 function Clients() {
   const ctx = useContext(AuthLoginInfo);
@@ -39,7 +40,7 @@ function Clients() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/customer?user_id=1", { withCredentials: true });
+        const response = await axios.get(`${APPI_URL}/getbycustomer?user_id=${ctx.id}`, { withCredentials: true });
         // Assuming the response contains multiple clients with client names as keys
         const clientsData = [];
         Object.keys(response.data).forEach(clientName => {
@@ -97,12 +98,12 @@ console.log(data)
   const handleSubmit = async () => {
     try {
       if (isEdit) {
-        await axios.put(`http://localhost:5000/customerupdate/${data[currentClient]._id}`, formData, { withCredentials: true });
+        await axios.put(`${APPI_URL}/customerupdate/${data[currentClient]._id}`, formData, { withCredentials: true });
         const updatedData = [...data];
         updatedData[currentClient] = formData;
         setData(updatedData);
       } else {
-        const response = await axios.post("http://localhost:5000/addcustomer", formData, { withCredentials: true });
+        const response = await axios.post(`${APPI_URL}/addcustomer`, formData, { withCredentials: true });
         setData([...data, response.data]);
       }
       handleClose();
@@ -114,7 +115,7 @@ console.log(data)
   const handleDelete = async (clientIndex) => {
     try {
       const idToDelete = data[clientIndex]._id;
-      await axios.delete(`http://localhost:5000/deletecustomer/${idToDelete}`, { withCredentials: true });
+      await axios.delete(`${APPI_URL}/deletecustomer/${idToDelete}`, { withCredentials: true });
       const updatedData = data.filter((_, index) => index !== clientIndex);
       setData(updatedData);
     } catch (error) {
@@ -126,7 +127,7 @@ console.log(data)
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h6" sx={{ fontSize: "1.2rem" }}>
-          Clients
+        Customer
         </Typography>
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
           Add Client

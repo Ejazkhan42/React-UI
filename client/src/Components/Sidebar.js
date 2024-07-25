@@ -11,10 +11,10 @@ import { Avatar, Menu, MenuItem } from "@mui/material";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-
+const APPI_URL=process.env.REACT_APP_APPI_URL
 const logout = () => {
   axios
-    .get("http://localhost:5000/logout", {
+    .get(`${APPI_URL}/logout`, {
       withCredentials: true,
     })
     .then((res) => {

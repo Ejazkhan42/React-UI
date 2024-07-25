@@ -30,7 +30,9 @@ import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { v4 as uuid } from 'uuid';
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
+let JOBNAME
 const uuidFromUuidV4 = () => {
   const newUuid = uuid();
   return newUuid;
@@ -83,6 +85,7 @@ const TestCasePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { moduleId } = location.state || {};
+  const {JOB}=location.state ||{};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,9 +103,13 @@ const TestCasePage = () => {
   const [selectEnv, setSelectEnv] = useState([]);
   const [selectedEnv, setSelectedEnv] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  if(JOBNAME === undefined){
+    console.log(JOB)
+    JOBNAME = JOB
+}
 
   useEffect(() => {
-    axios.get('http://localhost:5000/getenv', { withCredentials: true })
+    axios.get(`${APPI_URL}/getenv`, { withCredentials: true })
       .then((res) => {
         if (res.data != null) {
           setSelectEnv(res.data);
@@ -114,7 +121,8 @@ const TestCasePage = () => {
     if (moduleId !== null) {
       const fetchTestCases = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/testcase?id=${moduleId}`, { withCredentials: true });
+          const response = await axios.get(`${APPI_URL}/testcase?id=${moduleId}`, { withCredentials: true });
+          console.log(JOB)
           if (localStorage.getItem('testcases') == null) {
             localStorage.setItem('testcases', JSON.stringify(response.data));
           }
@@ -179,10 +187,11 @@ const TestCasePage = () => {
     }
   };
 
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
-    formData.append('jobName', 'TestCase');
+    formData.append('jobName', JOBNAME);
     formData.append('testCase', testCaseList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
@@ -203,7 +212,7 @@ const TestCasePage = () => {
     }
 
     try {
-      const response = await fetch('http://103.91.186.135:5000/build', {
+      const response = await fetch(`${APPI_URL}/build`, {
         method: 'POST',
         body: formData,
       });

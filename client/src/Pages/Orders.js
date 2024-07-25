@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Grid, Card, CardContent, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
 import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
 import SupervisorAccountRoundedIcon from '@mui/icons-material/SupervisorAccountRounded';
@@ -10,6 +10,7 @@ import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WorkIcon from '@mui/icons-material/Work';
 import './Styles/order.css';
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 const iconMap = {
   // 'Payments': <PaymentsRoundedIcon style={{ fontSize: 40 }} />,
@@ -27,7 +28,7 @@ function Orders() {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/module?user_id=${ctx.id}`, { withCredentials: true });
+        const response = await axios.get(`${APPI_URL}/module?user_id=${ctx.id}`, { withCredentials: true });
         setModules(response.data);
       } catch (error) {
         console.error('Error fetching modules:', error);
@@ -36,8 +37,8 @@ function Orders() {
     fetchModules();
   }, [ctx.id]);
 
-  const handleCardClick = (moduleId, moduleName) => {
-    navigate('/testcase', { state: { moduleId, moduleName } });
+  const handleCardClick = (moduleId, moduleName,JOB) => {
+    navigate('/testcase', { state: { moduleId, moduleName,JOB} });
   };
 
   return (
@@ -50,7 +51,7 @@ function Orders() {
           <Grid item xs={12} sm={6} md={4} lg={3} key={module.Id}>
             <Card 
               className="module-card" 
-              onClick={() => handleCardClick(module.Id, module.name)}
+              onClick={() => handleCardClick(module.Id, module.name,module.JOB)}
             >
               <CardContent>
                 <Box display="flex" justifyContent="center" mb={2}>

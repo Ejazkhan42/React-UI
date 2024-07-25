@@ -22,6 +22,7 @@ import { styled } from "@mui/material/styles";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { Label } from "@mui/icons-material";
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 const StyledPaper = styled(Paper)({
   padding: "16px",
@@ -126,7 +127,7 @@ const ResponsivePage = () => {
 
   useEffect(() => {
     axios
-      .get("http://jenkins.doingerp.com:5000/getbrowser-id")
+      .get(`${APPI_URL}/getbrowser-id`)
       .then((res) => {
         if (res.data.browserId) {
           setSessionIds([res.data]);
@@ -151,6 +152,20 @@ const ResponsivePage = () => {
   };
 
   const handleSessionChange = (event) => {
+    useEffect(() => {
+      axios
+        .get(`${APPI_URL}/getbrowser-id`)
+        .then((res) => {
+          if (res.data.browserId) {
+            setSessionIds([res.data]);
+          } else {
+            console.error("Invalid response format:", res.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching session IDs:", error);
+        });
+    });
     setSelectedSession(event.target.value);
   };
 

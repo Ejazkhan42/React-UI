@@ -12,7 +12,7 @@ import PrivateRoute  from './AuthComponents/PrivateRoute';
 import LoginRoute  from './AuthComponents/LoginRoute';
 import AdminRoute  from './AuthComponents/AdminRoute';
 import Sidebar from './Components/Sidebar';
-import Run from './Pages/runTest';
+import Run from './Pages/RunTest';
 import { AuthLoginInfo }  from './AuthComponents/AuthLogin';
 import TestCase from './Pages/TestCase';
 import Progress from './Pages/Progress';
@@ -44,7 +44,7 @@ function App() {
                       <OrderPage />
                     </PrivateRoute>
                   } />
-                <Route path='/clients' element={
+                <Route path='/customerdetails' element={
                     <PrivateRoute>
                       <Clients />
                     </PrivateRoute>
@@ -54,9 +54,9 @@ function App() {
                       <ClientPage />
                     </PrivateRoute>
                   } />
-                <Route path='/calendar' element={
+                <Route path='/customers' element={
                     <PrivateRoute>
-                      <CalendarEvents />
+                      <Customers />
                     </PrivateRoute>
                   } />
                 <Route path='/adminPannel' element={

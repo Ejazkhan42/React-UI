@@ -13,7 +13,7 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
-
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -59,7 +59,7 @@ function Run() {
     }
     console.log(formData)
     try {
-      const response = await fetch('http://localhost:5000/build', {
+      const response = await fetch(`${appi_url}/build`, {
         method: 'POST',
         body: formData,
       });

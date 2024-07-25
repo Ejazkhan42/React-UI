@@ -8,13 +8,14 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+const APPI_URL=process.env.REACT_APP_APPI_URL
 function OrderPage() {
   const { orderId } = useParams();
   const [orderData, setOrderData] = useState({});
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/jobInfo?jobName=${orderId}`, {
+      .get(`${APPI_URL}/jobInfo?jobName=${orderId}`, {
       })
       .then((res) => {
         if (res.data != null) {

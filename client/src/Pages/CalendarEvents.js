@@ -2,13 +2,15 @@ import React, { useEffect, useState, useContext } from "react";
 import "./Styles/calendar.css";
 import axios from "axios";
 import DatePicker from "react-date-picker";
-import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
 import InsertInvitationRoundedIcon from "@mui/icons-material/InsertInvitationRounded";
 import TitleRoundedIcon from "@mui/icons-material/TitleRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 function checkIfNextDay(nextDay) {
   var tommorow = new Date();
@@ -82,7 +84,7 @@ function CalendarEvents() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/events", { withCredentials: true })
+      .get(`${APPI_URL}/events`, { withCredentials: true })
       .then((res) => {
         if (res.data != null) {
           setNewEventSubmitted(false);
@@ -94,7 +96,7 @@ function CalendarEvents() {
   const addNewEvent = (eventData) => {
     axios
       .post(
-        "http://localhost:5000/newevent",
+        `${APPI_URL}/newevent`,
         {
           eventData,
         },

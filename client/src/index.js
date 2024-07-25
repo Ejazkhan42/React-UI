@@ -11,3 +11,4 @@ ReactDOM.render(
     <App />
   </AuthLogin>
     ,document.getElementById('root'));
+    // registerServiceWorker();

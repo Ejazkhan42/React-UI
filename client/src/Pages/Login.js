@@ -7,6 +7,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
 import './Styles/login.css';
+import { useNavigate } from "react-router-dom";
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -15,7 +17,7 @@ export default function Login() {
   const [language, setLanguage] = useState('English');
 
   const login = () => {
-    axios.post("http://localhost:5000/login", {
+    axios.post(`${APPI_URL}/login`, {
       username,
       password
     }, { withCredentials: true }).then(res => {

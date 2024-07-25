@@ -16,14 +16,14 @@ export const SidebarData = [
     link: "/job"
   },
   {
-    title: "client",
+    title: "Customer Details",
     icon: "fa-users",
-    link: "/client"
+    link: "/customerdetails"
   },
   {
-    title: "Calendar",
+    title: "customers",
     icon: "fa-calendar",
-    link: "/calendar"
+    link: "/customers"
   },
   {
     title: "Admin pannel",

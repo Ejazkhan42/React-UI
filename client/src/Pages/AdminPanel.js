@@ -14,8 +14,9 @@ import {
   TableRow,
   TableCell,
 } from "@mui/material";
-import UsersSetting from "./../Components/AdminPanelComponents/UsersSetting";
+import UsersSetting from "../Components/AdminPanelComponents/UsersSetting";
 import "./Styles/adminPanel.css";
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState(0);

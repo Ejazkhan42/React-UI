@@ -3,7 +3,9 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import FolderIcon from '@mui/icons-material/Folder';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
+
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 const CustomersPage = () => {
     const [customers, setCustomers] = useState({});
@@ -13,7 +15,7 @@ const CustomersPage = () => {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/customer?user_id=${ctx.id}`, { withCredentials: true });
+                const response = await axios.get(`${APPI_URL}/getbycustomer?user_id=${ctx.id}`, { withCredentials: true });
                 setCustomers(response.data);
             } catch (error) {
                 console.error('Error fetching customers', error);

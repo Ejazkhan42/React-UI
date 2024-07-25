@@ -30,7 +30,8 @@ import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 import "./Styles/homepage.css";
-import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 function Homepage() {
   const ctx = useContext(AuthLoginInfo);
@@ -43,7 +44,7 @@ function Homepage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/getlogs", { withCredentials: true })
+      .get(`${APPI_URL}/getlogs`, { withCredentials: true })
       .then((res) => {
         if (res.data) {
           setDashboardData(res.data);

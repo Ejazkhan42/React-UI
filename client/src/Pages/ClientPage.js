@@ -6,6 +6,7 @@ import Popup from "../Components/Popup";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import ReadMoreRoundedIcon from "@mui/icons-material/ReadMoreRounded";
 
+const APPI_URL=process.env.REACT_APP_APPI_URL
 function ClientPage() {
   const { clientId } = useParams();
   const [clientData, setClientData] = useState({});
@@ -16,7 +17,7 @@ function ClientPage() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/client_by_id?id=${clientId}`, {
+      .get(`${APPI_URL}/client_by_id?id=${clientId}`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -34,7 +35,7 @@ function ClientPage() {
   const saveOrderChanges = () => {
     axios
       .post(
-        "http://localhost:5000/updateclient",
+        `${APPI_URL}/updateclient`,
         {
           clientDetails,
         },

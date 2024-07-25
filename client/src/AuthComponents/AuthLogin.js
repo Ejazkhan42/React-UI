@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState} from 'react';
 import axios from 'axios';
+const APPI_URL=process.env.REACT_APP_APPI_URL
 
 export const AuthLoginInfo = createContext({});
 export function AuthLogin(props) {
@@ -7,7 +8,7 @@ export function AuthLogin(props) {
   useEffect(() => {
 
   
-    axios.get("http://localhost:5000/user", { withCredentials: true}).then(res => {
+    axios.get(`${APPI_URL}/user`, { withCredentials: true}).then(res => {
       console.log(res)
       // const data = JSON.parse(res.data)
       // console.log(data)
