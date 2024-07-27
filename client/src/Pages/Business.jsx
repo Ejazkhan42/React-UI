@@ -11,7 +11,7 @@ export default function Business() {
                     height="700" 
                     frameBorder="0" 
                     allow="clipboard-write;camera;geolocation;fullscreen" 
-                    src={{BU_URL}}
+                    src='https://ejaz.budibase.app/embed/doingerp'
                 ></iframe>
             </Box>
         </Container>

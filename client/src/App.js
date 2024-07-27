@@ -12,7 +12,7 @@ import PrivateRoute  from './AuthComponents/PrivateRoute';
 import LoginRoute  from './AuthComponents/LoginRoute';
 import AdminRoute  from './AuthComponents/AdminRoute';
 import Sidebar from './Components/Sidebar';
-import Run from './Pages/RunTest';
+import Run from './Pages/runTest';
 import { AuthLoginInfo }  from './AuthComponents/AuthLogin';
 import TestCase from './Pages/TestCase';
 import Progress from './Pages/Progress';
@@ -23,7 +23,7 @@ import Env from './Pages/Env';
 
 function App() {
     const ctx = useContext(AuthLoginInfo);
-    console.log(ctx)
+    //console.log(ctx)
     return (
       <BrowserRouter>
         <Sidebar>

@@ -16,7 +16,7 @@ function checkIfNextDay(nextDay) {
   var tommorow = new Date();
   tommorow.setDate(tommorow.getDate() + 1);
   var tommorowDate = formatDate(tommorow);
-  console.log(nextDay, tommorowDate);
+  //console.log(nextDay, tommorowDate);
   if (nextDay === tommorowDate) {
     return true;
   } else {

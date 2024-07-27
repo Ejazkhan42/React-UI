@@ -41,7 +41,7 @@ function Run() {
   const handleFileChange = (event) => {
     if (event.target.files !== undefined) {
       setSelectedFile(event.target.files[0]);
-      // console.log(selectedFile)
+      // //console.log(selectedFile)
 
     }
   };
@@ -57,7 +57,7 @@ function Run() {
       console.log(selectedFile)
       formData.append('file', selectedFile);
     }
-    console.log(formData)
+    //console.log(formData)
     try {
       const response = await fetch(`${appi_url}/build`, {
         method: 'POST',
@@ -87,7 +87,7 @@ function Run() {
       setTestCaseList(value);      
     }
 
-    console.log(testCaseList);
+    //console.log(testCaseList);
   };
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',

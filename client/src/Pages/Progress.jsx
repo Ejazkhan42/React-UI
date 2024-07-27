@@ -152,7 +152,7 @@ const ResponsivePage = () => {
   };
 
   const handleSessionChange = (event) => {
-    useEffect(() => {
+    
       axios
         .get(`${APPI_URL}/getbrowser-id`)
         .then((res) => {
@@ -165,7 +165,6 @@ const ResponsivePage = () => {
         .catch((error) => {
           console.error("Error fetching session IDs:", error);
         });
-    });
     setSelectedSession(event.target.value);
   };
 

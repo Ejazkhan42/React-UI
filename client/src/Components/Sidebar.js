@@ -78,7 +78,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                     fontSize: "1.5rem",
                   }}
                 >
-                  Doing ERP
+                  DOINGERP
                 </span>
                 <MenuIcon
                   className="menu"

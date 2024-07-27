@@ -30,8 +30,8 @@ import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { v4 as uuid } from 'uuid';
-const APPI_URL=process.env.REACT_APP_APPI_URL
 
+const APPI_URL=process.env.REACT_APP_APPI_URL
 let JOBNAME
 const uuidFromUuidV4 = () => {
   const newUuid = uuid();
@@ -84,8 +84,8 @@ const VisuallyHiddenImageInput = styled('input')({
 const TestCasePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const {JOB}=location.state||{};
   const { moduleId } = location.state || {};
-  const {JOB}=location.state ||{};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,12 +101,8 @@ const TestCasePage = () => {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [excelData, setExcelData] = useState([]);
   const [selectEnv, setSelectEnv] = useState([]);
-  const [selectedEnv, setSelectedEnv] = useState('');
+  const [selectedEnv, setSelectedEnv] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  if(JOBNAME === undefined){
-    console.log(JOB)
-    JOBNAME = JOB
-}
 
   useEffect(() => {
     axios.get(`${APPI_URL}/getenv`, { withCredentials: true })
@@ -121,15 +117,17 @@ const TestCasePage = () => {
     if (moduleId !== null) {
       const fetchTestCases = async () => {
         try {
-          const response = await axios.get(`${APPI_URL}/testcase?id=${moduleId}`, { withCredentials: true });
-          console.log(JOB)
-          if (localStorage.getItem('testcases') == null) {
-            localStorage.setItem('testcases', JSON.stringify(response.data));
+          const response = await axios.get(`${APPI_URL}/testcase?id=${moduleId}`,{ withCredentials: true });
+          if(response.data!==null){
+            setTestCases(response.data)
           }
-          if (localStorage.getItem('testcases') !== null) {
-            const cases = JSON.parse(localStorage.getItem('testcases'));
-            setTestCases(cases);
-          }
+          // if (localStorage.getItem('testcases') == null) {
+          //   localStorage.setItem('testcases', JSON.stringify(response.data));
+          // }
+          // if (localStorage.getItem('testcases') !== null) {
+          //   const cases = JSON.parse(localStorage.getItem('testcases'));
+          //   setTestCases(cases);
+          // }
         } catch (error) {
           console.error('Error fetching test cases:', error);
         }
@@ -138,15 +136,26 @@ const TestCasePage = () => {
     }
   }, [moduleId]);
 
+  if(JOBNAME==undefined){
+    if(JOB!='' && JOB!=undefined){
+      JOBNAME=JOB
+    }
+    else{
+        JOBNAME='TestCase';
+    }
+    
+  }
+
   const handleCheckboxChange = (event, testCaseId) => {
-    setSelectedTestCases((prev) => {
-      if (event.target.checked) {
-        return [...prev, testCaseId];
-      } else {
-        return prev.filter((id) => id !== testCaseId);
-      }
-    });
+    const checked = event.target.checked;
+  
+    setSelectedTestCases(prevSelectedTestCases => 
+      checked 
+        ? [...prevSelectedTestCases, testCaseId] 
+        : prevSelectedTestCases.filter(id => id !== testCaseId)
+    );
   };
+  
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -169,15 +178,22 @@ const TestCasePage = () => {
     setOpenModal(true); // Open the modal
   };
 
+  ////console.log(selectEnv)
   const handleFileChange = async (event) => {
     if (event.target.files !== undefined) {
       setSelectedFile(event.target.files[0]);
       const file = event.target.files[0];
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const sheetName = "Test_Data";
+      console.log(workbook)
+      const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      setExcelData(jsonData);
+      console.log(changeList);
+      const filteredData = jsonData.filter(entry => 
+        changeList.includes(entry["Test Data"])
+    );
+      setExcelData(filteredData);
     }
   };
 
@@ -187,12 +203,11 @@ const TestCasePage = () => {
     }
   };
 
-  
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('jobName', JOBNAME);
-    formData.append('testCase', testCaseList.join(','));
+    formData.append('testCase', changeList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
 
@@ -359,8 +374,8 @@ const TestCasePage = () => {
                         MenuProps={MenuProps}
                       >
                         {selectEnv.map((env) => (
-                          <MenuItem key={env} value={env}>
-                            <ListItemText primary={env} />
+                          <MenuItem key={env.id} value={env.envName}>
+                            <ListItemText primary={env.envName} />
                           </MenuItem>
                         ))}
                       </Select>
@@ -441,4 +456,4 @@ const TestCasePage = () => {
   );
 };
 
-export default TestCasePage;
+export default TestCasePage;

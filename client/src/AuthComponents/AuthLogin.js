@@ -9,9 +9,9 @@ export function AuthLogin(props) {
 
   
     axios.get(`${APPI_URL}/user`, { withCredentials: true}).then(res => {
-      console.log(res)
+      //console.log(res)
       // const data = JSON.parse(res.data)
-      // console.log(data)
+      // //console.log(data)
       setUser(res.data)
       
     }).catch(error => {

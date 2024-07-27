@@ -45,28 +45,49 @@ var connection = mysql.createPool({
   timezone: 'utc',
 });
 
+let browser=''
 
 const jenkins = new Jenkins({
     baseUrl: `${process.env.Jenkins_Type}:/${process.env.Jenkins_Username}:${process.env.Jenkins_Password}@${process.env.Jenkins_Url}:${process.env.Jenkins_Port}`,
     crumbIssuer: true,
     formData: FormData
   });
-  let browser=''
   const initializePassport = require('./passport-config.js');
   initializePassport(connection, passport);
+
+
   app.post('/login', passport.authenticate('local'), (req, res) => {
     res.send("success")
   });
-  app.get('/job', async (req, res) => {
+
+
+  function extractStageLog(logData, stageName) {
+    const stagePattern = new RegExp(`\\[Pipeline\\] stage[\\s\\S]*?\\[Pipeline\\] \\{ \\(${stageName}\\)[\\s\\S]*?(?=\\[Pipeline\\] stage|\\[Pipeline\\] End of Pipeline)`, 'i');
+    const match = logData.match(stagePattern);
+    return match ? match[0] : "Stage not found";
+  }
+
+  app.get('/joblogs', async (req, res) => {
+    const JOBNAM=req.query.job
+    const BUILDNO=req.query.build
+    console.log(req.query)
     try {
   
-      const info = await jenkins.job.list()
-      // console.log(info);
+      const log = await jenkins.build.logStream(JOBNAM,BUILDNO)
+      log.on("data", (text) => {
   
-      // Send the info as a JSON response
-      res.json(info);
+        
+      });
+      
+      log.on("error", (err) => {
+       
+      });
+      
+      log.on("end", () => {
+       
+      });
+      // res.json(log);
     } catch (error) {
-      // Handle any errors that occur
       console.error(error);
       res.status(500).send('Error retrieving Jenkins info');
     }
@@ -161,7 +182,7 @@ const jenkins = new Jenkins({
         GridMode: gridMode || '',
         Browsers: browsers || '',
         ProfilePath: ProfilePath || '',
-        Token: Token || '',
+        TOKEN: Token || '',
       };
       if (localImagePath) {
         parameters.Image = fs.createReadStream(localImagePath); // Add image parameter only if provided

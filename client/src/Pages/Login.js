@@ -40,7 +40,7 @@ export default function Login() {
           Sign In
         </Typography>
         <Typography variant="h2" className="login-subtitle">
-          Doings ERP
+          DOINGERP.COM
         </Typography>
       </div>
       <Container className="login-content" style={{ display: 'flex', justifyContent: 'center' }}>

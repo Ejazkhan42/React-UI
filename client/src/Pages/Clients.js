@@ -58,7 +58,7 @@ function Clients() {
     fetchClients();
   }, []);
   
-console.log(data)
+//console.log(data)
   const handleClickOpen = (clientIndex = null) => {
     if (clientIndex !== null) {
       setIsEdit(true);
