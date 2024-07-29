@@ -111,6 +111,7 @@ const DataSetTable = ({ excelData }) => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        sx={{ marginTop: "16px", fontSize: "1.5rem" }}
       />
     </Paper>
   );
@@ -170,33 +171,10 @@ const ResponsivePage = () => {
 
   return (
     <Container>
-      <Box sx={{ mb: 4 }}>
-        <StyledPaper>
-          <Typography variant="h6" gutterBottom fontSize={"1.5rem"}>
-            Running
-          </Typography>
-          <Typography variant="body2" fontSize={"1.1.2rem"}>
-            Requisition Management &gt; Create Job Requisition
-          </Typography>
-        </StyledPaper>
-      </Box>
-      <Typography variant="h6">System Log</Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={3}>
-          <StyledPaper>
-            <SystemLog>
-              <LogItem>Login</LogItem>
-              <LogItem>Home</LogItem>
-              <LogItem>Requisition Page</LogItem>
-              <LogItem active>Adding Requisition</LogItem>
-              <LogItem>Click On Submit</LogItem>
-              <LogItem>view all</LogItem>
-            </SystemLog>
-          </StyledPaper>
-        </Grid>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={9}>
           <Box sx={{ height: "100%", width: "100%", minHeight: "500px" }}>
-            <InputLabel id="demo-multiple-checkbox-label">
+            <InputLabel id="demo-multiple-checkbox-label" sx={{fontSize: "1.5rem"}}>
               Select Session
             </InputLabel>
 
@@ -222,8 +200,9 @@ const ResponsivePage = () => {
             </Select>
             <Box style={{ marginTop: "10px" }}>
               <Button
-                variant="contained"
-                color="secondary"
+                // variant="contained"
+                // color="secondary"
+                sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
                 onClick={handleConnect}
                 disabled={
                   vncConnectionStatus === "connecting" ||
@@ -235,6 +214,7 @@ const ResponsivePage = () => {
               <Button
                 style={{ marginLeft: "10px" }}
                 variant="outlined"
+                sx={{ fontSize: '1.5rem' }}
                 onClick={handleDisconnect}
                 disabled={vncConnectionStatus === "disconnected"}
               >

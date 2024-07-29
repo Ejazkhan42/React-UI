@@ -39,18 +39,10 @@
   justify-content: space-between;
   align-items: center;
 }
-body {
-  margin-top: 50px;
-  background-color: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  letter-spacing: 0.01em;
-  color: #39464e;
-}
 
 .navbar-default {
   background-color: #FFF;
-  margin-left: 200px;
+  /* margin-left: 200px; */
   z-index: 1000;
   position: relative;
 }
@@ -64,8 +56,8 @@ body {
 
 /* Main sidebar */
 .msb {
-  margin-top: 3.5%;
-  width: 200px;
+  /* margin-top: 3.5%; */
+  width:18%;
   background-color: #F5F7F9;
   position: fixed;
   left: 0;
@@ -81,12 +73,18 @@ body {
 }
 
 .msb-x {
-  left: -200px;
+  position: fixed;
+  width: 7%;
+  height: -webkit-fill-available;
+  transition: all 0.3s ease-in-out;
+  background-color: #F5F7F9;
+
+  
 }
 
 .navbar {
   border: none;
-  margin-left: 0;
+  /* margin-left: 0; */
   background-color: inherit;
 }
 
@@ -118,7 +116,7 @@ body {
 }
 
 .navbar-nav li a .fa {
-  margin-right: 8px;
+  margin-right: 16px;
 }
 
 .brand-name-wrapper {
@@ -173,6 +171,9 @@ body.msb-x .mnb {
   margin-left: 0;
 }
 
+.mnb{
+display: flex;
+}
 body.msb-x .msb {
   left: -200px;
 }

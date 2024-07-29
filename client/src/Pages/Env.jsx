@@ -25,13 +25,13 @@ const EnvPage = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '0 16px' }}>
       <Paper style={{ width: '100%', maxWidth: '800px', padding: '16px' }}>
-        <Typography variant="h4" style={{ fontSize: '1.2rem', marginBottom: '16px' }}>Environment Variables</Typography>
+        <Typography variant="h4" style={{ fontSize: '2rem', marginBottom: '16px' }}>Environment Variables</Typography>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ fontSize: '1.2rem' }}>Icon</TableCell>
-                <TableCell style={{ fontSize: '1.2rem' }}>Environment Name</TableCell>
+                <TableCell style={{ fontSize: '2rem' }}>Icon</TableCell>
+                <TableCell style={{ fontSize: '2rem' }}>Environment Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -42,13 +42,13 @@ const EnvPage = () => {
                   onClick={() => handleRowClick(env.instance_url)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <TableCell style={{ fontSize: '1.2rem', width: '60px', textAlign: 'center' }}>
+                  <TableCell style={{ fontSize: '2rem', width: '60px', textAlign: 'center' }}>
                     <IconButton>
                       {/* Display a unique icon based on environment */}
                       <DeviceHubIcon color="primary" style={{ fontSize: '2rem' }} />
                     </IconButton>
                   </TableCell>
-                  <TableCell style={{ fontSize: '1.2rem' }}>{env.envName}</TableCell>
+                  <TableCell style={{ fontSize: '2rem' }}>{env.envName}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

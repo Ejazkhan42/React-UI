@@ -35,10 +35,10 @@ const CustomersPage = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell style={{ width: '60px' }}>
-                                <Typography variant="h6" style={{ fontSize: '1.2rem' }}>Icon</Typography>
+                                <Typography variant="h6" style={{ fontSize: '2rem' }}>Icon</Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography variant="h6" style={{ fontSize: '1.2rem' }}>Customer</Typography>
+                                <Typography variant="h6" style={{ fontSize: '2rem' }}>Customer</Typography>
                             </TableCell>
                         </TableRow>
                     </TableHead>
@@ -47,11 +47,11 @@ const CustomersPage = () => {
                             <TableRow key={key} hover>
                                 <TableCell onClick={() => handleClick(key)} style={{ width: '60px', textAlign: 'center', cursor: 'pointer' }}>
                                     <IconButton onClick={() => handleClick(key)} style={{ fontSize: '2rem' }}>
-                                        <FolderIcon color="primary" />
+                                        <FolderIcon color="primary" fontSize='2rem'/>
                                     </IconButton>
                                 </TableCell>
                                 <TableCell onClick={() => handleClick(key)} style={{ cursor: 'pointer' }}>
-                                    <Typography onClick={() => handleClick(key)} variant="body1" style={{ fontSize: '1.2rem' }}>
+                                    <Typography onClick={() => handleClick(key)} variant="body1" style={{ fontSize: '2rem' }}>
                                         {key}
                                     </Typography>
                                 </TableCell>

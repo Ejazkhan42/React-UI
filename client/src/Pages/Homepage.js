@@ -260,18 +260,18 @@ function Homepage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Job Run</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell style={{ fontSize: "2rem" }}>Name</TableCell>
+                <TableCell style={{ fontSize: "2rem" }}>Job Run</TableCell>
+                <TableCell style={{ fontSize: "2rem" }}>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {slicedData.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell style={{ fontSize: "1.2rem" }}>
+                  <TableCell style={{ fontSize: "2rem" }}>
                     {row.test_name}
                   </TableCell>
-                  <TableCell style={{ fontSize: "1.2rem" }}>
+                  <TableCell style={{ fontSize: "2rem" }}>
                     {new Date(row.start_time).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
@@ -299,6 +299,8 @@ function Homepage() {
             onPageChange={handlePageChange}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={handleRowsPerPageChange}
+            fontSize="2rem"
+            style={{ fontSize: "2rem" }}
           />
         </TableContainer>
       </div>
@@ -306,7 +308,7 @@ function Homepage() {
   };
 
   return (
-    <div style={{ marginLeft: "20%", marginRight: "20%" }}>
+    <div style={{ marginLeft: "20%", marginRight: "13%" }}>
       <TopPanel />
       <ChartComponent />
       <TableComponent />

@@ -57,6 +57,7 @@ export default function Login() {
                 onChange={(e) => setUsername(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 style={{ marginLeft: 10 }}
+                sx={{ fontSize:"1.5rem" }}
               />
             </Box>
             <Box display="flex" alignItems="flex-end" mb={2}>
@@ -71,6 +72,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 style={{ marginLeft: 10, fontSize:"1.5rem" }}
+                sx={{ fontSize:"1.5rem" }}
                 InputProps={{
                   endAdornment: (
                     <IconButton onClick={togglePasswordVisibility}>
@@ -81,7 +83,7 @@ export default function Login() {
               />
             </Box>
             <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-              <Link href="#" underline="none" className="forgot-password">
+                <Link href="#" underline="none" className="forgot-password" sx={{ fontSize:"1.5rem" }}>
                 Forgot Password
               </Link>
             </Box>
@@ -103,14 +105,15 @@ export default function Login() {
             </Box>
             <Box mt={3}>
               <FormControl fullWidth variant="standard">
-                <InputLabel id="language-select-label"><LanguageIcon style={{ marginRight: '10px' }} /> Select Language</InputLabel>
+                <InputLabel id="language-select-label" sx={{ fontSize:"1.5rem" }}><LanguageIcon style={{ marginRight: '10px', fontSize:"1.5rem" }} /> Select Language</InputLabel>
                 <Select
                   labelId="language-select-label"
                   id="language-select"
                   value={language}
+                  sx={{ fontSize:"1.5rem" }}
                   onChange={(e) => setLanguage(e.target.value)}
                 >
-                  <MenuItem value="English">English</MenuItem>
+                  <MenuItem value="English" >English</MenuItem>
                   <MenuItem value="Spanish">Spanish</MenuItem>
                   <MenuItem value="French">French</MenuItem>
                 </Select>

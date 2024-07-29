@@ -1,22 +1,21 @@
-import React, { useState, useEffect, useContext } from "react";
-import "./Styles/sidebar.css";
-import axios from "axios";
-import { SidebarData } from "./SidebarData";
+import React, { useState, useContext, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+import axios from "axios";
+import { Avatar, Menu, MenuItem } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import HomeIcon from "@mui/icons-material/Home";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import MenuIcon from "@mui/icons-material/Menu";
-import { Avatar, Menu, MenuItem } from "@mui/material";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-const APPI_URL=process.env.REACT_APP_APPI_URL
+import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+import { SidebarData } from "./SidebarData";
+import "./Styles/sidebar.css";
+import { PaddingTwoTone } from "@mui/icons-material";
+
 const logout = () => {
   axios
-    .get(`${APPI_URL}/logout`, {
-      withCredentials: true,
-    })
+    .get("http://localhost:5000/logout", { withCredentials: true })
     .then((res) => {
       if (res.data === "success") {
         window.location.href = "/login";
@@ -59,32 +58,28 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
   return (
     <div>
       {ctx && (
-        <nav className="mnb navbar navbar-default navbar-fixed-top">
-          <div className="container-fluid">
-            <div className="navbar-header">
-             
-              <div className="left-icons-and-breadcrumb" style={{ display: "flex", flexDirection: "column", padding: "10px" }}>
+        <nav className="mnb">
+          <div className="navbar-header">
+            <div
+              className="left-icons-and-breadcrumb"
+              style={{ display: "flex", flexDirection: "column", padding: "10px" }}
+            >
               <div className="nav-icons-left">
                 {!isDashboard && (
                   <ArrowBackIcon
                     onClick={() => navigate(-1)}
-                    style={{ cursor: "pointer", marginRight: "10px" }}
+                    style={{ cursor: "pointer", marginRight: "10px", fontSize: "2rem" }}
                   />
                 )}
                 <span
                   style={{
                     fontWeight: "bolder",
                     paddingRight: "10px",
-                    fontSize: "1.5rem",
                   }}
                 >
-                  DOINGERP
+                 @ DoingERP.com
                 </span>
-                <MenuIcon
-                  className="menu"
-                  onClick={toggleSidebar}
-                  style={{ cursor: "pointer" }}
-                />
+                
               </div>
               <div className="breadcrumb-container">
                 <Breadcrumbs aria-label="breadcrumb">
@@ -98,10 +93,8 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                         textDecoration: index < breadcrumbs.length - 1 ? "underline" : "none",
                         fontWeight: index < breadcrumbs.length - 1 ? "normal" : "bold",
                         marginRight: "5px",
-                        fontSize: "1.5rem",
+                        fontSize: "2rem",
                         cursor: "pointer",
-                        textTransform:"uppercase",
-                        hover: { textDecoration: "none" },
                       }}
                     >
                       {breadcrumb.name}
@@ -109,31 +102,29 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                   ))}
                 </Breadcrumbs>
               </div>
-             
-              </div>
+            </div>
 
-               <div className="nav-icons-right" style={{ marginTop: "10px" }}>
-                <div style={{ marginRight: "10px", marginTop: "10px" }}>
-                  <HomeIcon
-                    fontSize="large"
-                    onClick={() => navigate("/")}
-                    style={{ cursor: "pointer" }}
-                  />
-                </div>
-                <Avatar
-                  onClick={handleAvatarClick}
-                  style={{ cursor: "pointer", backgroundColor: "#3f51b5" }}
-                >
-                  {ctx.username[0].toUpperCase()}
-                </Avatar>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleAvatarClose}
-                >
-                  <MenuItem onClick={logout}>Logout</MenuItem>
-                </Menu>
+            <div className="nav-icons-right" style={{ marginTop: "10px" }}>
+              <div style={{ marginRight: "10px", marginTop: "10px" }}>
+                <HomeIcon
+                  fontSize="2rem"
+                  onClick={() => navigate("/")}
+                  style={{ cursor: "pointer" }}
+                />
               </div>
+              <Avatar
+                onClick={handleAvatarClick}
+                style={{ cursor: "pointer", backgroundColor: "#3f51b5", fontSize: "2rem", width: "50px", height: "50px" }}
+              >
+                {ctx.username[0].toUpperCase()}
+              </Avatar>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleAvatarClose}
+              >
+                <MenuItem sx={{ fontSize: "1.5rem" }} onClick={logout}>Logout</MenuItem>
+              </Menu>
             </div>
           </div>
         </nav>
@@ -142,13 +133,41 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
   );
 };
 
-const SidebarSection = ({ ctx, sidebarClass, closeSidebar }) => {
+const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
+  const sidebarHeaderStyle = {
+    backgroundColor: sidebarClass === "msb" ? "inherit" : "gray",
+    width: "99%",
+    paddingLeft: sidebarClass === "msb"? "10%" : "29%",
+    paddingTop: sidebarClass === "msb"? "8%" : "28%",
+    paddingBottom: sidebarClass === "msb"? "" : "27%",
+
+  };
+
+  const lipadding={
+    padding: sidebarClass === "msb" ? "6%" : "18%",
+  }
   return (
     <div>
       {ctx && (
         <div className={sidebarClass} id="msb">
-          <nav className="navbar navbar-default" role="navigation">
-            <div className="sidebar-header"></div>
+          <nav role="navigation">
+            <div className="sidebar-header" style={sidebarHeaderStyle}>
+              {sidebarClass === "msb" ? (
+                <div>
+                  <CloseIcon
+                  onClick={toggleSidebar}
+                  style={{ cursor: "pointer", fontSize: "3rem", }}
+                />
+                <h3 className="brand">@ DoingERP.com</h3>
+                </div>
+
+              ) : (
+                <MenuIcon
+                  onClick={toggleSidebar}
+                  style={{ cursor: "pointer", fontSize: "3rem", color: "white" }}
+                />
+              )}
+            </div>
             <div className="side-menu-container">
               <ul className="nav navbar-nav">
                 {SidebarData.map((val, key) => {
@@ -156,16 +175,16 @@ const SidebarSection = ({ ctx, sidebarClass, closeSidebar }) => {
                     return null;
                   }
                   return (
-                    <li key={key}>
+                    <li key={key} style={lipadding}>
                       <NavLink
                         to={val.link}
                         className={({ isActive }) =>
                           isActive ? "sidebar-active-link" : "sidebar-link"
                         }
-                        onClick={closeSidebar}
+                        onClick={toggleSidebar}
                       >
                         <i className={`fa ${val.icon.toLowerCase()}`}></i>
-                        {val.title}
+                        {sidebarClass === "msb" && val.title}
                       </NavLink>
                     </li>
                   );
@@ -184,23 +203,18 @@ function Sidebar() {
   const [sidebarClass, setSidebarClass] = useState("msb");
 
   const toggleSidebar = () => {
-    setSidebarClass(sidebarClass === "msb" ? "msb msb-x" : "msb");
-    document.body.classList.toggle("msb-x");
-  };
-
-  const closeSidebar = () => {
-    setSidebarClass("msb msb-x");
-    document.body.classList.add("msb-x");
+    setSidebarClass(sidebarClass === "msb" ? "msb-x" : "msb");
   };
 
   return (
     <div className="SidebarWrapper">
-      <NavbarSection ctx={ctx} toggleSidebar={toggleSidebar} />
       <SidebarSection
         ctx={ctx}
         sidebarClass={sidebarClass}
-        closeSidebar={closeSidebar}
+        toggleSidebar={toggleSidebar}
       />
+      <NavbarSection ctx={ctx} toggleSidebar={toggleSidebar} />
+      
     </div>
   );
 }

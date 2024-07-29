@@ -20,6 +20,7 @@ import Instances from './Pages/Instances';
 import Business from './Pages/Business';
 import Customers from './Pages/Customers';
 import Env from './Pages/Env';
+import "./app.css";
 
 function App() {
     const ctx = useContext(AuthLoginInfo);

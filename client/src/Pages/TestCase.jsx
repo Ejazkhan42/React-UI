@@ -31,8 +31,6 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { v4 as uuid } from 'uuid';
 
-const APPI_URL=process.env.REACT_APP_APPI_URL
-let JOBNAME
 const uuidFromUuidV4 = () => {
   const newUuid = uuid();
   return newUuid;
@@ -84,7 +82,6 @@ const VisuallyHiddenImageInput = styled('input')({
 const TestCasePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const {JOB}=location.state||{};
   const { moduleId } = location.state || {};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
@@ -101,11 +98,11 @@ const TestCasePage = () => {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [excelData, setExcelData] = useState([]);
   const [selectEnv, setSelectEnv] = useState([]);
-  const [selectedEnv, setSelectedEnv] = useState([]);
+  const [selectedEnv, setSelectedEnv] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    axios.get(`${APPI_URL}/getenv`, { withCredentials: true })
+    axios.get('http://localhost:5000/getenv', { withCredentials: true })
       .then((res) => {
         if (res.data != null) {
           setSelectEnv(res.data);
@@ -117,10 +114,12 @@ const TestCasePage = () => {
     if (moduleId !== null) {
       const fetchTestCases = async () => {
         try {
-          const response = await axios.get(`${APPI_URL}/testcase?id=${moduleId}`,{ withCredentials: true });
-          if(response.data!==null){
-            setTestCases(response.data)
-          }
+          const response = await axios.get(`http://localhost:5000/testcase?id=${moduleId}`, { withCredentials: true });
+          // console.log(response.data);
+          if(response.data != null) {
+            setTestCases(response.data);
+          } 
+
           // if (localStorage.getItem('testcases') == null) {
           //   localStorage.setItem('testcases', JSON.stringify(response.data));
           // }
@@ -136,26 +135,20 @@ const TestCasePage = () => {
     }
   }, [moduleId]);
 
-  if(JOBNAME==undefined){
-    if(JOB!='' && JOB!=undefined){
-      JOBNAME=JOB
-    }
-    else{
-        JOBNAME='TestCase';
-    }
-    
-  }
-
   const handleCheckboxChange = (event, testCaseId) => {
-    const checked = event.target.checked;
-  
-    setSelectedTestCases(prevSelectedTestCases => 
-      checked 
-        ? [...prevSelectedTestCases, testCaseId] 
+    const isChecked = event.target.checked;
+    setSelectedTestCases(prevSelectedTestCases =>
+      isChecked
+        ? [...prevSelectedTestCases, testCaseId]
         : prevSelectedTestCases.filter(id => id !== testCaseId)
     );
+    // setSelectedTestCases((prev) => {
+    //   if (event.target.checked) {
+    //     console.log(testCaseId);
+    //     return [...prev, testCaseId];
+    //   } 
+    // });
   };
-  
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -167,6 +160,7 @@ const TestCasePage = () => {
   );
 
   const paginatedData = filteredTestCases.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage);
+  // console.log(paginatedData);
 
   const handleRunClick = () => {
     const selectedTestCaseNames = paginatedData
@@ -178,22 +172,15 @@ const TestCasePage = () => {
     setOpenModal(true); // Open the modal
   };
 
-  ////console.log(selectEnv)
   const handleFileChange = async (event) => {
     if (event.target.files !== undefined) {
       setSelectedFile(event.target.files[0]);
       const file = event.target.files[0];
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
-      const sheetName = "Test_Data";
-      console.log(workbook)
-      const sheet = workbook.Sheets[sheetName];
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      console.log(changeList);
-      const filteredData = jsonData.filter(entry => 
-        changeList.includes(entry["Test Data"])
-    );
-      setExcelData(filteredData);
+      setExcelData(jsonData);
     }
   };
 
@@ -206,7 +193,7 @@ const TestCasePage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
-    formData.append('jobName', JOBNAME);
+    formData.append('jobName', 'TestCase');
     formData.append('testCase', changeList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
@@ -227,7 +214,7 @@ const TestCasePage = () => {
     }
 
     try {
-      const response = await fetch(`${APPI_URL}/build`, {
+      const response = await fetch('http://103.91.186.135:5000/build', {
         method: 'POST',
         body: formData,
       });
@@ -246,8 +233,10 @@ const TestCasePage = () => {
 
   const handleTestCaseChange = (event) => {
     const { value } = event.target;
-    if (value.length > 0) {
+    //  console.log(value)
+    if (value !== null) {
       setChangeList(value);
+      console.log(changeList)
     }
   };
 
@@ -271,13 +260,13 @@ const TestCasePage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search"
             variant="outlined"
-            size="small"
+            size="large"
           />
           <Button
-            variant="contained"
-            color="primary"
+            // variant="contained"
+            // color="primary"
             onClick={() => handleRunClick()}
-            sx={{ ml: 2 }}
+            sx={{ ml: 2, fontSize: '2rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
           >
             Run
           </Button>
@@ -289,21 +278,21 @@ const TestCasePage = () => {
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox"></TableCell>
-                <TableCell align="left" sx={{ fontSize: '1.2rem' }}>Test Case</TableCell>
-                <TableCell align="left" sx={{ fontSize: '1.2rem' }}>Description</TableCell>
+                <TableCell align="left" sx={{ fontSize: '2rem' }}>Test Case</TableCell>
+                <TableCell align="left" sx={{ fontSize: '2rem' }}>Description</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {paginatedData.map((testCase) => (
                 <TableRow key={testCase.Id}>
-                  <TableCell padding="checkbox">
+                  <TableCell padding="checkbox" sx={{ fontSize: '2rem' }}>
                     <Checkbox
-                      checked={selectedTestCases.includes(testCase.Id)}
+                      checked={selectedTestCases.includes(testCase.Id)}   
                       onChange={(event) => handleCheckboxChange(event, testCase.Id)}
                     />
                   </TableCell>
-                  <TableCell align="left">{testCase.Test_Case}</TableCell>
-                  <TableCell align="left">{testCase.Description}</TableCell>
+                  <TableCell align="left" sx={{ fontSize: '2rem' }}>{testCase.Test_Case}</TableCell>
+                  <TableCell align="left" sx={{ fontSize: '2rem' }}>{testCase.Description}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -317,6 +306,7 @@ const TestCasePage = () => {
           page={currentPage}
           onPageChange={(event, newPage) => setCurrentPage(newPage)}
           onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+          sx={{ fontSize: '2rem' }}
         />
       </StyledPaper>
     
@@ -341,7 +331,7 @@ const TestCasePage = () => {
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <FormControl fullWidth>
-                      <InputLabel id="demo-multiple-checkbox-label">Test Cases</InputLabel>
+                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: '2rem' }}>Test Cases</InputLabel>
                       <Select
                         labelId="demo-multiple-checkbox-label"
                         id="demo-multiple-checkbox"
@@ -351,9 +341,10 @@ const TestCasePage = () => {
                         input={<OutlinedInput label="Test Cases" />}
                         renderValue={(selected) => selected.join(', ')}
                         MenuProps={MenuProps}
+                        // sx={{ fontSize: '2rem' }}
                       >
                         {testCaseList.map((testCase) => (
-                          <MenuItem key={testCase} value={testCase}>
+                          <MenuItem key={testCase} value={testCase} sx={{ fontSize: '2rem' }}>
                             <ListItemText primary={testCase} />
                           </MenuItem>
                         ))}
@@ -362,7 +353,7 @@ const TestCasePage = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <FormControl fullWidth>
-                      <InputLabel id="demo-multiple-checkbox-label">Select Env</InputLabel>
+                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: '2rem' }}>Select Env</InputLabel>
                       <Select
                         labelId="demo-multiple-checkbox-label"
                         id="demo-multiple-checkbox"
@@ -372,10 +363,11 @@ const TestCasePage = () => {
                         input={<OutlinedInput label="Test Cases" />}
                         renderValue={(selected) => selected.join(', ')}
                         MenuProps={MenuProps}
+                        sx={{ fontSize: '2rem' }}
                       >
                         {selectEnv.map((env) => (
-                          <MenuItem key={env.id} value={env.envName}>
-                            <ListItemText primary={env.envName} />
+                          <MenuItem key={env} value={env}>
+                            <ListItemText primary={env} sx={{ fontSize: '2rem' }}/>
                           </MenuItem>
                         ))}
                       </Select>
@@ -391,11 +383,12 @@ const TestCasePage = () => {
                         onChange={(event) => setSelectedBrowser(event.target.value)}
                         input={<OutlinedInput label="Browser" />}
                         MenuProps={MenuProps}
+                        sx={{ fontSize: '2rem' }}
                       >
-                        <MenuItem value="chrome">Chrome</MenuItem>
-                        <MenuItem value="firefox">Firefox</MenuItem>
-                        <MenuItem value="edge">Edge</MenuItem>
-                        <MenuItem value="safari">Safari</MenuItem>
+                        <MenuItem sx={{ fontSize: '2rem' }} value="chrome">Chrome</MenuItem>
+                        <MenuItem  sx={{ fontSize: '2rem' }} value="firefox">Firefox</MenuItem>
+                        <MenuItem sx={{ fontSize: '2rem' }} value="edge">Edge</MenuItem>
+                        <MenuItem sx={{ fontSize: '2rem' }} value="safari">Safari</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -410,8 +403,8 @@ const TestCasePage = () => {
                         input={<OutlinedInput label="Grid Mode" />}
                         MenuProps={MenuProps}
                       >
-                        <MenuItem value="on">On</MenuItem>
-                        <MenuItem value="off">Off</MenuItem>
+                        <MenuItem sx={{ fontSize: '2rem' }} value="on">On</MenuItem>
+                        <MenuItem sx={{ fontSize: '2rem' }} value="off">Off</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -419,9 +412,11 @@ const TestCasePage = () => {
                     <Button
                       component="label"
                       role={undefined}
-                      variant="contained"
+                      // variant="contained"
+                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
                       tabIndex={-1}
                       startIcon={<CloudUploadIcon />}
+                      // sx={{ fontSize: '2rem' }}
                     >
                       Upload file
                       <VisuallyHiddenInput type="file" name='file' onChange={handleFileChange} />
@@ -430,10 +425,12 @@ const TestCasePage = () => {
                     <Button
                       component="label"
                       role={undefined}
-                      variant="contained"
+                      // variant="contained"
                       tabIndex={-1}
                       startIcon={<CloudUploadIcon />}
                       style={{ marginLeft: '10px' }}
+                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
+
                     >
                       Upload image
                       <VisuallyHiddenImageInput type="file" name='image' onChange={handleImageFileChange} />
@@ -441,7 +438,10 @@ const TestCasePage = () => {
                   
                   </Grid>
                   <Grid item xs={12}>
-                    <Button type="submit" variant="contained" fullWidth>
+                    <Button type="submit" fullWidth 
+                    sx={{ ml: 2, fontSize: '2rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
+                    
+                    >
                       Submit
                     </Button>
                   </Grid>
@@ -456,4 +456,4 @@ const TestCasePage = () => {
   );
 };
 
-export default TestCasePage;
+export default TestCasePage;
