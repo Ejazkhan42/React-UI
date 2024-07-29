@@ -21,7 +21,7 @@ export const SidebarData = [
     link: "/customerdetails"
   },
   {
-    title: "customers",
+    title: "Customers",
     icon: "fa-calendar",
     link: "/customers"
   },

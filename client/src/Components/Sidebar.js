@@ -100,6 +100,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                         marginRight: "5px",
                         fontSize: "1.5rem",
                         cursor: "pointer",
+                        textTransform:"uppercase",
                         hover: { textDecoration: "none" },
                       }}
                     >
