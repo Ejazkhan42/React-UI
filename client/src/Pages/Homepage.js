@@ -30,8 +30,8 @@ import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 import "./Styles/homepage.css";
-import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
-const APPI_URL=process.env.REACT_APP_APPI_URL
+import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+import { useNavigate } from 'react-router-dom';
 
 function Homepage() {
   const ctx = useContext(AuthLoginInfo);
@@ -41,6 +41,7 @@ function Homepage() {
   const [lineData, setLineData] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -103,6 +104,27 @@ function Homepage() {
     const tableElement = document.getElementById("table-component");
     tableElement.scrollIntoView({ behavior: "smooth" });
   };
+
+  function ButtonComponent() {
+    const [isClicked, setIsClicked] = useState(false);
+  
+    const handleClick = () => {
+      setIsClicked(true);
+      setTimeout(() => setIsClicked(false), 1000); // Reset click state after animation
+      navigate('/customers');
+
+    };
+  
+    return (
+      <a
+        className={`btn ${isClicked ? 'is-clicked' : ''}`}
+        onClick={handleClick}
+      >
+        Add TestCase
+      </a>
+    );
+  }
+  
 
   const TopPanel = () => {
     return (
@@ -309,6 +331,7 @@ function Homepage() {
 
   return (
     <div style={{ marginLeft: "20%", marginRight: "13%" }}>
+      <ButtonComponent />
       <TopPanel />
       <ChartComponent />
       <TableComponent />

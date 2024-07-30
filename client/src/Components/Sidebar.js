@@ -35,7 +35,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
       const newBreadcrumbs = [...prevBreadcrumbs];
       if (!newBreadcrumbs.find((breadcrumb) => breadcrumb.path === location.pathname)) {
         newBreadcrumbs.push({
-          path: location.pathname,
+          path: location.pathname.toUpperCase(),
           name: location.pathname.split('/').pop() || 'Home',
         });
       }
@@ -74,7 +74,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                 <span
                   style={{
                     fontWeight: "bolder",
-                    paddingRight: "10px",
+                    // paddingRight: "10px",
                   }}
                 >
                  @ DoingERP.com
@@ -97,7 +97,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                         cursor: "pointer",
                       }}
                     >
-                      {breadcrumb.name}
+                      {breadcrumb.name[0].toUpperCase()+breadcrumb.name.slice(1)}
                     </Link>
                   ))}
                 </Breadcrumbs>
@@ -134,17 +134,24 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
 };
 
 const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
-  const sidebarHeaderStyle = {
-    backgroundColor: sidebarClass === "msb" ? "inherit" : "gray",
+  let sidebarHeaderStyle = {
+    backgroundColor: sidebarClass === "msb" ? "transparent" : "gray",
     width: "99%",
-    paddingLeft: sidebarClass === "msb"? "10%" : "29%",
-    paddingTop: sidebarClass === "msb"? "8%" : "28%",
-    paddingBottom: sidebarClass === "msb"? "" : "27%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "10px",
+    position: "sticky",
+    top: 0,
+    zIndex: 1,
+    height: sidebarClass === "msb" ? "": "96px",
+    marginTop: sidebarClass === "msb" ?"10%": "0",
+    
 
   };
 
   const lipadding={
-    padding: sidebarClass === "msb" ? "6%" : "18%",
+    padding: sidebarClass === "msb" ?"5%": "18%",
   }
   return (
     <div>
@@ -158,13 +165,15 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
                   onClick={toggleSidebar}
                   style={{ cursor: "pointer", fontSize: "3rem", }}
                 />
-                <h3 className="brand">@ DoingERP.com</h3>
+                <h3 className="brand" style={{fontWeight:"bolder"}}>@ DoingERP.com</h3>
                 </div>
 
               ) : (
                 <MenuIcon
                   onClick={toggleSidebar}
-                  style={{ cursor: "pointer", fontSize: "3rem", color: "white" }}
+                  // style={{ cursor: "pointer", fontSize: "3rem", color: "white" }}
+                  color="white"
+                  className="sidebar-icon"
                 />
               )}
             </div>

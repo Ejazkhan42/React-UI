@@ -57,7 +57,7 @@
 /* Main sidebar */
 .msb {
   /* margin-top: 3.5%; */
-  width:18%;
+  width:min-content;
   background-color: #F5F7F9;
   position: fixed;
   left: 0;
@@ -74,7 +74,7 @@
 
 .msb-x {
   position: fixed;
-  width: 7%;
+  width: min-content;
   height: -webkit-fill-available;
   transition: all 0.3s ease-in-out;
   background-color: #F5F7F9;
@@ -174,8 +174,41 @@ body.msb-x .mnb {
 .mnb{
 display: flex;
 }
+
 body.msb-x .msb {
   left: -200px;
+}
+
+.msb-x .sidebar-icon{
+  font-size: 3rem;
+  cursor: pointer;
+  color: white;
+}
+
+
+
+
+
+@media (max-width: 768px) {
+.msb-x{
+  background-color: transparent;
+
+}
+  .msb-x .side-menu-container {
+  display: none;
+  overflow: auto;
+  width: auto;
+}
+.msb-x .navigation .sidebar-header{
+  background-color: transparent;
+}
+.msb-x .sidebar-icon{
+  font-size: 1.5rem;
+  color: white;
+}
+.left-icons-and-breadcrumb{
+  margin-left: 6%;
+}
 }
 
 /* Responsive adjustments */

@@ -26,7 +26,7 @@ export const SidebarData = [
     link: "/customers"
   },
   {
-    title: "Admin pannel",
+    title: "Admin Panel",
     icon: "fa-user",
     link: "/adminPannel",
     role: 1

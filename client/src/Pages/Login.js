@@ -22,7 +22,7 @@ export default function Login() {
       password
     }, { withCredentials: true }).then(res => {
       if (res.data === 'success') {
-        window.location.href = '/customers';
+        window.location.href = '/';
       }
     }).catch(error => {
       console.error('Login error:', error);
@@ -40,7 +40,7 @@ export default function Login() {
           Sign In
         </Typography>
         <Typography variant="h2" className="login-subtitle">
-          DOINGERP.COM
+          DoingERP.com
         </Typography>
       </div>
       <Container className="login-content" style={{ display: 'flex', justifyContent: 'center' }}>
