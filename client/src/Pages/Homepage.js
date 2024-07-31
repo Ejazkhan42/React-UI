@@ -33,6 +33,8 @@ import "./Styles/homepage.css";
 import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
 import { useNavigate } from 'react-router-dom';
 
+const APPI_URL=process.env.REACT_APP_APPI_URL
+
 function Homepage() {
   const ctx = useContext(AuthLoginInfo);
   const isAuthenticated = !Array.isArray(ctx);

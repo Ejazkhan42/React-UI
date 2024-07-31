@@ -33,6 +33,8 @@ import { v4 as uuid } from 'uuid';
 
 const APPI_URL=process.env.REACT_APP_APPI_URL
 
+let JOBNAME
+
 const uuidFromUuidV4 = () => {
   const newUuid = uuid();
   return newUuid;
@@ -85,6 +87,7 @@ const TestCasePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { moduleId } = location.state || {};
+  const {JOB}=location.state||{};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,8 +103,18 @@ const TestCasePage = () => {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [excelData, setExcelData] = useState([]);
   const [selectEnv, setSelectEnv] = useState([]);
-  const [selectedEnv, setSelectedEnv] = useState('');
+  const [selectedEnv, setSelectedEnv] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  if(JOBNAME==undefined){
+    if(JOB!='' && JOB!=undefined){
+      JOBNAME=JOB
+    }
+    else{
+        JOBNAME='TestCase';
+    }
+    
+  }
 
   useEffect(() => {
     axios.get(`${APPI_URL}/getenv`, { withCredentials: true })
@@ -166,9 +179,15 @@ const TestCasePage = () => {
       const file = event.target.files[0];
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const sheetName = "Test_Data";
+      console.log(workbook)
+      const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      setExcelData(jsonData);
+      console.log(changeList);
+      const filteredData = jsonData.filter(entry => 
+        changeList.includes(entry["Test Data"])
+    );
+      setExcelData(filteredData);
     }
   };
 
@@ -181,7 +200,7 @@ const TestCasePage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
-    formData.append('jobName', 'TestCase');
+    formData.append('jobName', JOBNAME);
     formData.append('testCase', changeList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
@@ -251,8 +270,6 @@ const TestCasePage = () => {
             size="large"
           />
           <Button
-            // variant="contained"
-            // color="primary"
             onClick={() => handleRunClick()}
             sx={{ ml: 2, fontSize: '2rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
           >
@@ -354,8 +371,8 @@ const TestCasePage = () => {
                         sx={{ fontSize: '2rem' }}
                       >
                         {selectEnv.map((env) => (
-                          <MenuItem key={env} value={env}>
-                            <ListItemText primary={env} sx={{ fontSize: '2rem' }}/>
+                          <MenuItem key={env.id} value={env.envName}>
+                            <ListItemText primary={env.envName} sx={{ fontSize: '2rem' }}/>
                           </MenuItem>
                         ))}
                       </Select>
