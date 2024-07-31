@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import RFB from "@novnc/novnc/lib/rfb"; // Adjust the import path as per your setup
 import { CircularProgress } from "@mui/material";
+
+const VNC_URL=process.env.REACT_APP_SELENOID
+const VNC_Password=process.env.REACT_APP_SELENOID_PASSWORD
+
 export default class VncScreen extends Component {
     constructor(props) {
         super(props);
@@ -15,10 +19,6 @@ export default class VncScreen extends Component {
             rfb.resizeSession = true;
             rfb.scaleViewport = true;
         }
-    }
-
-    static defaultPort(protocol) {
-        return protocol === "https:" ? "443" : "8090";
     }
 
     connection(status) {
@@ -57,11 +57,11 @@ export default class VncScreen extends Component {
 
     connectRFB = (session) => {
        
-        const hostname="gridview.doingerp.com";
-        const link = `http://${hostname}`;
-        const port = VncScreen.defaultPort(new URL(link).protocol);
-        this.disconnect(this.rfb); // Disconnect any existing connection
-        this.rfb = this.createRFB(hostname, port, session, this.isSecure(link));
+        const selenoid= new URL(VNC_URL);
+        const link = selenoid
+        const port = link.port
+        this.disconnect(this.rfb);
+        this.rfb = this.createRFB(link.hostname, port, session, this.isSecure(link.protocol));
     };
 
     createRFB(hostname, port, session, secure) {
@@ -70,7 +70,7 @@ export default class VncScreen extends Component {
             `${secure ? "wss" : "ws"}://${hostname}:${port}/vnc/${session}`,
             {
                 credentials: {
-                    password: "selenoid",
+                    password: VNC_Password,
                 },
             }
         );
@@ -92,7 +92,7 @@ export default class VncScreen extends Component {
     }
 
     isSecure(link) {
-        return new URL(link).protocol === "https:";
+        return new link === "https:";
     }
 
     render() {
