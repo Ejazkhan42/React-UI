@@ -12,10 +12,10 @@ import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
 import { SidebarData } from "./SidebarData";
 import "./Styles/sidebar.css";
 import { PaddingTwoTone } from "@mui/icons-material";
-
+const APPI_URL=process.env.REACT_APP_APPI_URL
 const logout = () => {
   axios
-    .get("http://localhost:5000/logout", { withCredentials: true })
+    .get(`${APPI_URL}/logout`, { withCredentials: true })
     .then((res) => {
       if (res.data === "success") {
         window.location.href = "/login";

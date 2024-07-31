@@ -31,6 +31,8 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { v4 as uuid } from 'uuid';
 
+const APPI_URL=process.env.REACT_APP_APPI_URL
+
 const uuidFromUuidV4 = () => {
   const newUuid = uuid();
   return newUuid;
@@ -102,7 +104,7 @@ const TestCasePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/getenv', { withCredentials: true })
+    axios.get(`${APPI_URL}/getenv`, { withCredentials: true })
       .then((res) => {
         if (res.data != null) {
           setSelectEnv(res.data);
@@ -114,19 +116,11 @@ const TestCasePage = () => {
     if (moduleId !== null) {
       const fetchTestCases = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/testcase?id=${moduleId}`, { withCredentials: true });
+          const response = await axios.get(`${APPI_URL}/testcase?id=${moduleId}`, { withCredentials: true });
           // console.log(response.data);
           if(response.data != null) {
             setTestCases(response.data);
           } 
-
-          // if (localStorage.getItem('testcases') == null) {
-          //   localStorage.setItem('testcases', JSON.stringify(response.data));
-          // }
-          // if (localStorage.getItem('testcases') !== null) {
-          //   const cases = JSON.parse(localStorage.getItem('testcases'));
-          //   setTestCases(cases);
-          // }
         } catch (error) {
           console.error('Error fetching test cases:', error);
         }
@@ -142,12 +136,6 @@ const TestCasePage = () => {
         ? [...prevSelectedTestCases, testCaseId]
         : prevSelectedTestCases.filter(id => id !== testCaseId)
     );
-    // setSelectedTestCases((prev) => {
-    //   if (event.target.checked) {
-    //     console.log(testCaseId);
-    //     return [...prev, testCaseId];
-    //   } 
-    // });
   };
 
   const handleSearchChange = (event) => {
@@ -214,7 +202,7 @@ const TestCasePage = () => {
     }
 
     try {
-      const response = await fetch('http://103.91.186.135:5000/build', {
+      const response = await fetch(`${APPI_URL}/build`, {
         method: 'POST',
         body: formData,
       });
