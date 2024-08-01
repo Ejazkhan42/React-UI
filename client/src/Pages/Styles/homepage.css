@@ -18,12 +18,13 @@ button{
   flex-wrap: wrap;
   margin-bottom: 20px;
   font-size: 2rem;
+  margin-inline:-5px;
 }
 
 .card {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 2px 5px rgba(57, 62, 70, 0.559);
   padding: 20px;
   width: 22%;
   display: flex;
@@ -60,13 +61,23 @@ button{
 
 }
 
-.line-chart, .pie-chart {
+.line-chart{
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(57, 62, 70, 0.559);
   padding: 20px;
-  width: 48%;
+  width: 68%;
   margin-bottom: 20px;
+  margin-inline:-11px;
+}
+.pie-chart {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(57, 62, 70, 0.559);
+  padding: 20px;
+  width: 28%;
+  margin-bottom: 20px;
+  margin-inline:-11px;
 }
 
 .line-chart h3, .pie-chart h3 {
@@ -100,10 +111,11 @@ button{
 .table-container {
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(57, 62, 70, 0.559);
   padding: 20px;
   font-size: 2rem;
-
+  margin-inline:-11px;
+  margin-bottom: 8px;
 }
 
 .table-container h3 {
@@ -200,7 +212,7 @@ a {
   position: relative;
   width: 200px;
   height: 60px;
-  background: gray;
+  background: #393E46;
   box-shadow: 0 4px 4px rgba(0, 0, 0, .3);
   border-radius: 10px;
   line-height: 44px;
@@ -235,7 +247,7 @@ a {
 }
 
 .btn.is-clicked {
-  background: darkgray;
+  background: #00ADB5;
 }
 
 .btn.is-clicked::before {

@@ -77,15 +77,23 @@ function Homepage() {
         day: "numeric",
       });
       if (!lineCounts[date]) {
-        lineCounts[date] = { date };
+        lineCounts[date] = { date,Pass:0,Failed:0 };
       }
       if (!lineCounts[date][item.test_name]) {
-        lineCounts[date][item.test_name] = 0;
+        lineCounts[date][item.test_name] = { Pass: 0, Failed: 0 };
       }
-      lineCounts[date][item.test_name] += 1;
+      if (item.test_status === 'pass') {
+        lineCounts[date][item.test_name].Pass += 1;
+        lineCounts[date].Pass += 1; // Total pass count for the date
+      } else if (item.test_status === 'fail') {
+        lineCounts[date][item.test_name].Failed += 1;
+        lineCounts[date].Failed += 1; // Total fail count for the date
+      }
     });
     setLineData(Object.values(lineCounts));
+    console.log(lineCounts)
   };
+
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
 
@@ -194,8 +202,9 @@ function Homepage() {
       "Hiring",
       "Configuration",
     ];
-
+    
     return (
+      
       <div className="chart-container">
         <div className="line-chart">
           <h3>Performance</h3>
@@ -207,6 +216,7 @@ function Homepage() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
+              
               <Tooltip />
               <Legend
                 payload={customNames.map((name, index) => ({
@@ -216,9 +226,8 @@ function Homepage() {
                   color: "#8884d8",
                 }))}
               />
-              {customNames.map((name) => (
-                <Line key={name} type="monotone" dataKey={name} stroke="#8884d8" />
-              ))}
+                <Line type="monotone" dataKey="Pass" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="Failed" stroke="#8884d8" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -267,7 +276,7 @@ function Homepage() {
   };
 
   const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(+event.target.value);
     setPage(0);
   };
 
@@ -291,7 +300,7 @@ function Homepage() {
             </TableHead>
             <TableBody>
               {slicedData.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}  key={row.id}>
                   <TableCell style={{ fontSize: "2rem" }}>
                     {row.test_name}
                   </TableCell>
@@ -332,7 +341,7 @@ function Homepage() {
   };
 
   return (
-    <div style={{ marginLeft: "20%", marginRight: "13%" }}>
+    <div style={{ marginLeft: "15%", marginRight: "4%" }}>
       <ButtonComponent />
       <TopPanel />
       <ChartComponent />

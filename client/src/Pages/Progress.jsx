@@ -17,7 +17,7 @@ import {
   TablePagination,
   InputLabel,
 } from "@mui/material";
-import VncScreen from "./browser";
+import VncScreen from "./Browser";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import { useLocation } from "react-router-dom";

@@ -45,7 +45,7 @@ function App() {
                       <OrderPage />
                     </PrivateRoute>
                   } />
-                <Route path='/customerdetails' element={
+                <Route path='/Details' element={
                     <PrivateRoute>
                       <Clients />
                     </PrivateRoute>

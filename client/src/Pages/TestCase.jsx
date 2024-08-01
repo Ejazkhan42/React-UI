@@ -152,6 +152,7 @@ const TestCasePage = () => {
   };
 
   const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value)
     setSearchTerm(event.target.value);
     setCurrentPage(0); // Reset to the first page on new search
   };
@@ -259,19 +260,19 @@ const TestCasePage = () => {
   };
 
   return (
-    <Box sx={{ p: 4, marginLeft: '20%', marginRight: '20%' }}>
+    <Box sx={{ p: 4, marginLeft: '12%', marginRight: '4%' }}>
       <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
         <Box>
           <TextField
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="Search"
             variant="outlined"
             size="large"
           />
           <Button
             onClick={() => handleRunClick()}
-            sx={{ ml: 2, fontSize: '2rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
+            sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
           >
             Run
           </Button>
@@ -329,7 +330,7 @@ const TestCasePage = () => {
         }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1>Run Tests</h1>
+              <h1>Run Your Test</h1>
             </Grid>
             <Grid item xs={12}>
               <form onSubmit={handleSubmit}>
@@ -418,8 +419,9 @@ const TestCasePage = () => {
                       component="label"
                       role={undefined}
                       // variant="contained"
-                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
+                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                       tabIndex={-1}
+                      style={{ marginLeft: '30px' }}
                       startIcon={<CloudUploadIcon />}
                       // sx={{ fontSize: '2rem' }}
                     >
@@ -434,7 +436,7 @@ const TestCasePage = () => {
                       tabIndex={-1}
                       startIcon={<CloudUploadIcon />}
                       style={{ marginLeft: '10px' }}
-                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
+                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
 
                     >
                       Upload image
@@ -444,7 +446,7 @@ const TestCasePage = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" fullWidth 
-                    sx={{ ml: 2, fontSize: '2rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
+                    sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                     
                     >
                       Submit

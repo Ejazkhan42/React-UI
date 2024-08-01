@@ -7,28 +7,28 @@ export const SidebarData = [
   },
   {
     title: "Instances",
-    icon: "fa-home",
-    link: "/instances"
+    icon: "fa-database",
+    link: "/Instances"
   },
   {
     title: "Job",
     icon: "fa-life-ring ",
-    link: "/job"
+    link: "/Job"
   },
   {
-    title: "Customer Details",
+    title: "Details",
     icon: "fa-users",
-    link: "/customerdetails"
+    link: "/Details"
   },
   {
     title: "Customers",
-    icon: "fa-calendar",
-    link: "/customers"
+    icon: "fa-address-book-o",
+    link: "/Customers"
   },
   {
     title: "Admin Panel",
     icon: "fa-user",
-    link: "/adminPannel",
+    link: "/Admin-Panel",
     role: 1
   },
   {

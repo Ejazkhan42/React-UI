@@ -136,7 +136,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
 const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
   let sidebarHeaderStyle = {
     backgroundColor: sidebarClass === "msb" ? "transparent" : "gray",
-    width: "99%",
+    width: "50%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -151,7 +151,7 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
   };
 
   const lipadding={
-    padding: sidebarClass === "msb" ?"5%": "18%",
+    padding: sidebarClass === "msb" ?"5px": "10px",
   }
   return (
     <div>
@@ -178,7 +178,7 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
               )}
             </div>
             <div className="side-menu-container">
-              <ul className="nav navbar-nav">
+              <ul className="nav navbar-nav" style={{padding:"0"}}>
                 {SidebarData.map((val, key) => {
                   if (val?.role !== undefined && val?.role !== ctx?.role_id) {
                     return null;

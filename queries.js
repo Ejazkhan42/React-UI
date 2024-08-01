@@ -403,7 +403,7 @@ function getscenario(){
 
 
 function Getlogs(){
-   const queryString = "SELECT * From logs";
+   const queryString = "SELECT DISTINCT * From logs";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function(error, result) {
       if(error) {

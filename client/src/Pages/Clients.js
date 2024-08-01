@@ -124,12 +124,12 @@ function Clients() {
   };
 
   return (
-    <Container>
+    <Container sx={{marginLeft:"14%"}}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h6" sx={{ fontSize: "1.2rem" }}>
+        <Typography variant="h4" sx={{ fontSize: "2.5rem" }}>
         Customer
         </Typography>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
+        <Button variant="contained" sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
           Add Client
         </Button>
       </Box>
@@ -207,8 +207,8 @@ function Clients() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit} color="primary" variant="contained">
+          <Button onClick={handleClose} sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}>Cancel</Button>
+          <Button onClick={handleSubmit} sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} variant="contained">
             {isEdit ? "Update" : "Add"}
           </Button>
         </DialogActions>
