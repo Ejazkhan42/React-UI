@@ -72,7 +72,7 @@ function Homepage() {
     const lineCounts = {};
     data.forEach((item) => {
       const date = new Date(item.start_time).toLocaleDateString("default", {
-        year: "numeric",
+        // year: "numeric",
         month: "short",
         day: "numeric",
       });
@@ -209,16 +209,12 @@ function Homepage() {
         <div className="line-chart">
           <h3>Performance</h3>
           <ResponsiveContainer width="100%" height={400}>
+          
             <LineChart
               data={lineData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              margin={{ top: 1, right: 1, left: 1, bottom: 1 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              
-              <Tooltip />
-              <Legend
+          <Legend
                 payload={customNames.map((name, index) => ({
                   id: name,
                   type: "line",
@@ -226,6 +222,12 @@ function Homepage() {
                   color: "#8884d8",
                 }))}
               />
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              
+              <Tooltip />
+              
                 <Line type="monotone" dataKey="Pass" stroke="#82ca9d" />
                 <Line type="monotone" dataKey="Failed" stroke="#8884d8" />
             </LineChart>
@@ -293,18 +295,18 @@ function Homepage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ fontSize: "2rem" }}>Name</TableCell>
-                <TableCell style={{ fontSize: "2rem" }}>Job Run</TableCell>
-                <TableCell style={{ fontSize: "2rem" }}>Status</TableCell>
+                <TableCell style={{ fontSize: "1.2rem" }}>Name</TableCell>
+                <TableCell style={{ fontSize: "1.2rem" }}>Job Run</TableCell>
+                <TableCell style={{ fontSize: "1.2rem" }}>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {slicedData.map((row) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}  key={row.id}>
-                  <TableCell style={{ fontSize: "2rem" }}>
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                  <TableCell style={{ fontSize: "1.2rem" }}>
                     {row.test_name}
                   </TableCell>
-                  <TableCell style={{ fontSize: "2rem" }}>
+                  <TableCell style={{ fontSize: "1.2rem" }}>
                     {new Date(row.start_time).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
@@ -333,7 +335,7 @@ function Homepage() {
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={handleRowsPerPageChange}
             fontSize="2rem"
-            style={{ fontSize: "2rem" }}
+            style={{ fontSize: "1.2rem" }}
           />
         </TableContainer>
       </div>

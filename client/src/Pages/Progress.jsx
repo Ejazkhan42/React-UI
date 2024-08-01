@@ -111,7 +111,7 @@ const DataSetTable = ({ excelData }) => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        sx={{ marginTop: "16px", fontSize: "1.5rem" }}
+        sx={{ marginTop: "16px", fontSize: "1.2rem" }}
       />
     </Paper>
   );
@@ -172,9 +172,9 @@ const ResponsivePage = () => {
   return (
     <Container>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={9}>
+        <Grid item xs={12} md={9} sx={{justifyContent: "space-between"}}>
           <Box sx={{ height: "100%", width: "100%", minHeight: "500px" }}>
-            <InputLabel id="demo-multiple-checkbox-label" sx={{fontSize: "1.5rem"}}>
+            <InputLabel id="demo-multiple-checkbox-label" sx={{fontSize: "1.2rem"}}>
               Select Session
             </InputLabel>
 
@@ -202,7 +202,7 @@ const ResponsivePage = () => {
               <Button
                 // variant="contained"
                 // color="secondary"
-                sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
+                sx={{ ml: 2, fontSize: '1rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
                 onClick={handleConnect}
                 disabled={
                   vncConnectionStatus === "connecting" ||
@@ -214,7 +214,7 @@ const ResponsivePage = () => {
               <Button
                 style={{ marginLeft: "10px" }}
                 variant="outlined"
-                sx={{ fontSize: '1.5rem' }}
+                sx={{ fontSize: '1rem' }}
                 onClick={handleDisconnect}
                 disabled={vncConnectionStatus === "disconnected"}
               >

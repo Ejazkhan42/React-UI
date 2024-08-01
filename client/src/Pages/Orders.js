@@ -57,7 +57,7 @@ function Orders() {
                 <Box display="flex" justifyContent="center" mb={2}>
                   {iconMap[module.name] || <PaymentsRoundedIcon style={{ fontSize: 40 }} />}
                 </Box>
-                <Typography variant="h6" component="div" align="center" style={{ fontSize: '1.5rem' }}>
+                <Typography variant="h6" component="div" align="center" style={{ fontSize: '1rem' }}>
                   {module.name}
                 </Typography>
               </CardContent>

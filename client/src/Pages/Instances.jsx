@@ -115,12 +115,12 @@ function Instances() {
   };
 
   return (
-    <Container sx={{marginLeft:"14%"}}>
+    <Container >
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h4" sx={{ fontSize: "2.5rem" }}>
+        <Typography variant="h4" sx={{ fontSize: "1.2rem" }}>
           Instances
         </Typography>
-        <Button variant="contained" sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
+        <Button variant="contained" sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
           Add
         </Button>
       </Box>
@@ -190,8 +190,8 @@ function Instances() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}>Cancel</Button>
-          <Button onClick={handleSubmit} sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} variant="contained">
+          <Button onClick={handleClose} sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}>Cancel</Button>
+          <Button onClick={handleSubmit} sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} variant="contained">
             {isEdit ? "Update" : "Add"}
           </Button>
         </DialogActions>

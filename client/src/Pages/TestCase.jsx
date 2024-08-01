@@ -272,7 +272,7 @@ const TestCasePage = () => {
           />
           <Button
             onClick={() => handleRunClick()}
-            sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
+            sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
           >
             Run
           </Button>
@@ -284,21 +284,21 @@ const TestCasePage = () => {
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox"></TableCell>
-                <TableCell align="left" sx={{ fontSize: '2rem' }}>Test Case</TableCell>
-                <TableCell align="left" sx={{ fontSize: '2rem' }}>Description</TableCell>
+                <TableCell align="left" sx={{ fontSize: "1.2rem" }}>Test Case</TableCell>
+                <TableCell align="left" sx={{ fontSize: "1.2rem" }}>Description</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {paginatedData.map((testCase) => (
                 <TableRow key={testCase.Id}>
-                  <TableCell padding="checkbox" sx={{ fontSize: '2rem' }}>
+                  <TableCell padding="checkbox" sx={{ fontSize: "1.2rem" }}>
                     <Checkbox
                       checked={selectedTestCases.includes(testCase.Id)}   
                       onChange={(event) => handleCheckboxChange(event, testCase.Id)}
                     />
                   </TableCell>
-                  <TableCell align="left" sx={{ fontSize: '2rem' }}>{testCase.Test_Case}</TableCell>
-                  <TableCell align="left" sx={{ fontSize: '2rem' }}>{testCase.Description}</TableCell>
+                  <TableCell align="left" sx={{ fontSize: "1.2rem" }}>{testCase.Test_Case}</TableCell>
+                  <TableCell align="left" sx={{ fontSize: "1.2rem" }}>{testCase.Description}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -312,7 +312,7 @@ const TestCasePage = () => {
           page={currentPage}
           onPageChange={(event, newPage) => setCurrentPage(newPage)}
           onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-          sx={{ fontSize: '2rem' }}
+          sx={{ fontSize: "1.2rem" }}
         />
       </StyledPaper>
     
@@ -337,7 +337,7 @@ const TestCasePage = () => {
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <FormControl fullWidth>
-                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: '2rem' }}>Test Cases</InputLabel>
+                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: "1.2rem" }}>Test Cases</InputLabel>
                       <Select
                         labelId="demo-multiple-checkbox-label"
                         id="demo-multiple-checkbox"
@@ -347,10 +347,10 @@ const TestCasePage = () => {
                         input={<OutlinedInput label="Test Cases" />}
                         renderValue={(selected) => selected.join(', ')}
                         MenuProps={MenuProps}
-                        // sx={{ fontSize: '2rem' }}
+                        // sx={{ fontSize: "1.2rem" }}
                       >
                         {testCaseList.map((testCase) => (
-                          <MenuItem key={testCase} value={testCase} sx={{ fontSize: '2rem' }}>
+                          <MenuItem key={testCase} value={testCase} sx={{ fontSize: "1.2rem" }}>
                             <ListItemText primary={testCase} />
                           </MenuItem>
                         ))}
@@ -359,7 +359,7 @@ const TestCasePage = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <FormControl fullWidth>
-                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: '2rem' }}>Select Env</InputLabel>
+                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: "1.2rem" }}>Select Env</InputLabel>
                       <Select
                         labelId="demo-multiple-checkbox-label"
                         id="demo-multiple-checkbox"
@@ -369,11 +369,11 @@ const TestCasePage = () => {
                         input={<OutlinedInput label="Test Cases" />}
                         renderValue={(selected) => selected.join(', ')}
                         MenuProps={MenuProps}
-                        sx={{ fontSize: '2rem' }}
+                        sx={{ fontSize: "1.2rem" }}
                       >
                         {selectEnv.map((env) => (
                           <MenuItem key={env.id} value={env.envName}>
-                            <ListItemText primary={env.envName} sx={{ fontSize: '2rem' }}/>
+                            <ListItemText primary={env.envName} sx={{ fontSize: "1.2rem" }}/>
                           </MenuItem>
                         ))}
                       </Select>
@@ -389,12 +389,12 @@ const TestCasePage = () => {
                         onChange={(event) => setSelectedBrowser(event.target.value)}
                         input={<OutlinedInput label="Browser" />}
                         MenuProps={MenuProps}
-                        sx={{ fontSize: '2rem' }}
+                        sx={{ fontSize: "1.2rem" }}
                       >
-                        <MenuItem sx={{ fontSize: '2rem' }} value="chrome">Chrome</MenuItem>
-                        <MenuItem  sx={{ fontSize: '2rem' }} value="firefox">Firefox</MenuItem>
-                        <MenuItem sx={{ fontSize: '2rem' }} value="edge">Edge</MenuItem>
-                        <MenuItem sx={{ fontSize: '2rem' }} value="safari">Safari</MenuItem>
+                        <MenuItem sx={{ fontSize: "1.2rem" }} value="chrome">Chrome</MenuItem>
+                        <MenuItem  sx={{ fontSize: "1.2rem" }} value="firefox">Firefox</MenuItem>
+                        <MenuItem sx={{ fontSize: "1.2rem" }} value="edge">Edge</MenuItem>
+                        <MenuItem sx={{ fontSize: "1.2rem" }} value="safari">Safari</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -409,8 +409,8 @@ const TestCasePage = () => {
                         input={<OutlinedInput label="Grid Mode" />}
                         MenuProps={MenuProps}
                       >
-                        <MenuItem sx={{ fontSize: '2rem' }} value="on">On</MenuItem>
-                        <MenuItem sx={{ fontSize: '2rem' }} value="off">Off</MenuItem>
+                        <MenuItem sx={{ fontSize: "1.2rem" }} value="on">On</MenuItem>
+                        <MenuItem sx={{ fontSize: "1.2rem" }} value="off">Off</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -419,11 +419,11 @@ const TestCasePage = () => {
                       component="label"
                       role={undefined}
                       // variant="contained"
-                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
+                      sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                       tabIndex={-1}
                       style={{ marginLeft: '30px' }}
                       startIcon={<CloudUploadIcon />}
-                      // sx={{ fontSize: '2rem' }}
+                      // sx={{ fontSize: "1.2rem" }}
                     >
                       Upload file
                       <VisuallyHiddenInput type="file" name='file' onChange={handleFileChange} />
@@ -436,7 +436,7 @@ const TestCasePage = () => {
                       tabIndex={-1}
                       startIcon={<CloudUploadIcon />}
                       style={{ marginLeft: '10px' }}
-                      sx={{ ml: 2, fontSize: '1.5rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
+                      sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
 
                     >
                       Upload image
@@ -446,7 +446,7 @@ const TestCasePage = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" fullWidth 
-                    sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
+                    sx={{ ml: 2, fontSize: ".5rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                     
                     >
                       Submit

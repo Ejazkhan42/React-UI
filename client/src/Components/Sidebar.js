@@ -68,7 +68,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                 {!isDashboard && (
                   <ArrowBackIcon
                     onClick={() => navigate(-1)}
-                    style={{ cursor: "pointer", marginRight: "10px", fontSize: "2rem" }}
+                    style={{ cursor: "pointer", marginRight: "10px", fontSize: "1.2rem" }}
                   />
                 )}
                 <span
@@ -93,7 +93,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                         textDecoration: index < breadcrumbs.length - 1 ? "underline" : "none",
                         fontWeight: index < breadcrumbs.length - 1 ? "normal" : "bold",
                         marginRight: "5px",
-                        fontSize: "2rem",
+                        fontSize: "1.2rem",
                         cursor: "pointer",
                       }}
                     >
@@ -107,14 +107,15 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
             <div className="nav-icons-right" style={{ marginTop: "10px" }}>
               <div style={{ marginRight: "10px", marginTop: "10px" }}>
                 <HomeIcon
-                  fontSize="2rem"
+                  fontSize="3%"
+                  width="50px"
                   onClick={() => navigate("/")}
                   style={{ cursor: "pointer" }}
                 />
               </div>
               <Avatar
                 onClick={handleAvatarClick}
-                style={{ cursor: "pointer", backgroundColor: "#3f51b5", fontSize: "2rem", width: "50px", height: "50px" }}
+                style={{ cursor: "pointer", backgroundColor: "#3f51b5", fontSize: "1.2rem", width: "50px", height: "50px" }}
               >
                 {ctx.username[0].toUpperCase()}
               </Avatar>
@@ -123,7 +124,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                 open={Boolean(anchorEl)}
                 onClose={handleAvatarClose}
               >
-                <MenuItem sx={{ fontSize: "1.5rem" }} onClick={logout}>Logout</MenuItem>
+                <MenuItem sx={{ fontSize: "1.2rem" }} onClick={logout}>Logout</MenuItem>
               </Menu>
             </div>
           </div>
@@ -136,22 +137,24 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
 const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
   let sidebarHeaderStyle = {
     backgroundColor: sidebarClass === "msb" ? "transparent" : "gray",
-    width: "50%",
+    // width: "50%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: "10px",
+    // padding: "10px",
     position: "sticky",
     top: 0,
     zIndex: 1,
-    height: sidebarClass === "msb" ? "": "96px",
+    height: sidebarClass === "msb" ? "": "78px",
     marginTop: sidebarClass === "msb" ?"10%": "0",
     
 
   };
 
   const lipadding={
-    padding: sidebarClass === "msb" ?"5px": "10px",
+    paddingBottom: sidebarClass === "msb" ? "15%" : "25px",
+    paddingLeft: sidebarClass === "msb" ? "0%" : "20px"
+
   }
   return (
     <div>
@@ -163,7 +166,7 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
                 <div>
                   <CloseIcon
                   onClick={toggleSidebar}
-                  style={{ cursor: "pointer", fontSize: "3rem", }}
+                  style={{ cursor: "pointer", fontSize: "1.8rem", }}
                 />
                 <h3 className="brand" style={{fontWeight:"bolder"}}>@ DoingERP.com</h3>
                 </div>
@@ -171,7 +174,7 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
               ) : (
                 <MenuIcon
                   onClick={toggleSidebar}
-                  // style={{ cursor: "pointer", fontSize: "3rem", color: "white" }}
+                  // style={{ cursor: "pointer", fontSize: "1.2rem", color: "white" }}
                   color="white"
                   className="sidebar-icon"
                 />
@@ -192,7 +195,7 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
                         }
                         onClick={toggleSidebar}
                       >
-                        <i className={`fa ${val.icon.toLowerCase()}`}></i>
+                        <i className={`fa ${val.icon.toLowerCase()}`} style={{ fontSize: "1.8rem" }}></i>
                         {sidebarClass === "msb" && val.title}
                       </NavLink>
                     </li>

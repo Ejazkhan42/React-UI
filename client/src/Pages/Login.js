@@ -57,7 +57,7 @@ export default function Login() {
                 onChange={(e) => setUsername(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 style={{ marginLeft: 10 }}
-                sx={{ fontSize:"1.5rem" }}
+                sx={{ fontSize: "1.2rem" }}
               />
             </Box>
             <Box display="flex" alignItems="flex-end" mb={2}>
@@ -71,8 +71,8 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 InputLabelProps={{ shrink: true }}
-                style={{ marginLeft: 10, fontSize:"1.5rem" }}
-                sx={{ fontSize:"1.5rem" }}
+                style={{ marginLeft: 10, fontSize: "1.2rem" }}
+                sx={{ fontSize: "1.2rem" }}
                 InputProps={{
                   endAdornment: (
                     <IconButton onClick={togglePasswordVisibility}>
@@ -83,7 +83,7 @@ export default function Login() {
               />
             </Box>
             <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-                <Link href="#" underline="none" className="forgot-password" sx={{ fontSize:"1.5rem" }}>
+                <Link href="#" underline="none" className="forgot-password" sx={{ fontSize: "1.2rem" }}>
                 Forgot Password
               </Link>
             </Box>
@@ -98,19 +98,19 @@ export default function Login() {
                   }
                 }}
                 className="sign-in-button"
-                style={{ background: "#333", fontSize:"1.5rem" }}
+                style={{ background: "#333", fontSize: "1.2rem" }}
               >
                 Sign In
               </Button>
             </Box>
             <Box mt={3}>
               <FormControl fullWidth variant="standard">
-                <InputLabel id="language-select-label" sx={{ fontSize:"1.5rem" }}><LanguageIcon style={{ marginRight: '10px', fontSize:"1.5rem" }} /> Select Language</InputLabel>
+                <InputLabel id="language-select-label" sx={{ fontSize: "1.2rem" }}><LanguageIcon style={{ marginRight: '10px', fontSize: "1.2rem" }} /> Select Language</InputLabel>
                 <Select
                   labelId="language-select-label"
                   id="language-select"
                   value={language}
-                  sx={{ fontSize:"1.5rem" }}
+                  sx={{ fontSize: "1.2rem" }}
                   onChange={(e) => setLanguage(e.target.value)}
                 >
                   <MenuItem value="English" >English</MenuItem>

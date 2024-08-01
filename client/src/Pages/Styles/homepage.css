@@ -1,23 +1,23 @@
 /* homepage.css */
 p{
-  font-size: 2rem;
+  font-size: 1.2remrem;
 }
 
 button{
-  font-size: 2rem;
+  font-size: 1.2remrem;
 }
 .container {
   margin: 20px 20% 0 21%;
   font-family: Arial, sans-serif;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 }
 
 .top-panel {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   flex-wrap: wrap;
   margin-bottom: 20px;
-  font-size: 2rem;
+  font-size: 1.2remrem;
   margin-inline:-5px;
 }
 
@@ -32,7 +32,7 @@ button{
   align-items: center;
   text-align: center;
   margin-bottom: 20px;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 
 }
 
@@ -43,13 +43,13 @@ button{
 
 .card-content h3 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.2remrem;
   color: #888;
 }
 
 .card-content h1 {
   margin: 10px 0 0 0;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 }
 
 .chart-container {
@@ -57,7 +57,7 @@ button{
   justify-content: space-between;
   flex-wrap: wrap;
   margin-bottom: 20px;
-  font-size: 2rem;
+  font-size: 1.2rem;
 
 }
 
@@ -65,8 +65,8 @@ button{
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(57, 62, 70, 0.559);
-  padding: 20px;
-  width: 68%;
+  padding: 10px;
+  width: 75%;
   margin-bottom: 20px;
   margin-inline:-11px;
 }
@@ -75,28 +75,28 @@ button{
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(57, 62, 70, 0.559);
   padding: 20px;
-  width: 28%;
+  width: 20%;
   margin-bottom: 20px;
   margin-inline:-11px;
 }
 
 .line-chart h3, .pie-chart h3 {
   margin: 0 0 20px 0;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 }
 
 .legend {
   display: flex;
   justify-content: space-around;
   margin-top: 20px;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 
 }
 
 .legend div {
   display: flex;
   align-items: center;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 
 }
 
@@ -104,7 +104,7 @@ button{
   width: 12px;
   height: 12px;
   margin-right: 5px;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 
 }
 
@@ -113,14 +113,14 @@ button{
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(57, 62, 70, 0.559);
   padding: 20px;
-  font-size: 2rem;
+  font-size: 1.2remrem;
   margin-inline:-11px;
   margin-bottom: 8px;
 }
 
 .table-container h3 {
   margin-bottom: 20px;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 }
 
 table {
@@ -132,14 +132,14 @@ table {
 table th, table td {
   border: 1px solid #ddd;
   padding: 8px;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 
 }
 
 table th {
   background-color: #f2f2f2;
   text-align: left;
-  font-size: 2rem;
+  font-size: 1.2remrem;
 
 }
 
@@ -169,6 +169,10 @@ table th {
 
   .line-chart, .pie-chart {
     width: 100%;
+  }
+
+  .line-chart ul {
+    display: none;
   }
 }
 
@@ -215,7 +219,7 @@ a {
   background: #393E46;
   box-shadow: 0 4px 4px rgba(0, 0, 0, .3);
   border-radius: 10px;
-  line-height: 44px;
+  line-height: 55px;
   text-align: center;
   text-decoration: none;
   color: white;
@@ -223,7 +227,7 @@ a {
   font-weight: bold;
   /* line-height: 42px; */
   margin-bottom: 5%;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .btn::before {

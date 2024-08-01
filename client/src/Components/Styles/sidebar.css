@@ -91,7 +91,7 @@
 .navbar-header {
   display: flex;
   /* justify-content: flex-end; */
-  justify-content: space-between;
+  justify-content: space-around;
   width: 100%;
   border-bottom: 1px solid #e7e7e7;
   margin-bottom: 20px;
@@ -111,7 +111,7 @@
 }
 
 .navbar-nav li a {
-  padding: 15px;
+  padding: 30px;
   color: #5f5f5f;
 }
 
@@ -180,7 +180,7 @@ body.msb-x .msb {
 }
 
 .msb-x .sidebar-icon{
-  font-size: 3rem;
+  font-size: 1.8rem;
   cursor: pointer;
   color: white;
 }
@@ -203,7 +203,7 @@ body.msb-x .msb {
   background-color: transparent;
 }
 .msb-x .sidebar-icon{
-  font-size: 1.5rem;
+  font-size: 1.2remrem;
   color: white;
 }
 .left-icons-and-breadcrumb{

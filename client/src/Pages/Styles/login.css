@@ -1,6 +1,6 @@
 /* login.css */
 label{
-  font-size: 1.5rem;
+  font-size: 1.2remrem;
 }
 
 .sign-in-button{
@@ -25,7 +25,7 @@ label{
 }
 
 .login-title, .login-subtitle {
-  font-size: 1.5rem;
+  font-size: 1.2remrem;
 }
 
 .login-content {
@@ -51,7 +51,7 @@ label{
 
 .sign-in-button {
   height: 50px;
-  font-size: 1.5rem;
+  font-size: 1.2remrem;
   width: 100%;
 }
 
