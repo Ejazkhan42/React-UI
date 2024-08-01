@@ -425,7 +425,7 @@ const TestCasePage = () => {
                       // variant="contained"
                       sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                       tabIndex={-1}
-                      style={{ marginLeft: '30px' }}
+                      style={{ marginLeft: '15%' }}
                       startIcon={<CloudUploadIcon />}
                       // sx={{ fontSize: "1.2rem" }}
                     >
@@ -439,7 +439,6 @@ const TestCasePage = () => {
                       // variant="contained"
                       tabIndex={-1}
                       startIcon={<CloudUploadIcon />}
-                      style={{ marginLeft: '10px' }}
                       sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
 
                     >
@@ -450,7 +449,7 @@ const TestCasePage = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" fullWidth 
-                    sx={{ ml: 2, fontSize: ".5rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
+                    sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                     
                     >
                       Submit

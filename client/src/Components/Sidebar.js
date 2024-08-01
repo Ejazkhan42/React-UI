@@ -107,10 +107,9 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
             <div className="nav-icons-right" style={{ marginTop: "10px" }}>
               <div style={{ marginRight: "10px", marginTop: "10px" }}>
                 <HomeIcon
-                  fontSize="3%"
                   width="50px"
                   onClick={() => navigate("/")}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer" ,fontSize:"2rem" }}
                 />
               </div>
               <Avatar

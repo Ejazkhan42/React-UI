@@ -170,7 +170,7 @@ const ResponsivePage = () => {
   };
 
   return (
-    <Container>
+    <Container style={{marginLeft:"12%"}}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={9} sx={{justifyContent: "space-between"}}>
           <Box sx={{ height: "100%", width: "100%", minHeight: "500px" }}>
