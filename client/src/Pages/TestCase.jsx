@@ -142,14 +142,6 @@ const TestCasePage = () => {
     }
   }, [moduleId]);
 
-  const handleCheckboxChange = (event, testCaseId) => {
-    const isChecked = event.target.checked;
-    setSelectedTestCases(prevSelectedTestCases =>
-      isChecked
-        ? [...prevSelectedTestCases, testCaseId]
-        : prevSelectedTestCases.filter(id => id !== testCaseId)
-    );
-  };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value)
@@ -161,12 +153,25 @@ const TestCasePage = () => {
     testCase.Test_Case.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+
+  
+
   const paginatedData = filteredTestCases.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage);
   // console.log(paginatedData);
 
+  const handleCheckboxChange = (event, id) => {
+    const isChecked = event.target.checked;
+    setSelectedTestCases(prevSelectedTestCases =>
+      isChecked
+        ? [...prevSelectedTestCases, id]
+        : prevSelectedTestCases.filter(id => id !== id)
+    );
+    
+    
+  };
   const handleRunClick = () => {
     const selectedTestCaseNames = paginatedData
-      .filter((testCase) => selectedTestCases.includes(testCase.Id))
+      .filter((testCase) => selectedTestCases.includes(testCase.id))
       .map((testCase) => testCase.Test_Case)
       .join(', ');
 
@@ -202,7 +207,7 @@ const TestCasePage = () => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('jobName', JOBNAME);
-    formData.append('testCase', changeList.join(','));
+    formData.append('testCase', testCaseList.join(','));
     formData.append('gridMode', gridMode);
     formData.append('browsers', selectedBrowser);
 
@@ -290,11 +295,10 @@ const TestCasePage = () => {
             </TableHead>
             <TableBody>
               {paginatedData.map((testCase) => (
-                <TableRow key={testCase.Id}>
+                <TableRow key={testCase.id}>
                   <TableCell padding="checkbox" sx={{ fontSize: "1.2rem" }}>
-                    <Checkbox
-                      checked={selectedTestCases.includes(testCase.Id)}   
-                      onChange={(event) => handleCheckboxChange(event, testCase.Id)}
+                    <Checkbox 
+                      onChange={(event) => handleCheckboxChange(event, testCase.id)}
                     />
                   </TableCell>
                   <TableCell align="left" sx={{ fontSize: "1.2rem" }}>{testCase.Test_Case}</TableCell>
@@ -343,7 +347,7 @@ const TestCasePage = () => {
                         id="demo-multiple-checkbox"
                         multiple
                         value={changeList}
-                        onChange={handleTestCaseChange}
+                        // onChange={handleTestCaseChange}
                         input={<OutlinedInput label="Test Cases" />}
                         renderValue={(selected) => selected.join(', ')}
                         MenuProps={MenuProps}
