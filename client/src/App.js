@@ -19,7 +19,6 @@ import "./app.css";
 
 function App() {
     const ctx = useContext(AuthLoginInfo);
-    //console.log(ctx)
     return (
       <BrowserRouter>
         <Sidebar>
@@ -80,7 +79,6 @@ function App() {
                   </PrivateRoute>
                 }/>
             </Routes>
-            
       </BrowserRouter>
     );
 }
