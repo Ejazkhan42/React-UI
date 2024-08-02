@@ -37,7 +37,11 @@ function UsersSetting() {
   const [usersUpdated, setUsersUpdated] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState(null);
   const [newUserDetails, setNewUserDetails] = useState({
+    FirstName:"",
+    LastName:"",
     username: "",
+    Email:"",
+    PhoneNumber:"",
     password: "",
     role: "",
   });
@@ -97,7 +101,11 @@ function UsersSetting() {
       .then((res) => {
         if (res.data === "success") {
           setNewUserDetails({
+            FirstName:"",
+            LastName:"",
             username: "",
+            Email:"",
+            PhoneNumber:"",
             password: "",
             role: "",
           });
@@ -141,7 +149,11 @@ function UsersSetting() {
               <TableHead>
                 <TableRow>
                   <TableCell align="center"></TableCell>
-                  <TableCell align="center">Name</TableCell>
+                  <TableCell align="center">Username</TableCell>
+                  <TableCell align="center">First Name</TableCell>
+                  <TableCell align="center">Last Name</TableCell>
+                  <TableCell align="center">Email</TableCell>
+                  <TableCell align="center">Phone</TableCell>
                   <TableCell align="center">Data created</TableCell>
                   <TableCell align="center"></TableCell>
                 </TableRow>
@@ -156,6 +168,10 @@ function UsersSetting() {
                       <AccountCircleRoundedIcon className="maincolor" />
                     </TableCell>
                     <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.FirstName}</TableCell>
+                    <TableCell>{user.LastName}</TableCell>
+                    <TableCell>{user.Email}</TableCell>
+                    <TableCell>{user.PhoneNumber}</TableCell>
                     <TableCell align="center">
                       {formatIsoDate(user.created_at)}
                     </TableCell>
@@ -202,7 +218,11 @@ function UsersSetting() {
               <TableHead>
                 <TableRow>
                   <TableCell align="center"></TableCell>
-                  <TableCell align="center">Name</TableCell>
+                  <TableCell align="center">Username</TableCell>
+                  <TableCell align="center">First Name</TableCell>
+                  <TableCell align="center">Last Name</TableCell>
+                  <TableCell align="center">Email</TableCell>
+                  <TableCell align="center">Phone</TableCell>
                   <TableCell align="center">Data created</TableCell>
                   <TableCell align="center"></TableCell>
                 </TableRow>
@@ -217,6 +237,10 @@ function UsersSetting() {
                       <AccountCircleRoundedIcon className="maincolor" />
                     </TableCell>
                     <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.FirstName}</TableCell>
+                    <TableCell>{user.LastName}</TableCell>
+                    <TableCell>{user.Email}</TableCell>
+                    <TableCell>{user.PhoneNumber}</TableCell>
                     <TableCell align="center">
                       {formatIsoDate(user.created_at)}
                     </TableCell>
@@ -241,9 +265,6 @@ function UsersSetting() {
   const AddNewUserSection = () => {
     return (
       <div className="addNewUserWrap">
-        <Typography variant="h6" className="addNewUserText">
-          Add new User
-        </Typography>
         <Button
           variant="contained"
           color="primary"
@@ -251,7 +272,7 @@ function UsersSetting() {
           startIcon={<AddCircleOutlineRoundedIcon />}
           onClick={() => setNewUserPopup(true)}
         >
-          Add
+          Add New User
         </Button>
       </div>
     );
@@ -291,8 +312,38 @@ function UsersSetting() {
         onClose={() => setNewUserPopup(false)}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add New User</DialogTitle>
+        <DialogTitle id="form-dialog-title">ADD NEW USER FROM</DialogTitle>
         <DialogContent>
+        <TextField
+            autoFocus
+            margin="dense"
+            id="FirstName"
+            label="First Name"
+            type="text"
+            fullWidth
+            value={newUserDetails.FirstName}
+            onChange={(e) =>
+              setNewUserDetails({
+                ...newUserDetails,
+                FirstName: e.target.value,
+              })
+            }
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="LastName"
+            label="Last Name"
+            type="text"
+            fullWidth
+            value={newUserDetails.LastName}
+            onChange={(e) =>
+              setNewUserDetails({
+                ...newUserDetails,
+                LastName: e.target.value,
+              })
+            }
+          />
           <TextField
             autoFocus
             margin="dense"
@@ -305,6 +356,38 @@ function UsersSetting() {
               setNewUserDetails({
                 ...newUserDetails,
                 username: e.target.value,
+              })
+            }
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="Email"
+            label="Email"
+            type="Email"
+            required={true}
+            fullWidth
+            value={newUserDetails.Email}
+            onChange={(e) =>
+              setNewUserDetails({
+                ...newUserDetails,
+                Email: e.target.value,
+              })
+            }
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="PhoneNumber"
+            label="Phone Number"
+            type="Tel"
+            pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
+            fullWidth
+            value={newUserDetails.PhoneNumber}
+            onChange={(e) =>
+              setNewUserDetails({
+                ...newUserDetails,
+                PhoneNumber: e.target.value,
               })
             }
           />
@@ -324,8 +407,12 @@ function UsersSetting() {
           />
 
           <Select
-            value={selectRole}
-            onChange={selectRoleInputChange}
+            value={newUserDetails.role}
+            onChange={(e) =>
+              setNewUserDetails({
+                ...newUserDetails,
+                role: e.target.value,
+              })}
             style={{ width: "100%" }}
           >
             {role.map((name) => (
@@ -334,10 +421,10 @@ function UsersSetting() {
           </Select>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setNewUserPopup(false)} color="primary">
+          <Button sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} onClick={() => setNewUserPopup(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleAddNewUser} color="primary">
+          <Button sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} onClick={handleAddNewUser} color="primary">
             Add
           </Button>
         </DialogActions>

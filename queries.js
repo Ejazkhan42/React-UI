@@ -124,23 +124,12 @@ function deleteUserById(userId) {
   })
 }
 
-function deleteEnvById(envId) {
-  const queryString = "DELETE from env WHERE id = ?";
-  return new Promise((resolve, reject) => {
-    connection.query(queryString, [envId], function (error) {
-      if (error) {
-        console.log(error);
-      } else {
-        resolve("success")
-      }
-    })
-  })
-}
+
 
 
 
 function getUsersForAdminPanel() {
-  const queryString = "SELECT id, username, role_id, created_at from users";
+  const queryString = "SELECT id, username,FirstName,LastName,Email,PhoneNumber, role_id, created_at from users";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function (error, result) {
       if (error) {
@@ -152,34 +141,24 @@ function getUsersForAdminPanel() {
   })
 }
 
-
-function getenv() {
-  const queryString = "SELECT id,envName , user_Id, instance_url, instance_username, instance_password from env";
-  return new Promise((resolve, reject) => {
-    connection.query(queryString, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        resolve(result);
-      }
-    })
-  })
-}
 
 function createNewUser(userDetails, hashedPassword) {
-  const queryString = "INSERT into users VALUES ('', ?, ?, ?, ?)";
+  const queryString = "INSERT INTO users (username, password, role_id, created_at, FirstName, LastName, Email, PhoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
   const currentDate = new Date();
-  const passedValues = [userDetails.username, hashedPassword, userDetails.role, currentDate];
+  const passedValues = [userDetails.username, hashedPassword, userDetails.role, currentDate, userDetails.FirstName, userDetails.LastName, userDetails.Email, userDetails.PhoneNumber];
+  
   return new Promise((resolve, reject) => {
     connection.query(queryString, passedValues, function (error) {
       if (error) {
         console.log(error);
+        reject(error); // Reject the promise if there's an error
       } else {
-        resolve("success");
+        resolve("success"); // Resolve the promise if the query was successful
       }
-    })
-  })
+    });
+  });
 }
+
 
 function deleteCustomer(customerId) {
   return new Promise((resolve, reject) => {
@@ -298,8 +277,6 @@ function UpdateCustomer(envDetails) {
   WHERE id = ?;
 `;
 
-  // Array of values to be updated
-  console.log('envDetails:', envDetails);
 
   const passedValues = [
     envDetails.clientName,
@@ -317,10 +294,9 @@ function UpdateCustomer(envDetails) {
     connection.query(queryString, passedValues, function (error, results) {
       if (error) {
         console.log(error);
-        reject(error); // Reject the promise with the error
+        reject(error);
       } else {
-        console.log(results)
-        resolve(results.affectedRows); // Resolve with the number of affected rows
+        resolve("Updates");
       }
     });
   });
@@ -505,8 +481,6 @@ module.exports = {
   getUsersForAdminPanel,
   createNewUser,
   createNewCustomer,
-  deleteEnvById,
-  getenv,
   createNewLogs,
   UpdateCustomer,
   getByobject,

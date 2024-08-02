@@ -5,7 +5,6 @@ import "./Styles/loadingPage.css";
 
 function AdminRoute({ children }) {
   const user = useContext(AuthLoginInfo);
-  //console.log(user);
   if (user === undefined) {
     return (
       <div className="loading-page-wrapper">

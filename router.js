@@ -20,8 +20,6 @@ const {
   createNewUser,
   getByModule,
   getTestCasesByModule,
-  deleteEnvById,
-  getenv,
   getByTestCase,
   getByobject,
   createNewLogs,
@@ -147,17 +145,17 @@ initializePassport(connection, passport);
         parameters: parameters
       });
   
-      // Send the build info as a response
+      
       res.json(info);
     } catch (error) {
       console.error('Error triggering Jenkins job:', error);
       res.status(500).send('Error triggering Jenkins job');
     } finally {
-      // Clean up the uploaded files from local directory
+    
       if (req.files) {
         Object.values(req.files).forEach(files => {
           files.forEach(file => {
-            fs.unlinkSync(file.path); // Delete the uploaded files from uploads directory
+            fs.unlinkSync(file.path);
           });
         });
       }
@@ -282,13 +280,6 @@ initializePassport(connection, passport);
   });
 
 
-  app.post("/deletenv", async (req, res) => {
-    let envId = req.body.envId;
-    const queryDeleteUser = await deleteEnvById(envId);
-    Promise.resolve(queryDeleteUser).then(() => {
-      res.send("success");
-    })
-  });
 
 
   app.post("/newuser", async (req, res) => {
@@ -302,13 +293,7 @@ initializePassport(connection, passport);
   })
 
 
-  app.post("/newenv", async (req, res) => {
-    const envDetails = req.body.envDetails;
-    const queryCreateNewUser = await createNewEnv(envDetails);
-    Promise.resolve(queryCreateNewUser).then(() => {
-      res.send("success");
-    })
-  })
+
   
 
   app.post("/reportslogs", async (req,res)=>{
