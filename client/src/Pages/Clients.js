@@ -127,10 +127,10 @@ function Clients() {
     <Container sx={{marginLeft:"14%"}}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h4" sx={{ fontSize: "2.5rem" }}>
-        Customer
+        Instance
         </Typography>
-        <Button variant="contained" sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
-          Add Client
+        <Button variant="contained" sx={{ ml: 2, fontSize: '1.2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
+          Add Instance
         </Button>
       </Box>
       <TableContainer component={Paper}>
@@ -163,7 +163,7 @@ function Clients() {
         </Table>
       </TableContainer>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{isEdit ? "Edit Client" : "Add Client"}</DialogTitle>
+        <DialogTitle>{isEdit ? "Edit Instance" : "Add Instance"}</DialogTitle>
         <DialogContent>
         <TextField
             margin="dense"
@@ -207,8 +207,8 @@ function Clients() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}>Cancel</Button>
-          <Button onClick={handleSubmit} sx={{ ml: 2, fontSize: '2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} variant="contained">
+          <Button onClick={handleClose} sx={{ ml: 2, fontSize: '1.2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}>Cancel</Button>
+          <Button onClick={handleSubmit} sx={{ ml: 2, fontSize: '1.2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} variant="contained">
             {isEdit ? "Update" : "Add"}
           </Button>
         </DialogActions>

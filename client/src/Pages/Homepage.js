@@ -130,7 +130,7 @@ function Homepage() {
         className={`btn ${isClicked ? 'is-clicked' : ''}`}
         onClick={handleClick}
       >
-        Add TestCase
+        Run Test Case
       </a>
     );
   }

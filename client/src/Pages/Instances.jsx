@@ -20,49 +20,62 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
-
 const APPI_URL=process.env.REACT_APP_APPI_URL
-function Instances() {
+
+function Clients() {
   const ctx = useContext(AuthLoginInfo);
   const [data, setData] = useState([]);
+  const [customerUpdate,setCustomerUpdate]=useState(false)
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(null);
+  const [currentClient, setCurrentClient] = useState(null);
   const [formData, setFormData] = useState({
+    customer_id:"",
+    clientName: "",
     envName: "",
-    user_id: ctx.id,
+    id: ctx.id,
     instance_url: "",
     instance_username: "",
     instance_password: "",
-    id: "",
   });
 
   useEffect(() => {
-    const fetchEnv = async () => {
+    const fetchClients = async () => {
       try {
-        const response = await axios.get(`${APPI_URL}/getenv`, { withCredentials: true });
-        setData(response.data);
+        const response = await axios.get(`${APPI_URL}/getbycustomer?user_id=${ctx.id}`, { withCredentials: true });
+        // Assuming the response contains multiple clients with client names as keys
+        const clientsData = [];
+        Object.keys(response.data).forEach(clientName => {
+          // Add client name to each client object
+          response.data[clientName].forEach(client => {
+            clientsData.push({ ...client, clientName });
+          });
+        });
+        setCustomerUpdate(false)
+        setData(clientsData);
       } catch (error) {
-        console.error("Error fetching environments:", error);
+        console.error("Error fetching clients:", error);
+        setData([]);
       }
     };
-    fetchEnv();
-  }, []);
-
-  const handleClickOpen = (index = null) => {
-    if (index !== null) {
+    fetchClients();
+  }, [customerUpdate]);
+  
+  const handleClickOpen = (clientIndex = null) => {
+    if (clientIndex !== null) {
       setIsEdit(true);
-      setCurrentIndex(index);
-      setFormData(data[index]);
+      setCurrentClient(clientIndex);
+      setFormData(data[clientIndex]);
     } else {
       setIsEdit(false);
       setFormData({
+        customer_id:"",
+        clientName:"",
         envName: "",
-        user_id: ctx.id,
+        id: ctx.id,
         instance_url: "",
         instance_username: "",
         instance_password: "",
-        id: "",
       });
     }
     setOpen(true);
@@ -71,12 +84,13 @@ function Instances() {
   const handleClose = () => {
     setOpen(false);
     setFormData({
+      customer_id:"",
+      clientName:"",
       envName: "",
-      user_id: ctx.id,
+      id: ctx.id,
       instance_url: "",
       instance_username: "",
       instance_password: "",
-      id: "",
     });
   };
 
@@ -87,15 +101,17 @@ function Instances() {
 
   const handleSubmit = async () => {
     try {
-      const requestBody = { envDetails: formData };
       if (isEdit) {
-        await axios.post(`${APPI_URL}/updateenv`, requestBody, { withCredentials: true });
+        await axios.put(`${APPI_URL}/customerupdate`, formData, { withCredentials: true });
         const updatedData = [...data];
-        updatedData[currentIndex] = formData;
+        updatedData[currentClient] = formData;
         setData(updatedData);
+        setCustomerUpdate(true);
       } else {
-        await axios.post(`${APPI_URL}/newenv`, requestBody, { withCredentials: true });
-        setData([...data, formData]);
+        const response = await axios.post(`${APPI_URL}/addcustomer`, formData, { withCredentials: true });
+        setData([...data, response.data]);
+        setCustomerUpdate(true)
+        
       }
       handleClose();
     } catch (error) {
@@ -103,31 +119,35 @@ function Instances() {
     }
   };
 
-  const handleDelete = async (rowIndex) => {
+  const handleDelete = async (clientIndex) => {
     try {
-      const idToDelete = data[rowIndex].id;
-      await axios.post(`${APPI_URL}/deletenv`, { envId: idToDelete }, { withCredentials: true });
-      const updatedData = data.filter((item, index) => index !== rowIndex);
+      const idToDelete = data[clientIndex].customer_id;
+      console.log(idToDelete)
+      await axios.delete(`${APPI_URL}/deletecustomer/?deletecustomer=${idToDelete}`, { withCredentials: true });
+      const updatedData = data.filter((_, index) => index !== clientIndex);
       setData(updatedData);
+      setCustomerUpdate(true)
     } catch (error) {
-      console.error("Error deleting environment:", error);
+      console.error("Error deleting client:", error);
     }
   };
 
   return (
-    <Container >
+    <Container sx={{marginLeft:"14%"}}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h4" sx={{ fontSize: "1.2rem" }}>
-          Instances
+        <Typography variant="h4" sx={{ fontSize: "2.5rem" }}>
+        Instance
         </Typography>
-        <Button variant="contained" sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
-          Add
+        <Button variant="contained" sx={{ ml: 2, fontSize: '1.2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} startIcon={<AddIcon />} onClick={() => handleClickOpen()}>
+          Add Instance
         </Button>
       </Box>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell sx={{ fontSize: "1.2rem" }}>ID</TableCell>
+              <TableCell sx={{ fontSize: "1.2rem" }}>Customer</TableCell>
               <TableCell sx={{ fontSize: "1.2rem" }}>Env Name</TableCell>
               <TableCell sx={{ fontSize: "1.2rem" }}>Instance URL</TableCell>
               <TableCell sx={{ fontSize: "1.2rem" }}>Instance Username</TableCell>
@@ -136,13 +156,14 @@ function Instances() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => (
+            {data.map((client, index) => (
               <TableRow key={index}>
-                <TableCell sx={{ fontSize: "1.2rem" }}>{row.envName}</TableCell>
-                <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_url}</TableCell>
-                <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_username}</TableCell>
-                <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_password}</TableCell>
-                 <TableCell sx={{ fontSize: "1.2rem" }}>{row.instance_password}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{client.customer_id}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{client.clientName}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{client.envName}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{client.instance_url}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{client.instance_username}</TableCell>
+                <TableCell sx={{ fontSize: "1.2rem" }}>{client.instance_password}</TableCell>
                 <TableCell>
                   <Button startIcon={<EditIcon />} onClick={() => handleClickOpen(index)} />
                   <Button startIcon={<DeleteIcon />} onClick={() => handleDelete(index)} />
@@ -155,6 +176,22 @@ function Instances() {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{isEdit ? "Edit Instance" : "Add Instance"}</DialogTitle>
         <DialogContent>
+        <TextField
+            margin="dense"
+            label="ID"
+            name="customer_id"
+            value={formData.customer_id}
+            onChange={handleChange}
+            fullWidth
+          />
+        <TextField
+            margin="dense"
+            label="Customer Name"
+            name="clientName"
+            value={formData.clientName}
+            onChange={handleChange}
+            fullWidth
+          />
           <TextField
             margin="dense"
             label="Env Name"
@@ -163,7 +200,6 @@ function Instances() {
             onChange={handleChange}
             fullWidth
           />
-          
           <TextField
             margin="dense"
             label="Instance URL"
@@ -190,8 +226,8 @@ function Instances() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}>Cancel</Button>
-          <Button onClick={handleSubmit} sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} variant="contained">
+          <Button onClick={handleClose} sx={{ ml: 2, fontSize: '1.2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}>Cancel</Button>
+          <Button onClick={handleSubmit} sx={{ ml: 2, fontSize: '1.2rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }} variant="contained">
             {isEdit ? "Update" : "Add"}
           </Button>
         </DialogActions>
@@ -200,4 +236,4 @@ function Instances() {
   );
 }
 
-export default Instances;
+export default Clients;

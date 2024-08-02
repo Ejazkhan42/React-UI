@@ -37,7 +37,7 @@ function AdminPanel() {
   return (
     <Container maxWidth="lg">
       <Typography variant="h2" align="center" gutterBottom>
-        Admin Pannel
+        Admin Panel
       </Typography>
       <AppBar position="static" color="default">
         <Tabs

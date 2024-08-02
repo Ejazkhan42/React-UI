@@ -11,7 +11,7 @@ import Link from "@mui/material/Link";
 import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
 import { SidebarData } from "./SidebarData";
 import "./Styles/sidebar.css";
-import { PaddingTwoTone } from "@mui/icons-material";
+import { BrandingWatermark, PaddingTwoTone } from "@mui/icons-material";
 const APPI_URL=process.env.REACT_APP_APPI_URL
 const logout = () => {
   axios
@@ -33,9 +33,9 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
   useEffect(() => {
     setBreadcrumbs((prevBreadcrumbs) => {
       const newBreadcrumbs = [...prevBreadcrumbs];
-      if (!newBreadcrumbs.find((breadcrumb) => breadcrumb.path === location.pathname)) {
+      if (!newBreadcrumbs.some((breadcrumb) => breadcrumb.path === location.pathname)) {
         newBreadcrumbs.push({
-          path: location.pathname.toUpperCase(),
+          path: location.pathname,
           name: location.pathname.split('/').pop() || 'Home',
         });
       }

@@ -1,5 +1,5 @@
 const { query } = require('express');
-const fs=require("fs")
+const fs = require("fs")
 var mysql = require('mysql');
 
 
@@ -8,7 +8,7 @@ var connection = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DATABASE,
-  port:process.env.DB_PORT,
+  port: process.env.DB_PORT,
   multipleStatements: true,
   timezone: 'utc',
 });
@@ -17,8 +17,8 @@ var connection = mysql.createPool({
 function getAllDataFromTarget(target) {
   const queryString = `SELECT * from ${target}`;
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -37,7 +37,7 @@ function getTestCasesByModule(moduleName) {
 
   // Return a promise that resolves with the result of the query
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [moduleName], function(error, result) {
+    connection.query(queryString, [moduleName], function (error, result) {
       if (error) {
         console.error("Error executing query:", error);
         reject(error);
@@ -54,7 +54,7 @@ function getByModule(user_id) {
 
   // Return a promise that resolves with the result of the query
   return new Promise((resolve, reject) => {
-    connection.query(queryString,[user_id], function(error, result) {
+    connection.query(queryString, [user_id], function (error, result) {
       if (error) {
         console.error("Error executing query:", error);
         reject(error);
@@ -68,28 +68,28 @@ function getByModule(user_id) {
 function getByCustomer(user_id) {
   // SQL query to get test cases based on the module name
   const queryString = "SELECT * FROM customer_view WHERE id=?;";
-  
-  
+
+
   // Return a promise that resolves with the result of the query
   return new Promise((resolve, reject) => {
-      connection.query(queryString, [user_id], function (error, result) {
-          if (error) {
-              console.error("Error executing query:", error);
-              reject(error);
-          } else {
-              const formattedResult = result.reduce((acc, curr) => {
-                  const { name, id, ...rest } = curr;
-                  if (!acc[name]) {
-                      acc[name] = [];
-                  }
-                  acc[name].push(rest);
-                  return acc;
-              }, {});
-              resolve(formattedResult);
+    connection.query(queryString, [user_id], function (error, result) {
+      if (error) {
+        console.error("Error executing query:", error);
+        reject(error);
+      } else {
+        const formattedResult = result.reduce((acc, curr) => {
+          const { name, id, ...rest } = curr;
+          if (!acc[name]) {
+            acc[name] = [];
           }
-      });
+          acc[name].push(rest);
+          return acc;
+        }, {});
+        resolve(formattedResult);
+      }
+    });
   });
-  }
+}
 
 
 function getDasboardData() {
@@ -99,8 +99,8 @@ function getDasboardData() {
   SELECT * from calendar where deadlineDate >= curdate() and DATEDIFF(deadlineDate, CURDATE()) <= 5 order by deadlineDate asc limit 2
   `;
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -114,8 +114,8 @@ function getDasboardData() {
 function deleteUserById(userId) {
   const queryString = "DELETE from users WHERE id = ?";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [userId], function(error) {
-      if(error) {
+    connection.query(queryString, [userId], function (error) {
+      if (error) {
         console.log(error);
       } else {
         resolve("success")
@@ -127,8 +127,8 @@ function deleteUserById(userId) {
 function deleteEnvById(envId) {
   const queryString = "DELETE from env WHERE id = ?";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, [envId], function(error) {
-      if(error) {
+    connection.query(queryString, [envId], function (error) {
+      if (error) {
         console.log(error);
       } else {
         resolve("success")
@@ -142,8 +142,8 @@ function deleteEnvById(envId) {
 function getUsersForAdminPanel() {
   const queryString = "SELECT id, username, role_id, created_at from users";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -156,8 +156,8 @@ function getUsersForAdminPanel() {
 function getenv() {
   const queryString = "SELECT id,envName , user_Id, instance_url, instance_username, instance_password from env";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -167,12 +167,12 @@ function getenv() {
 }
 
 function createNewUser(userDetails, hashedPassword) {
-  const queryString = "INSERT into Users VALUES ('', ?, ?, ?, ?)";
+  const queryString = "INSERT into users VALUES ('', ?, ?, ?, ?)";
   const currentDate = new Date();
-  const passedValues = [userDetails.username, hashedPassword, userDetails.role_id, currentDate];
+  const passedValues = [userDetails.username, hashedPassword, userDetails.role, currentDate];
   return new Promise((resolve, reject) => {
-    connection.query(queryString, passedValues, function(error) {
-      if(error) {
+    connection.query(queryString, passedValues, function (error) {
+      if (error) {
         console.log(error);
       } else {
         resolve("success");
@@ -180,31 +180,73 @@ function createNewUser(userDetails, hashedPassword) {
     })
   })
 }
-function createNewEnv(envDetails) {
-  // SQL query for upsert (Insert or Update)
-  const queryString = `
-  INSERT INTO env (envName, user_id, instance_url, instance_username, instance_password) 
-  VALUES (?,?,?,?,?)
-`;
 
-// Array of values to be inserted or updated
-const passedValues = [
-  envDetails.envName,
-  envDetails.user_id,
-  envDetails.instance_url,
-  envDetails.instance_username,
-  envDetails.instance_password
-];
-  
-
-  // Return a promise for the database operation
+function deleteCustomer(customerId) {
   return new Promise((resolve, reject) => {
-    connection.query(queryString, passedValues, function (error) {
+    // Delete from customersUser table
+    const deleteFromCustomersUser = `
+      DELETE FROM customersUser WHERE customer_id = ?
+    `;
+    connection.query(deleteFromCustomersUser, [customerId], (error) => {
       if (error) {
         console.log(error);
-        reject(error); // Reject the promise with the error
-      } else {
-        resolve("success"); // Resolve the promise with success message
+        return reject(error);
+      }
+
+      // Delete from customer table
+      const deleteFromCustomer = `
+        DELETE FROM customer WHERE id = ?
+      `;
+      connection.query(deleteFromCustomer, [customerId], (error) => {
+        if (error) {
+          console.log(error);
+          return reject(error);
+        }
+        resolve("success");
+      });
+    });
+  });
+}
+
+
+function createNewCustomer(envDetails) {
+  const queryString = `
+    INSERT INTO customer (name, envName, instance_url, instance_username, instance_password) 
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  const passedValues = [
+    envDetails.clientName,
+    envDetails.envName,
+    envDetails.instance_url,
+    envDetails.instance_username,
+    envDetails.instance_password,
+  ];
+
+  return new Promise((resolve, reject) => {
+    connection.query(queryString, passedValues, function (error, results) {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      
+      const lastId = results.insertId;
+      if (lastId != null) {
+        const customers = `
+          INSERT INTO customersUser (user_id, customer_id) 
+          VALUES (?, ?)
+        `;
+        const passedValue = [
+          envDetails.id,
+          lastId
+        ];
+        connection.query(customers, passedValue, function (error, result) {
+          if (error) {
+            console.log(error);
+            return reject(error);
+          }
+          resolve("success");
+        });
       }
     });
   });
@@ -245,28 +287,28 @@ function formatDateTime(dateTimeString) {
   return formattedDateTime;
 }
 
-function updateEnv(envDetails) {
+function UpdateCustomer(envDetails) {
   const queryString = `
-  UPDATE env 
-  SET envName = ?, 
-      user_Id = ?, 
+  UPDATE customer 
+  SET name=?,
+      envName = ?, 
       instance_url = ?, 
       instance_username = ?, 
       instance_password = ? 
   WHERE id = ?;
 `;
 
-// Array of values to be updated
-console.log('envDetails:', envDetails);
+  // Array of values to be updated
+  console.log('envDetails:', envDetails);
 
-const passedValues = [
-  envDetails.envName,          // Test
-  envDetails.user_Id,          // 1 (Ensure column name is user_id)
-  envDetails.instance_url,     // https://hdbg-test.login.us2.oraclecloud.com/
-  envDetails.instance_username,// herbert.george@nexinfo.com
-  envDetails.instance_password,// Nexinfo@12312qqw
-  envDetails.id                // 1
-];
+  const passedValues = [
+    envDetails.clientName,
+    envDetails.envName,          // Test       // 1 (Ensure column name is user_id)
+    envDetails.instance_url,     // https://hdbg-test.login.us2.oraclecloud.com/
+    envDetails.instance_username,// herbert.george@nexinfo.com
+    envDetails.instance_password,// Nexinfo@12312qqw
+    envDetails.customer_id                // 1
+  ];
 
 
   // Return a promise for the database operation
@@ -364,7 +406,7 @@ function getByTestCases() {
 function getByobject() {
   const queryString = "SELECT * FROM objects_view";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, results) {
+    connection.query(queryString, function (error, results) {
       if (error) {
         reject(error);
       } else {
@@ -374,11 +416,11 @@ function getByobject() {
   });
 }
 
-function getroles(){
+function getroles() {
   const queryString = "SELECT * From role";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -388,11 +430,11 @@ function getroles(){
 }
 
 
-function getscenario(){
+function getscenario() {
   const queryString = "SELECT * From s_m_view";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -402,11 +444,11 @@ function getscenario(){
 }
 
 
-function Getlogs(){
-   const queryString = "SELECT DISTINCT * From logs";
+function Getlogs() {
+  const queryString = "SELECT DISTINCT * From logs";
   return new Promise((resolve, reject) => {
-    connection.query(queryString, function(error, result) {
-      if(error) {
+    connection.query(queryString, function (error, result) {
+      if (error) {
         console.log(error);
       } else {
         resolve(result);
@@ -417,11 +459,11 @@ function Getlogs(){
 
 
 function newReports(reportDetails) {
-if (reportDetails.screenshot) {
-        const screenshotPath = `./screenshots/${Date.now()}.png`;
-        fs.writeFileSync(screenshotPath, reports.screenshot, 'base64');
-        reportDetails.screenshotPath = screenshotPath;
-    }
+  if (reportDetails.screenshot) {
+    const screenshotPath = `./screenshots/${Date.now()}.png`;
+    fs.writeFileSync(screenshotPath, reports.screenshot, 'base64');
+    reportDetails.screenshotPath = screenshotPath;
+  }
   const queryString = `
     INSERT INTO test_results (test_name, step_name, step_description, step_status,screenshotPath, executionTime, buildNo, browser_id, token) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
@@ -462,11 +504,11 @@ module.exports = {
   deleteUserById,
   getUsersForAdminPanel,
   createNewUser,
-  createNewEnv,
+  createNewCustomer,
   deleteEnvById,
   getenv,
   createNewLogs,
-  updateEnv,
+  UpdateCustomer,
   getByobject,
   getByTestCase,
   Getlogs,
@@ -474,5 +516,6 @@ module.exports = {
   getscenario,
   newReports,
   getByTestCases,
-  getByCustomer
+  getByCustomer,
+  deleteCustomer
 }

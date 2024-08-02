@@ -38,7 +38,7 @@ function Orders() {
   }, [ctx.id]);
 
   const handleCardClick = (moduleId, moduleName,JOB) => {
-    navigate('/testcase', { state: { moduleId, moduleName,JOB} });
+    navigate('/Jobs', { state: { moduleId, moduleName,JOB} });
   };
 
   return (

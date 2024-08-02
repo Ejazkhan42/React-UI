@@ -11,30 +11,27 @@ export const SidebarData = [
     link: "/Instances"
   },
   {
-    title: "Job",
+    title: "Modules",
     icon: "fa-life-ring ",
-    link: "/Job"
-  },
-  {
-    title: "Details",
-    icon: "fa-users",
-    link: "/Details"
+    link: "/Modules"
   },
   {
     title: "Customers",
     icon: "fa-address-book-o",
     link: "/Customers"
   },
+  
+  {
+    title: "Business",
+    icon: "fa-server",
+    link: "/business",
+    role: 1
+  },
+
   {
     title: "Admin Panel",
     icon: "fa-user",
-    link: "/Admin-Panel",
+    link: "/AdminPanel",
     role: 1
   },
-  {
-    title: "Business",
-    icon: "fa-user",
-    link: "/business",
-    role: 1
-  }
 ];

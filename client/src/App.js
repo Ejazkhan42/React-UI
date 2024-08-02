@@ -35,32 +35,18 @@ function App() {
                     <Homepage />
                   </PrivateRoute>
                 } />
-              <Route path='/job' element={
+              <Route path='/Modules' element={
                     <PrivateRoute>
                       <Orders />
                     </PrivateRoute>
                   } />
-                <Route path='/job/:orderId' element={
-                    <PrivateRoute>
-                      <OrderPage />
-                    </PrivateRoute>
-                  } />
-                <Route path='/Details' element={
-                    <PrivateRoute>
-                      <Clients />
-                    </PrivateRoute>
-                  } />
-                <Route path='/clients/:clientId' element={
-                    <PrivateRoute>
-                      <ClientPage />
-                    </PrivateRoute>
-                  } />
+
                 <Route path='/customers' element={
                     <PrivateRoute>
                       <Customers />
                     </PrivateRoute>
                   } />
-                <Route path='/adminPannel' element={
+                <Route path='/AdminPanel' element={
                     <AdminRoute>
                       <AdminPanel />
                     </AdminRoute>
@@ -70,18 +56,13 @@ function App() {
                     <Login />
                   </LoginRoute>
                 } />
-                <Route path='/run' element={
-                  <PrivateRoute>
-                    <Run/>
-                  </PrivateRoute>
-                }/>
-                <Route path='/testcase' element={
+                <Route path='/Jobs' element={
                   <PrivateRoute>
                     <TestCase/>
                   </PrivateRoute>
                 }/>
                 
-                <Route path='/progress' element={
+                <Route path='/Progress' element={
                   <PrivateRoute>
                     <Progress/>
                   </PrivateRoute>
@@ -98,21 +79,11 @@ function App() {
                     <Business/>
                   </PrivateRoute>
                 }/>
-
-
-            <Route path='/customers' element={
-                  <PrivateRoute>
-                    <Customers/>
-                  </PrivateRoute>
-                }/>
             <Route path='/env' element={
                   <PrivateRoute>
                     <Env/>
                   </PrivateRoute>
                 }/>
-            
-
-
             </Routes>
             
       </BrowserRouter>

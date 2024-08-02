@@ -43,7 +43,7 @@ function UsersSetting() {
   });
   const [newUserPopup, setNewUserPopup] = useState(false);
   const [role, setRole] = useState([]);
-  const [selectRole, setSelectRole] = useState("Select Role");
+  const [selectRole, setSelectRole] = useState('');
   useEffect(() => {
     axios
       .get(`${APPI_URL}/role`, { withCredentials: true })
@@ -52,7 +52,7 @@ function UsersSetting() {
           setRole(res.data);
         }
       });
-  });
+  },[]);
   useEffect(() => {
     axios
       .get(`${APPI_URL}/getusers`, { withCredentials: true })
@@ -128,7 +128,7 @@ function UsersSetting() {
             variant="body1"
             className="usersInfoText"
             align="center"
-            style={{ fontSize: "1.2rem" }}
+            style={{ fontSize: "0.9rem",textAlign:"justify" }}
           >
             Admins have access to all of the content, including all
             functionality of app, they also can create new users and remove or
@@ -190,11 +190,10 @@ function UsersSetting() {
             variant="body1"
             className="usersInfoText"
             align="center"
-            style={{ fontSize: "1.2rem" }}
+            style={{ fontSize: "0.9rem",textAlign:"justify" }}
           >
-            Normal users have access to pages and subpages of: Orders, Clients,
-            Calendar and Dashboard. They can add, edit and remove clients,
-            orders, and events.
+            Normal users have access to pages and subpages of: Instance, Customer, Modules, Jobs, Progress and Dashboard. They can add, edit and remove Customer and
+            Instance.
           </Typography>
         </div>
         <div className="normalUsersTable">
@@ -248,6 +247,7 @@ function UsersSetting() {
         <Button
           variant="contained"
           color="primary"
+          sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
           startIcon={<AddCircleOutlineRoundedIcon />}
           onClick={() => setNewUserPopup(true)}
         >

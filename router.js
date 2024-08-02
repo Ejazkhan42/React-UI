@@ -1,7 +1,6 @@
 const express = require('express');
 require("dotenv").config();
 var mysql = require('mysql');
-// var express = require('express');
 const app = express.Router();
 const FormData = require('form-data');
 const fs = require('fs');
@@ -10,10 +9,11 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var bcrypt = require('bcrypt');
 const passport = require("passport");
-const cors = require("cors");
 const Jenkins = require("jenkins");
 const {
-  createNewEnv,
+  deleteCustomer,
+  UpdateCustomer,
+  createNewCustomer,
   getDasboardData,
   deleteUserById,
   getUsersForAdminPanel,
@@ -25,7 +25,6 @@ const {
   getByTestCase,
   getByobject,
   createNewLogs,
-  updateEnv,
   Getlogs,
   getroles,
   newReports,
@@ -47,72 +46,21 @@ var connection = mysql.createPool({
 
 let browser=''
 
+
 const jenkins = new Jenkins({
     baseUrl: `${process.env.Jenkins_Type}:/${process.env.Jenkins_Username}:${process.env.Jenkins_Password}@${process.env.Jenkins_Url}:${process.env.Jenkins_Port}`,
     crumbIssuer: true,
     formData: FormData
   });
-  const initializePassport = require('./passport-config.js');
-  initializePassport(connection, passport);
+
+const initializePassport = require('./passport-config.js');
+initializePassport(connection, passport);
 
 
   app.post('/login', passport.authenticate('local'), (req, res) => {
     res.send("success")
   });
 
-
-  function extractStageLog(logData, stageName) {
-    const stagePattern = new RegExp(`\\[Pipeline\\] stage[\\s\\S]*?\\[Pipeline\\] \\{ \\(${stageName}\\)[\\s\\S]*?(?=\\[Pipeline\\] stage|\\[Pipeline\\] End of Pipeline)`, 'i');
-    const match = logData.match(stagePattern);
-    return match ? match[0] : "Stage not found";
-  }
-
-  app.get('/joblogs', async (req, res) => {
-    const JOBNAM=req.query.job
-    const BUILDNO=req.query.build
-    console.log(req.query)
-    try {
-  
-      const log = await jenkins.build.logStream(JOBNAM,BUILDNO)
-      log.on("data", (text) => {
-  
-        
-      });
-      
-      log.on("error", (err) => {
-       
-      });
-      
-      log.on("end", () => {
-       
-      });
-      // res.json(log);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Error retrieving Jenkins info');
-    }
-  });
-  app.get('/jobInfo', async (req, res) => {
-    try {
-  
-      const jobName = req.query.jobName;
-  
-      if (!jobName) {
-        return res.status(400).send('Job name is required');
-      }
-  
-      // Fetch job info from Jenkins
-      const info = await jenkins.job.get(jobName);
-      // console.log(info)
-      // Send the info as a JSON response
-      res.json(info);
-    } catch (error) {
-      // Handle any errors that occur
-      console.error(error);
-      res.status(500).send('Error retrieving Jenkins job info');
-    }
-  });
-  
   app.get("/getbycustomer", async (req, res) => {
     const user_id = req.query.user_id
     const queryAllClientsWithOrdersCount = await getByCustomer(user_id);
@@ -121,17 +69,25 @@ const jenkins = new Jenkins({
     })
   })
   
-  app.post("/customerupdate", async (req, res) => {
+  app.put("/customerupdate", async (req, res) => {
     const customers = req.body
-    const queryAddcustomers = await getByAddCustomer(customers);
+    const queryAddcustomers = await UpdateCustomer(customers);
     Promise.resolve(queryAddcustomers).then((results) => {
-      res.send(results);
+      res.send("Updates");
     })
   })
+
+  app.delete("/deletecustomer", async (req, res) => {
+    let deletecustomer = req.query.deletecustomer;
+    const queryDeleteUser = await   deleteCustomer(deletecustomer);
+    Promise.resolve(queryDeleteUser).then(() => {
+      res.send("success");
+    })
+  });
   
   app.post("/addcustomer", async (req, res) => {
     const customers = req.body
-    const queryAddcustomers = await getByAddCustomer(customers);
+    const queryAddcustomers = await createNewCustomer(customers);
     Promise.resolve(queryAddcustomers).then((results) => {
       res.send(results);
     })
@@ -148,8 +104,7 @@ const jenkins = new Jenkins({
   });
   
   const upload = multer({ storage: storage });
-  
-  // Adjust the upload middleware to handle multiple fields
+
   app.post('/build', upload.fields([
     { name: 'file', maxCount: 1 }, // Assuming 'file' is the main file
     { name: 'image', maxCount: 1 } // Assuming 'image' is the image file
@@ -227,6 +182,8 @@ const jenkins = new Jenkins({
       res.send(results);
     })
   })
+
+
   app.get("/module", async (req, res) => {
     const user_id = req.query.user_id
     const queryAllClientsWithOrdersCount = await getByModule(user_id);
@@ -234,18 +191,8 @@ const jenkins = new Jenkins({
       res.send(results);
     })
   })
-  
-  // ADD NEW CLIENT SECTION *
-  app.post("/newclient", async (req, res) => {
-    const clientDetails = req.body.clientDetails;
-    const queryAddingNewClient = await addNewClient(clientDetails);
-    Promise.resolve(queryAddingNewClient).then(() => {
-      res.send("success");
-    })
-  })
-  
-  
-  // API endpoint to get all Jenkins jobs and their details
+
+
   app.post('/postlogs', async (req, res) => {
     const logs = req.body.logs;
     if (!Array.isArray(logs)) {
@@ -260,6 +207,8 @@ const jenkins = new Jenkins({
       res.status(500).json({ error: 'Failed to create logs' });
     }
   });
+
+
   app.get('/getlogs', async (req, res) => {
     try {
       const queryGetLogs = await Getlogs();
@@ -271,6 +220,9 @@ const jenkins = new Jenkins({
       res.status(500).json({ error: 'Failed to Get logs' });
     }
   });
+
+
+
   app.get("/getflow", async (req, res) => {
     const test_name = req.query.test_name
     if(!test_name){
@@ -286,6 +238,7 @@ const jenkins = new Jenkins({
     })
   })
   
+
   app.get("/getobject", async (req, res) => {
     const queryAllobjects = await getByobject();
     Promise.resolve(queryAllobjects).then((results) => {
@@ -293,42 +246,33 @@ const jenkins = new Jenkins({
     })
   })
   
-  
-  
-  // DASHBOARD DATA SECTION *
+
   app.get("/dashboard_data", async (req, res) => {
     const queryDashboardData = await getDasboardData();
     Promise.resolve(queryDashboardData).then((results) => {
       res.send(results);
     })
   })
-  // END OF DASHBOARD DATA SECTION *
   
-  
-  
-  // GET USERS FOR ADMIN PANEL SECTION *
+
   app.get("/getusers", async (req, res) => {
     const queryGetUsersForAdminPanel = await getUsersForAdminPanel();
     Promise.resolve(queryGetUsersForAdminPanel).then((results) => {
       res.send(results);
     })
   })
-  // END OF GET USERS FOR ADMIN PANEL SECTION *
+
+
+
   
-  app.get("/getenv", async (req, res) => {
-    const queryGetUsersForAdminPanel = await getenv();
-    Promise.resolve(queryGetUsersForAdminPanel).then((results) => {
-      res.send(results);
-    })
-  })
   app.get("/scenario", async (req, res) => {
     const queryGetscenario = await getscenario();
     Promise.resolve(queryGetscenario).then((results) => {
       res.send(results);
     })
   })
-  
-  // DELETE USER BY ID SECTION *
+
+
   app.post("/deleteuser", async (req, res) => {
     let userId = req.body.userId;
     const queryDeleteUser = await deleteUserById(userId);
@@ -336,7 +280,8 @@ const jenkins = new Jenkins({
       res.send("success");
     })
   });
-  // DELETE USER BY ID SECTION *
+
+
   app.post("/deletenv", async (req, res) => {
     let envId = req.body.envId;
     const queryDeleteUser = await deleteEnvById(envId);
@@ -344,7 +289,8 @@ const jenkins = new Jenkins({
       res.send("success");
     })
   });
-  // CREATE NEW USER SECTION *
+
+
   app.post("/newuser", async (req, res) => {
     const userDetails = req.body.userDetails;
     console.log(userDetails)
@@ -354,7 +300,8 @@ const jenkins = new Jenkins({
       res.send("success");
     })
   })
-  // END OF CREATE NEW USER SECTION *
+
+
   app.post("/newenv", async (req, res) => {
     const envDetails = req.body.envDetails;
     const queryCreateNewUser = await createNewEnv(envDetails);
@@ -363,6 +310,7 @@ const jenkins = new Jenkins({
     })
   })
   
+
   app.post("/reportslogs", async (req,res)=>{
     const reports= req.body;
    const queryCreateReport = await newReports(reports);
@@ -377,9 +325,13 @@ const jenkins = new Jenkins({
     console.log('Received browser ID:', browser);
     res.send('Browser ID received successfully');
   })
+
+
   app.get("/getbrowser-id",async(req,res)=>{
     res.send(browser)
   })
+
+
   app.post("/updateenv", async (req, res) => {
     const envDetails = req.body.envDetails;
     const queryCreateNewUser = await updateEnv(envDetails);
@@ -387,6 +339,8 @@ const jenkins = new Jenkins({
       res.send("success");
     })
   })
+
+
   app.get("/role", async(req,res)=>{
     const queryGetUsersForAdminPanel = await getroles();
     Promise.resolve(queryGetUsersForAdminPanel).then((results) => {

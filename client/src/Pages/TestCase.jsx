@@ -92,7 +92,7 @@ const TestCasePage = () => {
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
   const [openModal, setOpenModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedBrowser, setSelectedBrowser] = useState('chrome');
@@ -105,6 +105,8 @@ const TestCasePage = () => {
   const [selectEnv, setSelectEnv] = useState([]);
   const [selectedEnv, setSelectedEnv] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [buttondisableFile, setbuttondisableFile]=useState(false)
+  const [buttondisableImage, setbuttondisableImage]=useState(false)
 
   if(JOBNAME==undefined){
     if(JOB!='' && JOB!=undefined){
@@ -117,13 +119,9 @@ const TestCasePage = () => {
   }
 
   useEffect(() => {
-    axios.get(`${APPI_URL}/getenv`, { withCredentials: true })
-      .then((res) => {
-        if (res.data != null) {
-          setSelectEnv(res.data);
-        }
-      });
-  }, []);
+          const env=JSON.parse(localStorage.getItem('env'))
+          setSelectEnv(env);
+},[]);
 
   useEffect(() => {
     if (moduleId !== null) {
@@ -176,12 +174,16 @@ const TestCasePage = () => {
       .join(', ');
 
     setTestCaseList(selectedTestCaseNames ? selectedTestCaseNames.split(', ').map(item => item.replace(/"/g, '')) : []);
+    setbuttondisableFile(false)
+    setbuttondisableImage(false)
     setOpenModal(true); // Open the modal
   };
 
   const handleFileChange = async (event) => {
     if (event.target.files !== undefined) {
+
       setSelectedFile(event.target.files[0]);
+      setbuttondisableFile(true)
       const file = event.target.files[0];
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
@@ -200,6 +202,7 @@ const TestCasePage = () => {
   const handleImageFileChange = (event) => {
     if (event.target.files !== undefined) {
       setSelectedImageFile(event.target.files[0]);
+      setbuttondisableImage(true)
     }
   };
 
@@ -235,7 +238,7 @@ const TestCasePage = () => {
       if (response.ok) {
         const result = await response.json();
         setMessage('Success');
-        navigate('/progress', { state: { excelData } });
+        navigate('/Progress', { state: { excelData } });
       } else {
         console.error('Error:', response.statusText);
       }
@@ -261,6 +264,8 @@ const TestCasePage = () => {
   };
 
   const handleCloseModal = () => {
+    setbuttondisableFile(false)
+    setbuttondisableImage(false)
     setOpenModal(false);
   };
 
@@ -376,7 +381,7 @@ const TestCasePage = () => {
                         sx={{ fontSize: "1.2rem" }}
                       >
                         {selectEnv.map((env) => (
-                          <MenuItem key={env.id} value={env.envName}>
+                          <MenuItem key={env.envName} value={env.envName}>
                             <ListItemText primary={env.envName} sx={{ fontSize: "1.2rem" }}/>
                           </MenuItem>
                         ))}
@@ -422,7 +427,7 @@ const TestCasePage = () => {
                     <Button
                       component="label"
                       role={undefined}
-                      // variant="contained"
+                      disabled={buttondisableFile==true}
                       sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                       tabIndex={-1}
                       style={{ marginLeft: '15%' }}
@@ -437,6 +442,7 @@ const TestCasePage = () => {
                       component="label"
                       role={undefined}
                       // variant="contained"
+                      disabled={buttondisableImage==true}
                       tabIndex={-1}
                       startIcon={<CloudUploadIcon />}
                       sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
