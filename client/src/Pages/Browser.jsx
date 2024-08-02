@@ -58,10 +58,11 @@ export default class VncScreen extends Component {
     connectRFB = (session) => {
        
         const selenoid= new URL(VNC_URL);
-        const link = selenoid
-        const port = link.port
+        const protocol = selenoid.protocol
+        const port = selenoid.port
+        const hostname=selenoid.hostname
         this.disconnect(this.rfb);
-        this.rfb = this.createRFB(link.hostname, port, session, this.isSecure(link.protocol));
+        this.rfb = this.createRFB(hostname, port, session, this.isSecure(protocol));
     };
 
     createRFB(hostname, port, session, secure) {
@@ -92,7 +93,7 @@ export default class VncScreen extends Component {
     }
 
     isSecure(link) {
-        return new link === "https:";
+        return link === "https:";
     }
 
     render() {
