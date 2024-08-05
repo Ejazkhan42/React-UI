@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { AuthLoginInfo } from './AuthLogin';
 import { Navigate } from 'react-router-dom';
 import './Styles/loadingPage.css';

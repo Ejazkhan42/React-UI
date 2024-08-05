@@ -16,12 +16,13 @@ import {
   Button,
   TablePagination,
   InputLabel,
+  colors,
 } from "@mui/material";
 import VncScreen from "./Browser";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
-import { Label } from "@mui/icons-material";
+
 const APPI_URL=process.env.REACT_APP_APPI_URL
 
 const StyledPaper = styled(Paper)({
@@ -31,6 +32,46 @@ const StyledPaper = styled(Paper)({
   color: "#333",
 });
 
+function Item(props) {
+  const { sx, ...other } = props;
+  return (
+    <Box
+      sx={{
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#101010' : '#fff'),
+        color: (theme) => (theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800'),
+        border: '1px solid',
+        borderColor: (theme) =>
+          theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
+        p: 1,
+        borderRadius: 2,
+        fontSize: '0.875rem',
+        fontWeight: '700',
+        ...sx,
+      }}
+      {...other}
+    />
+  );
+}
+// Item.propTypes = {
+//   /**
+//    * The system prop that allows defining system overrides as well as additional CSS styles.
+//    */
+//   sx: PropTypes.oneOfType([
+//     PropTypes.arrayOf(
+//       PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+//     ),
+//     PropTypes.func,
+//     PropTypes.object,
+//   ]),
+// };
+
+
+const styles = theme => ({
+  disabledButton: {
+    backgroundColor: '#173B45',
+    color:"#FF8225"
+  }
+});
 const SystemLog = styled("div")({
   display: "flex",
   flexDirection: "column",
@@ -120,11 +161,11 @@ const DataSetTable = ({ excelData }) => {
 const ResponsivePage = () => {
   const location = useLocation();
   const { excelData } = location.state || { excelData: [] };
-
+  const [getSession,setSesssion]=useState(false)
   const [sessionIds, setSessionIds] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [vncConnectionStatus, setVncConnectionStatus] =
-    useState("disconnected");
+  useState("disconnected");
 
   useEffect(() => {
     axios
@@ -134,12 +175,14 @@ const ResponsivePage = () => {
           setSessionIds([res.data]);
         } else {
           console.error("Invalid response format:", res.data);
+        
         }
       })
       .catch((error) => {
         console.error("Error fetching session IDs:", error);
       });
-  });
+      setSesssion(false)
+  },[getSession]);
 
   const handleConnect = () => {
     if (selectedSession) {
@@ -153,93 +196,166 @@ const ResponsivePage = () => {
   };
 
   const handleSessionChange = (event) => {
-    
-      axios
-        .get(`${APPI_URL}/getbrowser-id`)
-        .then((res) => {
-          if (res.data.browserId) {
-            setSessionIds([res.data]);
-          } else {
-            console.error("Invalid response format:", res.data);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching session IDs:", error);
-        });
-    setSelectedSession(event.target.value);
+    setSelectedSession(event.target.value)
+    setSesssion(true);
+  };
+
+  const getMarginBottom = () => {
+    switch (vncConnectionStatus) {
+      case "disconnected":
+        return "50%";
+      case "connecting":
+        return "50%";
+      case "connected":
+          return "4%";  
+      default:
+        return "50%";
+    }
   };
 
   return (
     <Container style={{marginLeft:"12%"}}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={9} sx={{justifyContent: "space-between"}}>
-          <Box sx={{ height: "100%", width: "100%", minHeight: "500px" }}>
-            <InputLabel id="demo-multiple-checkbox-label" sx={{fontSize: "1.2rem"}}>
-              Select Session
-            </InputLabel>
+     <Box sx={{
+    display: 'grid',
+    columnGap: 1,
+    rowGap: 1,
+    gridTemplateColumns: 'repeat(1, 1fr)',
+  }}>
+    <Item>
+    <InputLabel id="demo-multiple-checkbox-label" sx={{fontSize: "1.2rem"}}>
+        Select Session
+      </InputLabel>
+      <Select
+        value={selectedSession}
+        onChange={handleSessionChange}
+        displayEmpty
+        fullWidth
+        variant="outlined"
+        disabled={
+          vncConnectionStatus === "connecting" ||
+          vncConnectionStatus === "connected"
+        }
+      >
+        <MenuItem value="" disabled>
+          Select Session ID
+        </MenuItem>
+        {sessionIds.map((session) => (
+          <MenuItem key={session.browserId} value={session.browserId}>
+            {session.testcase}
+          </MenuItem>
+        ))}
+      </Select>
+    </Item>
+    <Item>
+    <Button
+          sx={{ ml: 2, fontSize: '1rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' },'&:disabled':{backgroundColor:"#FF8225"}}}
+          onClick={handleConnect}
+          disabled={
+            vncConnectionStatus === "connecting" ||
+            vncConnectionStatus === "connected"
+          }
+        >
+          LIVE VIEW
+        </Button>
+        <Button
+          style={{ marginLeft: "10px" }}
+          variant="outlined"
+          sx={{ ml: 2, fontSize: '1rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' },'&:disabled':{backgroundColor:"#FF8225"}}}
+          onClick={handleDisconnect}
+          disabled={vncConnectionStatus === "disconnected"}
+        >
+          Disconnect
+        </Button>
+    </Item>
+    {/* I want change marginButton on vncConnectionStatus==connecting margin 50% ==connected margin 4%  */}
+    <Item sx={{height:"100%",maxHeight:"638px",marginBottom:getMarginBottom()}}>
+    {selectedSession && (
+        <VncScreen
+          session={selectedSession}
+          onUpdateState={setVncConnectionStatus}
+        />
+      )}
+    </Item>
+    <Item>
+    <StyledPaper>
+    <Typography variant="h6" gutterBottom>
+      Data Set
+    </Typography>
+    <DataSetTable excelData={excelData} />
+  </StyledPaper>
+    </Item>
 
-            <Select
-              value={selectedSession}
-              onChange={handleSessionChange}
-              displayEmpty
-              fullWidth
-              variant="outlined"
-              disabled={
-                vncConnectionStatus === "connecting" ||
-                vncConnectionStatus === "connected"
-              }
-            >
-              <MenuItem value="" disabled>
-                Select Session ID
-              </MenuItem>
-              {sessionIds.map((session) => (
-                <MenuItem key={session.browserId} value={session.browserId}>
-                  {session.testcase}
-                </MenuItem>
-              ))}
-            </Select>
-            <Box style={{ marginTop: "10px" }}>
-              <Button
-                // variant="contained"
-                // color="secondary"
-                sx={{ ml: 2, fontSize: '1rem', backgroundColor: 'gray', color: 'white', '&:hover': { backgroundColor: 'gray' } }}
-                onClick={handleConnect}
-                disabled={
-                  vncConnectionStatus === "connecting" ||
-                  vncConnectionStatus === "connected"
-                }
-              >
-                LIVE VIEW
-              </Button>
-              <Button
-                style={{ marginLeft: "10px" }}
-                variant="outlined"
-                sx={{ fontSize: '1rem' }}
-                onClick={handleDisconnect}
-                disabled={vncConnectionStatus === "disconnected"}
-              >
-                Disconnect
-              </Button>
-            </Box>
-            {selectedSession && (
-              <VncScreen
-                session={selectedSession}
-                onUpdateState={setVncConnectionStatus}
-              />
-            )}
-          </Box>
-        </Grid>
-      </Grid>
-      <Box sx={{ mt: 10 }}>
-        <StyledPaper>
-          <Typography variant="h6" gutterBottom>
-            Data Set
-          </Typography>
-          <DataSetTable excelData={excelData} />
-        </StyledPaper>
-      </Box>
+     </Box>
     </Container>
   );
 };
 
 export default ResponsivePage;
+
+{/* <Container style={{marginLeft:"12%"}}>
+<Grid container spacing={3}>
+  <Grid item xs={12} md={9} sx={{justifyContent: "space-between"}}>
+    <Box sx={{ height: "100%", width: "100%", minHeight: "0px",display:"grid" }}>
+      <InputLabel id="demo-multiple-checkbox-label" sx={{fontSize: "1.2rem"}}>
+        Select Session
+      </InputLabel>
+
+      <Select
+        value={selectedSession}
+        onChange={handleSessionChange}
+        displayEmpty
+        fullWidth
+        variant="outlined"
+        disabled={
+          vncConnectionStatus === "connecting" ||
+          vncConnectionStatus === "connected"
+        }
+      >
+        <MenuItem value="" disabled>
+          Select Session ID
+        </MenuItem>
+        {sessionIds.map((session) => (
+          <MenuItem key={session.browserId} value={session.browserId}>
+            {session.testcase}
+          </MenuItem>
+        ))}
+      </Select>
+      <Box style={{ marginTop: "10px",marginBottom:"10px" }}>
+        <Button
+          sx={{ ml: 2, fontSize: '1rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' },'&:disabled':{backgroundColor:"#FF8225"}}}
+          onClick={handleConnect}
+          disabled={
+            vncConnectionStatus === "connecting" ||
+            vncConnectionStatus === "connected"
+          }
+        >
+          LIVE VIEW
+        </Button>
+        <Button
+          style={{ marginLeft: "10px" }}
+          variant="outlined"
+          sx={{ ml: 2, fontSize: '1rem', backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' },'&:disabled':{backgroundColor:"#FF8225"}}}
+          onClick={handleDisconnect}
+          disabled={vncConnectionStatus === "disconnected"}
+        >
+          Disconnect
+        </Button>
+      </Box>
+      {selectedSession && (
+        <VncScreen
+          session={selectedSession}
+          onUpdateState={setVncConnectionStatus}
+        />
+      )}
+    </Box>
+  </Grid>
+</Grid>
+<Box sx={{ mt: 10 }}>
+  <StyledPaper>
+    <Typography variant="h6" gutterBottom>
+      Data Set
+    </Typography>
+    <DataSetTable excelData={excelData} />
+  </StyledPaper>
+</Box>
+</Container> */}

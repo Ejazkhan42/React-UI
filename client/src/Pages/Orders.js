@@ -4,20 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
 import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
-import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
 import SupervisorAccountRoundedIcon from '@mui/icons-material/SupervisorAccountRounded';
 import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import WorkIcon from '@mui/icons-material/Work';
 import './Styles/order.css';
 const APPI_URL=process.env.REACT_APP_APPI_URL
 
 const iconMap = {
-  // 'Payments': <PaymentsRoundedIcon style={{ fontSize: 40 }} />,
   'Recruitment': <TrendingUpIcon style={{ fontSize: 40 }} />,
   'Absence': <SupervisorAccountRoundedIcon style={{ fontSize: 40 }} />,
   'Core Hr': <EventNoteRoundedIcon style={{ fontSize: 40 }} />,
-  // 'Work': <WorkIcon style={{ fontSize: 40 }} />
 };
 
 function Orders() {

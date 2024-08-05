@@ -42,7 +42,12 @@ var connection = mysql.createPool({
   timezone: 'utc',
 });
 
-let browser=''
+let browser={
+  "browserId": "3e1ae91777133c94ba68bedadedae1c2",
+  "testcase": "SBC",
+  "token": "Hello"
+}
+
 
 
 const jenkins = new Jenkins({
@@ -313,6 +318,7 @@ initializePassport(connection, passport);
 
 
   app.get("/getbrowser-id",async(req,res)=>{
+    console.log(browser)
     res.send(browser)
   })
 

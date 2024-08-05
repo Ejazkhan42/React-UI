@@ -1,41 +1,16 @@
 require("dotenv").config();
-//Updates
+
 var mysql = require('mysql');
 var express = require('express');
 var session = require('express-session');
 const flash = require('express-flash');
 const app = express();
 const FormData = require('form-data');
-const fs = require('fs');
-const multer = require('multer')
 var bodyParser = require('body-parser');
 var path = require('path');
-var bcrypt = require('bcrypt');
 const passport = require("passport");
 const cors = require("cors");
 const Jenkins = require("jenkins");
-const {
-  createNewEnv,
-  getAllDataFromTarget,
-  getDasboardData,
-  deleteUserById,
-  getUsersForAdminPanel,
-  createNewUser,
-  getByModule,
-  getTestCasesByModule,
-  deleteEnvById,
-  getenv,
-  getByTestCase,
-  getByobject,
-  createNewLogs,
-  updateEnv,
-  Getlogs,
-  getroles,
-  newReports,
-  getscenario,
-  getByTestCases,
-  getByCustomer
-} = require("./queries.js");
 
 
 var connection = mysql.createPool({
@@ -55,11 +30,6 @@ const corsOptions = {
   optionSuccessStatus: 200
 };
 
-const jenkins = new Jenkins({
-  baseUrl: `${process.env.Jenkins_Type}:/${process.env.Jenkins_Username}:${process.env.Jenkins_Password}@${process.env.Jenkins_Url}:${process.env.Jenkins_Port}`,
-  crumbIssuer: true,
-  formData: FormData
-});
 
 const initializePassport = require('./passport-config.js');
 initializePassport(connection, passport);
