@@ -21,7 +21,6 @@ import {
   TableBody,
   TableRow,
   Paper,
-  Typography,
   TablePagination,
 } from "@mui/material";
 import LibraryBooksRoundedIcon from "@mui/icons-material/LibraryBooksRounded";

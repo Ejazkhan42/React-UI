@@ -68,7 +68,12 @@ function App() {
                   </PrivateRoute>
                 }/>
 
-              <Route path='/business' element={
+              <Route path='/business/:path' element={
+                  <PrivateRoute>
+                    <Business/>
+                  </PrivateRoute>
+                }/>
+                <Route path='/business/components/:path' element={
                   <PrivateRoute>
                     <Business/>
                   </PrivateRoute>

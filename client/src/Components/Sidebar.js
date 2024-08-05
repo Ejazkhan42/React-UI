@@ -144,14 +144,14 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
     position: "sticky",
     top: 0,
     zIndex: 1,
-    height: sidebarClass === "msb" ? "": "78px",
+    height: sidebarClass === "msb" ? "": "50px",
     marginTop: sidebarClass === "msb" ?"10%": "0",
     
 
   };
 
   const lipadding={
-    paddingBottom: sidebarClass === "msb" ? "15%" : "25px",
+    paddingBottom: sidebarClass === "msb" ? "7%" : "25px",
     paddingLeft: sidebarClass === "msb" ? "0%" : "20px"
 
   }

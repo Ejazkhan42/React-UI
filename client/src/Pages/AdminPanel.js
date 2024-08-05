@@ -5,14 +5,7 @@ import {
   Tabs,
   Tab,
   Box,
-  Container,
-  Paper,
-  Table,
-  TableContainer,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
+  Container
 } from "@mui/material";
 import UsersSetting from "../Components/AdminPanelComponents/UsersSetting";
 import "./Styles/adminPanel.css";

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import DeviceHubIcon from '@mui/icons-material/DeviceHub'; // Example icon
+import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 
 const APPI_URL=process.env.REACT_APP_APPI_URL
 
