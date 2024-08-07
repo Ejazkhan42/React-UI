@@ -314,6 +314,7 @@ function Homepage() {
                         ...getStatusColor(row.test_status),
                         padding: "6px 12px",
                         borderRadius: "4px",
+                        textTransform:"uppercase",
                         border: `1px solid ${
                           getStatusColor(row.test_status).borderColor
                         }`,

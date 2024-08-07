@@ -205,7 +205,7 @@ const TestCasePage = () => {
       const filteredData = jsonData.filter(entry =>
         testCaseList.includes(entry["Test Data"])
       );
-      console.log(filteredData)
+    
       setExcelData(filteredData);
     }
   };
@@ -373,11 +373,10 @@ const TestCasePage = () => {
                         id="demo-multiple-checkbox"
                         multiple
                         value={changeList}
-                        // onChange={handleTestCaseChange}
                         input={<OutlinedInput label="Test Cases" />}
                         renderValue={(selected) => selected.join(', ')}
                         MenuProps={MenuProps}
-                      // sx={{ fontSize: "1.2rem" }}
+                     
                       >
                         {testCaseList.map((testCase) => (
                           <MenuItem key={testCase} value={testCase} sx={{ fontSize: "1.2rem" }}>

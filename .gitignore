@@ -3,3 +3,5 @@ docker-compose.yml
 client/build
 client/src/Pages/browser.jsx
 client/src/Pages/Browser.jsx
+node_modules.zip
+client/yarn.lock

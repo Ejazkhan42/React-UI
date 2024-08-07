@@ -49,10 +49,10 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 // END OF CONFIGURING OPTIONS
 app.use('/api',require("./router.js"))
-app.use(express.static(path.join(__dirname, 'client/public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const port = 5000;
