@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import RFB from "@novnc/novnc/lib/rfb"; // Adjust the import path as per your setup
 import { CircularProgress } from "@mui/material";
 
-const VNC_URL=process.env.REACT_APP_SELENOID
-const VNC_Password=process.env.REACT_APP_SELENOID_PASSWORD
+const VNC_URL = process.env.REACT_APP_SELENOID
+const VNC_Password = process.env.REACT_APP_SELENOID_PASSWORD
 
 export default class VncScreen extends Component {
     constructor(props) {
@@ -56,11 +56,11 @@ export default class VncScreen extends Component {
     }
 
     connectRFB = (session) => {
-       
-        const selenoid= new URL(VNC_URL);
+
+        const selenoid = new URL(VNC_URL);
         const protocol = selenoid.protocol
         const port = selenoid.port
-        const hostname=selenoid.hostname
+        const hostname = selenoid.hostname
         this.disconnect(this.rfb);
         this.rfb = this.createRFB(hostname, port, session, this.isSecure(protocol));
     };
@@ -103,24 +103,24 @@ export default class VncScreen extends Component {
             <div
                 className="vnc-screen"
                 style={{
-                    display: "contents",
+                    display: "flex",       // Use flex to align children
+                    justifyContent: "center", // Center horizontally
+                    alignItems: "center", // Center vertically
+                    height: "100%", // Ensure full viewport height if needed
                 }}
                 ref={screen => {
                     this.canvas = screen;
                     VncScreen.resizeVnc(this.rfb);
                 }}
             >
+                   
                 {loading && (
-                    <div
-                    style={{
+                     <CircularProgress style={{
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        height: "100%",
-                    }}
-                    >
-                        <CircularProgress color="secondary" size={100}/>
-                    </div>
+                        position:"absolute"
+                    }} color="secondary" size={200} />
                 )}
             </div>
         );
