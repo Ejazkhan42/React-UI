@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState ,useContext} from 'react';
 import {
+  Typography,
   Box,
   Grid,
   Paper,
@@ -27,8 +28,8 @@ import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { v4 as uuid } from 'uuid';
-
-const APPI_URL=process.env.REACT_APP_APPI_URL
+import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
+const APPI_URL = process.env.REACT_APP_APPI_URL
 
 let JOBNAME
 
@@ -81,10 +82,11 @@ const VisuallyHiddenImageInput = styled('input')({
 });
 
 const TestCasePage = () => {
+  const ctx = useContext(AuthLoginInfo);
   const navigate = useNavigate();
   const location = useLocation();
   const { moduleId } = location.state || {};
-  const {JOB}=location.state||{};
+  const { JOB } = location.state || {};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -102,23 +104,40 @@ const TestCasePage = () => {
   const [selectEnv, setSelectEnv] = useState([]);
   const [selectedEnv, setSelectedEnv] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [buttondisableFile, setbuttondisableFile]=useState(false)
-  const [buttondisableImage, setbuttondisableImage]=useState(false)
-
-  if(JOBNAME==undefined){
-    if(JOB!='' && JOB!=undefined){
-      JOBNAME=JOB
-    }
-    else{
-        JOBNAME='TestCase';
-    }
-    
-  }
-
+  const [buttondisableFile, setbuttondisableFile] = useState(false)
+  const [buttondisableImage, setbuttondisableImage] = useState(false)
+  const [data, setData] = useState([]);
+  const [error, seterror] = useState('')
   useEffect(() => {
-          const env=JSON.parse(localStorage.getItem('env'))
-          setSelectEnv(env);
-},[]);
+    let env = JSON.parse(localStorage.getItem('env'))
+
+    if (env == undefined || env == '') {
+      const fetchClients = async () => {
+        try {
+          const response = await axios.get(`${APPI_URL}/getbycustomer?user_id=${ctx.id}`, { withCredentials: true });
+          // Assuming the response contains multiple clients with client names as keys
+          const clientsData = [];
+          Object.keys(response.data).forEach(clientName => {
+            // Add client name to each client object
+            response.data[clientName].forEach(client => {
+              clientsData.push({ ...client, clientName });
+            });
+          });
+          setData(clientsData);
+          localStorage.setItem("env", JSON.stringify(clientsData))
+        } catch (error) {
+          console.error("Error fetching clients:", error);
+          setData([]);
+        }
+      };
+      fetchClients();
+    }
+    else {
+      setSelectEnv(env);
+    }
+
+
+  }, []);
 
   useEffect(() => {
     if (moduleId !== null) {
@@ -126,9 +145,9 @@ const TestCasePage = () => {
         try {
           const response = await axios.get(`${APPI_URL}/testcase?id=${moduleId}`, { withCredentials: true });
           // console.log(response.data);
-          if(response.data != null) {
+          if (response.data != null) {
             setTestCases(response.data);
-          } 
+          }
         } catch (error) {
           console.error('Error fetching test cases:', error);
         }
@@ -141,7 +160,7 @@ const TestCasePage = () => {
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value)
     setSearchTerm(event.target.value);
-    setCurrentPage(0); // Reset to the first page on new search
+    setCurrentPage(0);
   };
 
   const filteredTestCases = testCases.filter((testCase) =>
@@ -149,10 +168,7 @@ const TestCasePage = () => {
   );
 
 
-  
-
   const paginatedData = filteredTestCases.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage);
-  // console.log(paginatedData);
 
   const handleCheckboxChange = (event, id) => {
     const isChecked = event.target.checked;
@@ -161,8 +177,8 @@ const TestCasePage = () => {
         ? [...prevSelectedTestCases, id]
         : prevSelectedTestCases.filter(id => id !== id)
     );
-    
-    
+
+
   };
   const handleRunClick = () => {
     const selectedTestCaseNames = paginatedData
@@ -173,25 +189,23 @@ const TestCasePage = () => {
     setTestCaseList(selectedTestCaseNames ? selectedTestCaseNames.split(', ').map(item => item.replace(/"/g, '')) : []);
     setbuttondisableFile(false)
     setbuttondisableImage(false)
-    setOpenModal(true); // Open the modal
+    setOpenModal(true);
   };
 
   const handleFileChange = async (event) => {
     if (event.target.files !== undefined) {
-
       setSelectedFile(event.target.files[0]);
       setbuttondisableFile(true)
       const file = event.target.files[0];
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
       const sheetName = "Test_Data";
-      console.log(workbook)
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      console.log(changeList);
-      const filteredData = jsonData.filter(entry => 
-        changeList.includes(entry["Test Data"])
-    );
+      const filteredData = jsonData.filter(entry =>
+        testCaseList.includes(entry["Test Data"])
+      );
+      console.log(filteredData)
       setExcelData(filteredData);
     }
   };
@@ -204,18 +218,30 @@ const TestCasePage = () => {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    const formData = new FormData();
-    formData.append('jobName', JOBNAME);
-    formData.append('testCase', testCaseList.join(','));
-    formData.append('gridMode', gridMode);
-    formData.append('browsers', selectedBrowser);
 
-    if (localStorage.getItem('token') !== null) {
-      formData.append('Token', localStorage.getItem('token'));
+    event.preventDefault();
+    if (selectEnv.map((env) => env.Jenkins_Path)) {
+      try{
+      const JOB = selectEnv.map((env) => env.Jenkins_Path)
+      JOBNAME=JOB[0]
+      }catch{
+        JOBNAME = selectEnv.map((env) => env.Jenkins_Path)
+      }
+      
+    }
+
+
+    const formData = new FormData();
+    formData.append('JobName', JOBNAME);
+    formData.append('TestCase', testCaseList.join(','));
+    formData.append('GridMode', gridMode);
+    formData.append('Browsers', selectedBrowser);
+
+    if (localStorage.getItem('Token') !== null) {
+      formData.append('Token', localStorage.getItem('Token'));
     } else {
       const id = uuidFromUuidV4();
-      localStorage.setItem('token', id);
+      localStorage.setItem('Token', id);
       formData.append('Token', id);
     }
 
@@ -238,21 +264,12 @@ const TestCasePage = () => {
         navigate('/Progress', { state: { excelData } });
       } else {
         console.error('Error:', response.statusText);
+        setMessage("Error Job Name Or Jenkins Details Invalid Login Error")
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
-
-  const handleTestCaseChange = (event) => {
-    const { value } = event.target;
-    //  console.log(value)
-    if (value !== null) {
-      setChangeList(value);
-      console.log(changeList)
-    }
-  };
-
   const handleSelectEnvChange = (event) => {
     const { value } = event.target;
     if (value != null) {
@@ -299,7 +316,7 @@ const TestCasePage = () => {
               {paginatedData.map((testCase) => (
                 <TableRow key={testCase.id}>
                   <TableCell padding="checkbox" sx={{ fontSize: "1.2rem" }}>
-                    <Checkbox 
+                    <Checkbox
                       onChange={(event) => handleCheckboxChange(event, testCase.id)}
                     />
                   </TableCell>
@@ -321,23 +338,30 @@ const TestCasePage = () => {
           sx={{ fontSize: "1.2rem" }}
         />
       </StyledPaper>
-    
+
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)', 
-          width: 400, 
-          bgcolor: 'background.paper', 
-          boxShadow: 24, 
-          p: 4, 
-          borderRadius: 1 
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 1
         }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1>Run Your Test</h1>
+              <h1 style={{ textAlign: "center" }}>Run Your Test</h1>
             </Grid>
+            {message && (
+              <Box mb={2} textAlign="center">
+                <Typography color="error" variant="body2">
+                  {message}
+                </Typography>
+              </Box>
+            )}
             <Grid item xs={12}>
               <form onSubmit={handleSubmit}>
                 <Grid container spacing={2}>
@@ -353,7 +377,7 @@ const TestCasePage = () => {
                         input={<OutlinedInput label="Test Cases" />}
                         renderValue={(selected) => selected.join(', ')}
                         MenuProps={MenuProps}
-                        // sx={{ fontSize: "1.2rem" }}
+                      // sx={{ fontSize: "1.2rem" }}
                       >
                         {testCaseList.map((testCase) => (
                           <MenuItem key={testCase} value={testCase} sx={{ fontSize: "1.2rem" }}>
@@ -379,7 +403,7 @@ const TestCasePage = () => {
                       >
                         {selectEnv.map((env) => (
                           <MenuItem key={env.envName} value={env.envName}>
-                            <ListItemText primary={env.envName} sx={{ fontSize: "1.2rem" }}/>
+                            <ListItemText primary={env.envName} sx={{ fontSize: "1.2rem" }} />
                           </MenuItem>
                         ))}
                       </Select>
@@ -398,7 +422,7 @@ const TestCasePage = () => {
                         sx={{ fontSize: "1.2rem" }}
                       >
                         <MenuItem sx={{ fontSize: "1.2rem" }} value="chrome">Chrome</MenuItem>
-                        <MenuItem  sx={{ fontSize: "1.2rem" }} value="firefox">Firefox</MenuItem>
+                        <MenuItem sx={{ fontSize: "1.2rem" }} value="firefox">Firefox</MenuItem>
                         <MenuItem sx={{ fontSize: "1.2rem" }} value="edge">Edge</MenuItem>
                         <MenuItem sx={{ fontSize: "1.2rem" }} value="safari">Safari</MenuItem>
                       </Select>
@@ -424,22 +448,22 @@ const TestCasePage = () => {
                     <Button
                       component="label"
                       role={undefined}
-                      disabled={buttondisableFile==true}
+                      disabled={buttondisableFile == true}
                       sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
                       tabIndex={-1}
                       style={{ marginLeft: '15%' }}
                       startIcon={<CloudUploadIcon />}
-                      // sx={{ fontSize: "1.2rem" }}
+                    // sx={{ fontSize: "1.2rem" }}
                     >
                       Upload file
                       <VisuallyHiddenInput type="file" name='file' onChange={handleFileChange} />
                     </Button>
-                    
+
                     <Button
                       component="label"
                       role={undefined}
                       // variant="contained"
-                      disabled={buttondisableImage==true}
+                      disabled={buttondisableImage == true}
                       tabIndex={-1}
                       startIcon={<CloudUploadIcon />}
                       sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
@@ -448,19 +472,19 @@ const TestCasePage = () => {
                       Upload image
                       <VisuallyHiddenImageInput type="file" name='image' onChange={handleImageFileChange} />
                     </Button>
-                  
+
                   </Grid>
                   <Grid item xs={12}>
-                    <Button type="submit" fullWidth 
-                    sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
-                    
+                    <Button type="submit" fullWidth
+                      sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
+
                     >
                       Submit
                     </Button>
                   </Grid>
                 </Grid>
               </form>
-              <div>{message}</div>
+
             </Grid>
           </Grid>
         </Box>

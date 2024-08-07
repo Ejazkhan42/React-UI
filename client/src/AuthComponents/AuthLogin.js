@@ -6,11 +6,8 @@ export const AuthLoginInfo = createContext({});
 export function AuthLogin(props) {
   const [user, setUser] = useState();
   useEffect(() => {
-
-  
     axios.get(`${APPI_URL}/user`, { withCredentials: true}).then(res => {
       setUser(res.data)
-      
     }).catch(error => {
       console.error('Login error:', error);
     });

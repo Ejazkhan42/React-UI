@@ -7,24 +7,30 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
 import './Styles/login.css';
-const APPI_URL=process.env.REACT_APP_APPI_URL
+
+
+const APPI_URL = process.env.REACT_APP_APPI_URL;
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [language, setLanguage] = useState('English');
+  const [error, setError] = useState('');
 
   const login = () => {
     axios.post(`${APPI_URL}/login`, {
       username,
       password
-    }, { withCredentials: true }).then(res => {
+    }, { withCredentials: true })
+    .then(res => {
       if (res.data === 'success') {
         window.location.href = '/';
       }
-    }).catch(error => {
-      console.error('Login error:', error);
+    })
+    .catch(err => {
+      console.error('Login error:', err);
+      setError('Login failed. Please check your username and password.');
     });
   };
 
@@ -45,6 +51,13 @@ export default function Login() {
       <Container className="login-content" style={{ display: 'flex', justifyContent: 'center' }}>
         <Paper elevation={3} className="login-paper">
           <Box px={3} pt={2}>
+            {error && (
+              <Box mb={2} textAlign="center">
+                <Typography color="error" variant="body2">
+                  {error}
+                </Typography>
+              </Box>
+            )}
             <Box display="flex" alignItems="flex-end" mb={2}>
               <AccountCircleIcon fontSize="large" />
               <TextField
@@ -82,14 +95,13 @@ export default function Login() {
               />
             </Box>
             <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-                <Link href="#" underline="none" className="forgot-password" sx={{ fontSize: "1.2rem" }}>
+              <Link href="#" underline="none" className="forgot-password" sx={{ fontSize: "1.2rem" }}>
                 Forgot Password
               </Link>
             </Box>
             <Box mt={3} textAlign="center">
               <Button
                 variant="contained"
-                // color="primary"
                 onClick={login}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -104,7 +116,9 @@ export default function Login() {
             </Box>
             <Box mt={3}>
               <FormControl fullWidth variant="standard">
-                <InputLabel id="language-select-label" sx={{ fontSize: "1.2rem" }}><LanguageIcon style={{ marginRight: '10px', fontSize: "1.2rem" }} /> Select Language</InputLabel>
+                <InputLabel id="language-select-label" sx={{ fontSize: "1.2rem" }}>
+                  <LanguageIcon style={{ marginRight: '10px', fontSize: "1.2rem" }} /> Select Language
+                </InputLabel>
                 <Select
                   labelId="language-select-label"
                   id="language-select"
@@ -112,7 +126,7 @@ export default function Login() {
                   sx={{ fontSize: "1.2rem" }}
                   onChange={(e) => setLanguage(e.target.value)}
                 >
-                  <MenuItem value="English" >English</MenuItem>
+                  <MenuItem value="English">English</MenuItem>
                   <MenuItem value="Spanish">Spanish</MenuItem>
                   <MenuItem value="French">French</MenuItem>
                 </Select>

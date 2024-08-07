@@ -25,7 +25,7 @@ var connection = mysql.createPool({
 
 // CONFIGURING OPTIONS
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "http://192.168.100.111:3000",
   credentials: true,
   optionSuccessStatus: 200
 };
@@ -49,10 +49,10 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 // END OF CONFIGURING OPTIONS
 app.use('/api',require("./router.js"))
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client/public')));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'client/public', 'index.html'));
 });
 
 const port = 5000;

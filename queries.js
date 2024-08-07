@@ -92,7 +92,7 @@ function getByCustomer(user_id) {
 }
 
 
-function getDasboardData() {
+function getDashboardData() {
   const queryString = `
   SELECT * from clients as clients;
   SELECT * from orders as orders;
@@ -266,7 +266,7 @@ function formatDateTime(dateTimeString) {
   return formattedDateTime;
 }
 
-function UpdateCustomer(envDetails) {
+function updateCustomer(envDetails) {
   const queryString = `
   UPDATE customer 
   SET name=?,
@@ -379,7 +379,7 @@ function getByTestCases() {
 
 
 
-function getByobject() {
+function getByObject() {
   const queryString = "SELECT * FROM objects_view";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function (error, results) {
@@ -392,7 +392,7 @@ function getByobject() {
   });
 }
 
-function getroles() {
+function getRoles() {
   const queryString = "SELECT * From role";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function (error, result) {
@@ -406,7 +406,7 @@ function getroles() {
 }
 
 
-function getscenario() {
+function getScenario() {
   const queryString = "SELECT * From s_m_view";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function (error, result) {
@@ -420,7 +420,7 @@ function getscenario() {
 }
 
 
-function Getlogs() {
+function getLogs() {
   const queryString = "SELECT DISTINCT * From logs";
   return new Promise((resolve, reject) => {
     connection.query(queryString, function (error, result) {
@@ -432,7 +432,18 @@ function Getlogs() {
     })
   })
 }
-
+function getMenuLevel(role){
+  const queryString = "SELECT * FROM level_view Where role=?";
+  return new Promise((resolve, reject) => {
+    connection.query(queryString,[role], function (error, result) {
+      if (error) {
+        console.log(error);
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
 
 function newReports(reportDetails) {
   if (reportDetails.screenshot) {
@@ -476,20 +487,21 @@ module.exports = {
   getByModule,
   getTestCasesByModule,
   getAllDataFromTarget,
-  getDasboardData,
+  getDashboardData,
   deleteUserById,
   getUsersForAdminPanel,
   createNewUser,
   createNewCustomer,
   createNewLogs,
-  UpdateCustomer,
-  getByobject,
+  updateCustomer,
+  getByObject,
   getByTestCase,
-  Getlogs,
-  getroles,
-  getscenario,
+  getLogs,
+  getRoles,
+  getScenario,
   newReports,
   getByTestCases,
   getByCustomer,
-  deleteCustomer
+  deleteCustomer,
+  getMenuLevel
 }

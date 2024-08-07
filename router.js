@@ -1,38 +1,38 @@
 const express = require('express');
 require("dotenv").config();
-var mysql = require('mysql');
+const mysql = require('mysql');
 const app = express.Router();
 const FormData = require('form-data');
 const fs = require('fs');
-const multer = require('multer')
-var bodyParser = require('body-parser');
-var path = require('path');
-var bcrypt = require('bcrypt');
+const multer = require('multer');
+const bodyParser = require('body-parser');
+const path = require('path');
+const bcrypt = require('bcrypt');
 const passport = require("passport");
 const Jenkins = require("jenkins");
 const {
+  getMenuLevel,
   deleteCustomer,
-  UpdateCustomer,
+  updateCustomer,
   createNewCustomer,
-  getDasboardData,
+  getDashboardData,
   deleteUserById,
   getUsersForAdminPanel,
   createNewUser,
   getByModule,
   getTestCasesByModule,
   getByTestCase,
-  getByobject,
+  getByObject,
   createNewLogs,
-  Getlogs,
-  getroles,
+  getLogs,
+  getRoles,
   newReports,
-  getscenario,
+  getScenario,
   getByTestCases,
   getByCustomer
 } = require("./queries.js");
 
-
-var connection = mysql.createPool({
+const connection = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -42,301 +42,327 @@ var connection = mysql.createPool({
   timezone: 'utc',
 });
 
-let browser={
-  "browserId": "3e1ae91777133c94ba68bedadedae1c2",
-  "testcase": "SBC",
-  "token": "Hello"
-}
-
-
+let browser = '';
 
 const jenkins = new Jenkins({
-    baseUrl: `${process.env.Jenkins_Type}:/${process.env.Jenkins_Username}:${process.env.Jenkins_Password}@${process.env.Jenkins_Url}:${process.env.Jenkins_Port}`,
-    crumbIssuer: true,
-    formData: FormData
-  });
+  baseUrl: `${process.env.JENKINS_TYPE}://${process.env.JENKINS_USERNAME}:${process.env.JENKINS_PASSWORD}@${process.env.JENKINS_URL}:${process.env.JENKINS_PORT}`,
+  crumbIssuer: true,
+  formData: FormData
+});
 
 const initializePassport = require('./passport-config.js');
 initializePassport(connection, passport);
 
+app.post('/login', passport.authenticate('local'), (req, res) => {
+  res.send("success");
+});
 
-  app.post('/login', passport.authenticate('local'), (req, res) => {
-    res.send("success")
-  });
+app.get("/getByCustomer", async (req, res) => {
+  try {
+    const userId = req.query.user_id;
+    const customers = await getByCustomer(userId);
+    res.send(customers);
+  } catch (error) {
+    console.error('Error fetching customers by ID:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.get("/getbycustomer", async (req, res) => {
-    const user_id = req.query.user_id
-    const queryAllClientsWithOrdersCount = await getByCustomer(user_id);
-    Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
-      res.send(results);
-    })
-  })
-  
-  app.put("/customerupdate", async (req, res) => {
-    const customers = req.body
-    const queryAddcustomers = await UpdateCustomer(customers);
-    Promise.resolve(queryAddcustomers).then((results) => {
-      res.send("Updates");
-    })
-  })
+app.put("/updateCustomer", async (req, res) => {
+  try {
+    const customerDetails = req.body;
+    await updateCustomer(customerDetails);
+    res.send("Updates");
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.delete("/deletecustomer", async (req, res) => {
-    let deletecustomer = req.query.deletecustomer;
-    const queryDeleteUser = await   deleteCustomer(deletecustomer);
-    Promise.resolve(queryDeleteUser).then(() => {
-      res.send("success");
-    })
-  });
-  
-  app.post("/addcustomer", async (req, res) => {
-    const customers = req.body
-    const queryAddcustomers = await createNewCustomer(customers);
-    Promise.resolve(queryAddcustomers).then((results) => {
-      res.send(results);
-    })
-  })
-  
-  
-  const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.originalname);
+app.delete("/deleteCustomer", async (req, res) => {
+  try {
+    const customerId = req.query.deletecustomer;
+    await deleteCustomer(customerId);
+    res.send("delete");
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post("/addCustomer", async (req, res) => {
+  try {
+    const customerDetails = req.body;
+    const result = await createNewCustomer(customerDetails);
+    res.send(result);
+  } catch (error) {
+    console.error('Error adding customer:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+app.post('/build', upload.fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'image', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { JobName, TestCase, GridMode, Browsers, ProfilePath, Token } = req.body;
+    const file = req.files['file'] ? req.files['file'][0] : null;
+    const image = req.files['image'] ? req.files['image'][0] : null;
+    if (!JobName) {
+      return res.status(400).send('Job name is required');
     }
-  });
-  
-  const upload = multer({ storage: storage });
 
-  app.post('/build', upload.fields([
-    { name: 'file', maxCount: 1 }, // Assuming 'file' is the main file
-    { name: 'image', maxCount: 1 } // Assuming 'image' is the image file
-  ]), async (req, res) => {
-    try {
-      const { jobName, testCase, gridMode, browsers, ProfilePath, Token } = req.body;
-      const file = req.files['file'][0]; // Access the main file
-      const image = req.files['image']? req.files['image'][0] : null;; // Access the image file
-  
-      if (!jobName) {
-        return res.status(400).send('Job name is required');
-      }
-  
-      if (!file) {
-        return res.status(400).send('File is required');
-      }
-  
-      if (!Token) {
-        return res.status(400).send('Token is required');
-      }
-  
-      // File paths on the server (local uploads directory)
-      const localFilePath = file.path;
-      const localImagePath =image? image.path : null;;
-  
-      // Prepare the parameters for the Jenkins job
-      const parameters = {
-        FILE: fs.createReadStream(localFilePath),
-        TestCase: testCase || '',
-        GridMode: gridMode || '',
-        Browsers: browsers || '',
-        ProfilePath: ProfilePath || '',
-        TOKEN: Token || '',
-      };
-      if (localImagePath) {
-        parameters.Image = fs.createReadStream(localImagePath); // Add image parameter only if provided
-      }
+    if (!Token) {
+      return res.status(400).send('Token is required');
+    }
+
+    const localFilePath = file ? file.path : null;
+    const localImagePath = image ? image.path : null;
+
+    const parameters = {
+      TestCase: TestCase || '',
+      GridMode: GridMode || '',
+      Browsers: Browsers || '',
+      ProfilePath: ProfilePath || '',
+      Token: Token || '',
+    };
+    if (localFilePath) {
+      parameters.FILE = fs.createReadStream(localFilePath);
+    }
+    if (localImagePath) {
+      parameters.Image = fs.createReadStream(localImagePath);
+    }
+
+    if (JobName) {
       const info = await jenkins.job.build({
-        name: jobName,
+        name: JobName,
         parameters: parameters
       });
-  
-      
       res.json(info);
-    } catch (error) {
-      console.error('Error triggering Jenkins job:', error);
+    } else {
       res.status(500).send('Error triggering Jenkins job');
-    } finally {
-    
-      if (req.files) {
-        Object.values(req.files).forEach(files => {
-          files.forEach(file => {
-            fs.unlinkSync(file.path);
-          });
-        });
-      }
     }
-  });
-  
-  
-  app.get('/logout', (req, res) => {
-    req.logout();
-    res.send("success");
-  });
-  
-  app.get('/user', (req, res) => {
-    res.send(req.user)
-  });
-  
-  
-  app.get("/testcase", async (req, res) => {
-    const orderId = req.query.id;
-    const queryAllClientsWithOrdersCount = await getTestCasesByModule(orderId);
-    Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
-      res.send(results);
-    })
-  })
+  } catch (error) {
+    console.error('Error triggering Jenkins job:', error);
+    res.status(500).send('Internal Server Error');
+  } finally {
+    if (req.files) {
+      Object.values(req.files).forEach(files => {
+        files.forEach(file => {
+          fs.unlinkSync(file.path);
+        });
+      });
+    }
+  }
+});
 
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.send("success");
+});
 
-  app.get("/module", async (req, res) => {
-    const user_id = req.query.user_id
-    const queryAllClientsWithOrdersCount = await getByModule(user_id);
-    Promise.resolve(queryAllClientsWithOrdersCount).then((results) => {
-      res.send(results);
-    })
-  })
+app.get('/user', (req, res) => {
+  res.send(req.user);
+});
 
+app.get("/testCase", async (req, res) => {
+  try {
+    const moduleId = req.query.id;
+    const testCases = await getTestCasesByModule(moduleId);
+    res.send(testCases);
+  } catch (error) {
+    console.error('Error fetching test cases by module:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.post('/postlogs', async (req, res) => {
+app.get("/module", async (req, res) => {
+  try {
+    const userId = req.query.user_id;
+    const modules = await getByModule(userId);
+    res.send(modules);
+  } catch (error) {
+    console.error('Error fetching modules by user ID:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/postLogs', async (req, res) => {
+  try {
     const logs = req.body.logs;
     if (!Array.isArray(logs)) {
       return res.status(400).json({ error: 'Logs should be an array' });
     }
-  
-    try {
-      const queryCreateNewLogs = await createNewLogs(logs);
-      res.send("success");
-    } catch (error) {
-      console.error('Error creating logs:', error);
-      res.status(500).json({ error: 'Failed to create logs' });
+    await createNewLogs(logs);
+    res.send("success");
+  } catch (error) {
+    console.error('Error creating logs:', error);
+    res.status(500).json({ error: 'Failed to create logs' });
+  }
+});
+
+app.get('/getLogs', async (req, res) => {
+  try {
+    const logs = await getLogs();
+    res.send(logs);
+  } catch (error) {
+    console.error('Error getting logs:', error);
+    res.status(500).json({ error: 'Failed to get logs' });
+  }
+});
+
+app.get("/getFlow", async (req, res) => {
+  try {
+    const testName = req.query.test_name;
+    if (!testName) {
+      const testCases = await getByTestCases();
+      res.send(testCases);
+    } else {
+      const testCase = await getByTestCase(testName);
+      res.send(testCase);
     }
-  });
+  } catch (error) {
+    console.error('Error getting flow data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
+app.get("/getObject", async (req, res) => {
+  try {
+    const objects = await getByObject();
+    res.send(objects);
+  } catch (error) {
+    console.error('Error getting objects:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.get('/getlogs', async (req, res) => {
-    try {
-      const queryGetLogs = await Getlogs();
-      Promise.resolve(queryGetLogs).then((results) => {
-      res.send(results);
-    })
-    } catch (error) {
-      console.error('Error Get logs:', error);
-      res.status(500).json({ error: 'Failed to Get logs' });
-    }
-  });
+app.get("/dashboardData", async (req, res) => {
+  try {
+    const dashboardData = await getDashboardData();
+    res.send(dashboardData);
+  } catch (error) {
+    console.error('Error getting dashboard data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
+app.get("/getUsers", async (req, res) => {
+  try {
+    const users = await getUsersForAdminPanel();
+    res.send(users);
+  } catch (error) {
+    console.error('Error getting users for admin panel:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
+app.get("/scenario", async (req, res) => {
+  try {
+    const scenarios = await getScenario();
+    res.send(scenarios);
+  } catch (error) {
+    console.error('Error getting scenarios:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.get("/getflow", async (req, res) => {
-    const test_name = req.query.test_name
-    if(!test_name){
-      const queryByTestCase = await getByTestCases();
-      Promise.resolve(queryByTestCase).then((results) => {
-        res.send(results);
-      })
-    }
-    console.log(test_name)
-    const queryByTestCase = await getByTestCase(test_name);
-    Promise.resolve(queryByTestCase).then((results) => {
-      res.send(results);
-    })
-  })
-  
+app.post("/deleteUser", async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    await deleteUserById(userId);
+    res.send("success");
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.get("/getobject", async (req, res) => {
-    const queryAllobjects = await getByobject();
-    Promise.resolve(queryAllobjects).then((results) => {
-      res.send(results);
-    })
-  })
-  
-
-  app.get("/dashboard_data", async (req, res) => {
-    const queryDashboardData = await getDasboardData();
-    Promise.resolve(queryDashboardData).then((results) => {
-      res.send(results);
-    })
-  })
-  
-
-  app.get("/getusers", async (req, res) => {
-    const queryGetUsersForAdminPanel = await getUsersForAdminPanel();
-    Promise.resolve(queryGetUsersForAdminPanel).then((results) => {
-      res.send(results);
-    })
-  })
-
-
-
-  
-  app.get("/scenario", async (req, res) => {
-    const queryGetscenario = await getscenario();
-    Promise.resolve(queryGetscenario).then((results) => {
-      res.send(results);
-    })
-  })
-
-
-  app.post("/deleteuser", async (req, res) => {
-    let userId = req.body.userId;
-    const queryDeleteUser = await deleteUserById(userId);
-    Promise.resolve(queryDeleteUser).then(() => {
-      res.send("success");
-    })
-  });
-
-
-
-
-  app.post("/newuser", async (req, res) => {
+app.post("/newUser", async (req, res) => {
+  try {
     const userDetails = req.body.userDetails;
-    console.log(userDetails)
+    console.log(userDetails);
     const hashedPassword = await bcrypt.hash(userDetails.password, 10);
-    const queryCreateNewUser = await createNewUser(userDetails, hashedPassword);
-    Promise.resolve(queryCreateNewUser).then(() => {
-      res.send("success");
-    })
-  })
+    await createNewUser(userDetails, hashedPassword);
+    res.send("success");
+  } catch (error) {
+    console.error('Error creating new user:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
+app.post("/reportsLogs", async (req, res) => {
+  try {
+    const reports = req.body;
+    await newReports(reports);
+    res.send("success");
+  } catch (error) {
+    console.error('Error creating reports:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-
-  
-
-  app.post("/reportslogs", async (req,res)=>{
-    const reports= req.body;
-   const queryCreateReport = await newReports(reports);
-    Promise.resolve(queryCreateReport).then(() => {
-      res.send("success");
-    })
-  
-  })
-  
-  app.post("/postbrowser-id", async (req,res)=>{
+app.post("/postBrowserId", (req, res) => {
+  try {
     browser = req.body;
-    console.log('Received browser ID:', browser);
-    res.send('Browser ID received successfully');
-  })
+    res.send('Received successfully');
+  } catch (error) {
+    console.error('Error posting browser ID:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
+app.get("/getBrowserId", (req, res) => {
+  try {
+    res.send(browser);
+  } catch (error) {
+    console.error('Error getting browser ID:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.get("/getbrowser-id",async(req,res)=>{
-    console.log(browser)
-    res.send(browser)
-  })
-
-
-  app.post("/updateenv", async (req, res) => {
+app.post("/updateEnv", async (req, res) => {
+  try {
     const envDetails = req.body.envDetails;
-    const queryCreateNewUser = await updateEnv(envDetails);
-    Promise.resolve(queryCreateNewUser).then(() => {
-      res.send("success");
-    })
-  })
+    await updateEnv(envDetails);
+    res.send("success");
+  } catch (error) {
+    console.error('Error updating environment:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
+app.get("/menuLevel", async (req, res) => {
+  try {
+    const role = req.query.role;
+    const queryGetMenuLevel = await getMenuLevel(role);
+    res.send(queryGetMenuLevel);
+  } catch (error) {
+    console.error('Error getting menu level:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-  app.get("/role", async(req,res)=>{
-    const queryGetUsersForAdminPanel = await getroles();
-    Promise.resolve(queryGetUsersForAdminPanel).then((results) => {
-      res.send(results);
-    })
-  })
-   
-  module.exports = app;
+app.get("/role", async (req, res) => {
+  try {
+    const queryGetRoles = await getRoles();
+    res.send(queryGetRoles);
+  } catch (error) {
+    console.error('Error getting roles:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+module.exports = app;

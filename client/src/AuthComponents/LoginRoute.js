@@ -1,11 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AuthLoginInfo } from './AuthLogin';
 import { Navigate } from 'react-router-dom';
 import './Styles/loadingPage.css';
 
 function LoginRoute({ children }) {
   const user = useContext(AuthLoginInfo);
-  
   if(user === undefined) {
     return (
       <div className="loading-page-wrapper">
@@ -15,7 +14,7 @@ function LoginRoute({ children }) {
       </div>
     )
   }
-  // zrobić navigate z loginu kiedy jest sie zalogowanym
+
   return user.id ? <Navigate to='../' /> : children;
 
 }

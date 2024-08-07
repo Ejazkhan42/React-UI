@@ -9,10 +9,11 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Link from "@mui/material/Link";
 import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
-import { SidebarData } from "./SidebarData";
+
 import "./Styles/sidebar.css";
 import { BrandingWatermark, PaddingTwoTone } from "@mui/icons-material";
-const APPI_URL=process.env.REACT_APP_APPI_URL
+import { json } from "body-parser";
+const APPI_URL = process.env.REACT_APP_APPI_URL
 const logout = () => {
   axios
     .get(`${APPI_URL}/logout`, { withCredentials: true })
@@ -22,14 +23,12 @@ const logout = () => {
       }
     });
 };
-
 const NavbarSection = ({ ctx, toggleSidebar }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === "/";
   const [anchorEl, setAnchorEl] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState([]);
-
   useEffect(() => {
     setBreadcrumbs((prevBreadcrumbs) => {
       const newBreadcrumbs = [...prevBreadcrumbs];
@@ -77,9 +76,9 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                     // paddingRight: "10px",
                   }}
                 >
-                 @ DoingERP.com
+                  @ DoingERP.com
                 </span>
-                
+
               </div>
               <div className="breadcrumb-container">
                 <Breadcrumbs aria-label="breadcrumb">
@@ -97,7 +96,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                         cursor: "pointer",
                       }}
                     >
-                      {breadcrumb.name[0].toUpperCase()+breadcrumb.name.slice(1)}
+                      {breadcrumb.name[0].toUpperCase() + breadcrumb.name.slice(1)}
                     </Link>
                   ))}
                 </Breadcrumbs>
@@ -109,7 +108,7 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
                 <HomeIcon
                   width="50px"
                   onClick={() => navigate("/")}
-                  style={{ cursor: "pointer" ,fontSize:"2rem" }}
+                  style={{ cursor: "pointer", fontSize: "2rem" }}
                 />
               </div>
               <Avatar
@@ -134,6 +133,20 @@ const NavbarSection = ({ ctx, toggleSidebar }) => {
 };
 
 const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
+  const [SetMenu,GetMenu]=useState(false);
+  const [SidebarData, setSidebarData] = useState([]);
+  useEffect(() => {
+    try {
+      if (ctx.role_id) {
+        axios.get(`${APPI_URL}/menulevel?role=${ctx.role_id}`, { withCredentials: true })
+        .then(res=>{
+          setSidebarData(res.data);
+          GetMenu(false);
+        })
+       
+      }}catch{}},[SetMenu]);
+
+
   let sidebarHeaderStyle = {
     backgroundColor: sidebarClass === "msb" ? "transparent" : "gray",
     // width: "50%",
@@ -144,17 +157,18 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
     position: "sticky",
     top: 0,
     zIndex: 1,
-    height: sidebarClass === "msb" ? "": "50px",
-    marginTop: sidebarClass === "msb" ?"10%": "0",
-    
+    height: sidebarClass === "msb" ? "" : "50px",
+    marginTop: sidebarClass === "msb" ? "10%" : "0",
+
 
   };
 
-  const lipadding={
+  const lipadding = {
     paddingBottom: sidebarClass === "msb" ? "7%" : "25px",
     paddingLeft: sidebarClass === "msb" ? "0%" : "20px"
 
   }
+ 
   return (
     <div>
       {ctx && (
@@ -164,10 +178,10 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
               {sidebarClass === "msb" ? (
                 <div>
                   <CloseIcon
-                  onClick={toggleSidebar}
-                  style={{ cursor: "pointer", fontSize: "1.8rem", }}
-                />
-                <h3 className="brand" style={{fontWeight:"bolder"}}>@ DoingERP.com</h3>
+                    onClick={toggleSidebar}
+                    style={{ cursor: "pointer", fontSize: "1.8rem", }}
+                  />
+                  <h3 className="brand" style={{ fontWeight: "bolder" }}>@ DoingERP.com</h3>
                 </div>
 
               ) : (
@@ -180,9 +194,10 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
               )}
             </div>
             <div className="side-menu-container">
-              <ul className="nav navbar-nav" style={{padding:"0"}}>
+              <ul className="nav navbar-nav" style={{ padding: "0" }}>
                 {SidebarData.map((val, key) => {
                   if (val?.role !== undefined && val?.role !== ctx?.role_id) {
+                    setMenu(true)
                     return null;
                   }
                   return (
@@ -210,9 +225,18 @@ const SidebarSection = ({ ctx, sidebarClass, toggleSidebar }) => {
 };
 
 function Sidebar() {
+  
   const ctx = useContext(AuthLoginInfo);
+  if(ctx === undefined) {
+    return (
+      <div className="loading-page-wrapper">
+        <div className="loading-page">
+          <div className="spinner"></div>
+        </div>
+      </div>
+    )
+  }
   const [sidebarClass, setSidebarClass] = useState("msb");
-
   const toggleSidebar = () => {
     setSidebarClass(sidebarClass === "msb" ? "msb-x" : "msb");
   };
@@ -225,7 +249,7 @@ function Sidebar() {
         toggleSidebar={toggleSidebar}
       />
       <NavbarSection ctx={ctx} toggleSidebar={toggleSidebar} />
-      
+
     </div>
   );
 }

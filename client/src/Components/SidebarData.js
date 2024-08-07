@@ -1,5 +1,35 @@
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
-export const SidebarData = [
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { AuthLoginInfo } from "../AuthComponents/AuthLogin";
+
+
+function useMenuData() {
+  const ctx = useContext(AuthLoginInfo);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const MenuwithRole = async () => {
+      try {
+        const response = await axios.get(`${APPI_URL}/menulevel`, { withCredentials: true });
+        const fetchedData = response.data;
+        setData(fetchedData);
+        
+        // Save data to localStorage
+        localStorage.setItem('menuData', JSON.stringify(fetchedData));
+      } catch (error) {
+        console.error('Error fetching menu data', error);
+      }
+    };
+    MenuwithRole();
+  },);
+
+  return data;
+}
+
+export default useMenuData;
+export const SidebarData =
+ [
   {
     title: "Dashboard",
     icon: "fa-home",
@@ -19,8 +49,7 @@ export const SidebarData = [
     title: "Customers",
     icon: "fa-address-book-o",
     link: "/Customers"
-  },
-  
+  }, 
   {
     title: "Scenario Manager",
     icon: "fa-code-fork",
@@ -40,7 +69,7 @@ export const SidebarData = [
     role: 1
   },
   {
-    title: "Commmand",
+    title: "Command",
     icon: "fa-wrench",
     link: "/business/command",
     role: 1
