@@ -1,43 +1,41 @@
-import React, { useEffect, useState ,useContext} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Typography,
   Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControl,
   Grid,
+  InputLabel,
+  MenuItem,
+  Modal,
+  OutlinedInput,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Checkbox,
-  Button,
-  Modal,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  OutlinedInput,
-  ListItemText,
-  TextField,
   TablePagination,
+  TableRow,
+  TextField,
+  Typography,
+  CircularProgress,
+  ListItemText,
+  IconButton,
 } from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
+import { CloudUpload as CloudUploadIcon, Close as CloseIcon } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { v4 as uuid } from 'uuid';
-import { AuthLoginInfo } from "./../AuthComponents/AuthLogin";
-const APPI_URL = process.env.REACT_APP_APPI_URL
 
-let JOBNAME
+const APPI_URL = process.env.REACT_APP_APPI_URL;
+let JOBNAME;
 
-const uuidFromUuidV4 = () => {
-  const newUuid = uuid();
-  return newUuid;
-};
-
+const uuidFromUuidV4 = () => uuid();
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -82,11 +80,9 @@ const VisuallyHiddenImageInput = styled('input')({
 });
 
 const TestCasePage = () => {
-  const ctx = useContext(AuthLoginInfo);
   const navigate = useNavigate();
   const location = useLocation();
-  const { moduleId } = location.state || {};
-  const { JOB } = location.state || {};
+  const { moduleId, JOB } = location.state || {};
   const [testCases, setTestCases] = useState([]);
   const [selectedTestCases, setSelectedTestCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,8 +100,10 @@ const TestCasePage = () => {
   const [selectEnv, setSelectEnv] = useState([]);
   const [selectedEnv, setSelectedEnv] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [buttondisableFile, setbuttondisableFile] = useState(false)
-  const [buttondisableImage, setbuttondisableImage] = useState(false)
+  const [buttonDisableFile, setButtonDisableFile] = useState(false);
+  const [buttonDisableImage, setButtonDisableImage] = useState(false);
+  const [filePopUp, setFilePopUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
   const [error, seterror] = useState('')
   useEffect(() => {
@@ -144,7 +142,6 @@ const TestCasePage = () => {
       const fetchTestCases = async () => {
         try {
           const response = await axios.get(`${APPI_URL}/testcase?id=${moduleId}`, { withCredentials: true });
-          // console.log(response.data);
           if (response.data != null) {
             setTestCases(response.data);
           }
@@ -156,56 +153,52 @@ const TestCasePage = () => {
     }
   }, [moduleId]);
 
-
   const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value)
+    setSearchQuery(event.target.value);
     setSearchTerm(event.target.value);
-    setCurrentPage(0);
+    setCurrentPage(0); // Reset to the first page on new search
   };
 
   const filteredTestCases = testCases.filter((testCase) =>
     testCase.Test_Case.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-
   const paginatedData = filteredTestCases.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage);
 
   const handleCheckboxChange = (event, id) => {
     const isChecked = event.target.checked;
-    setSelectedTestCases(prevSelectedTestCases =>
-      isChecked
-        ? [...prevSelectedTestCases, id]
-        : prevSelectedTestCases.filter(id => id !== id)
+    setSelectedTestCases((prevSelectedTestCases) =>
+      isChecked ? [...prevSelectedTestCases, id] : prevSelectedTestCases.filter((testCaseId) => testCaseId !== id)
     );
-
-
   };
+
   const handleRunClick = () => {
     const selectedTestCaseNames = paginatedData
       .filter((testCase) => selectedTestCases.includes(testCase.id))
       .map((testCase) => testCase.Test_Case)
       .join(', ');
 
-    setTestCaseList(selectedTestCaseNames ? selectedTestCaseNames.split(', ').map(item => item.replace(/"/g, '')) : []);
-    setbuttondisableFile(false)
-    setbuttondisableImage(false)
+    setTestCaseList(selectedTestCaseNames ? selectedTestCaseNames.split(', ').map((item) => item.replace(/"/g, '')) : []);
+    setButtonDisableFile(false);
+    setButtonDisableImage(false);
     setOpenModal(true);
   };
 
   const handleFileChange = async (event) => {
     if (event.target.files !== undefined) {
       setSelectedFile(event.target.files[0]);
-      setbuttondisableFile(true)
+      setButtonDisableFile(true);
+      setFilePopUp(true);
+      setTimeout(() => {
+        setFilePopUp(false);
+      }, 3000);
       const file = event.target.files[0];
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
-      const sheetName = "Test_Data";
+      const sheetName = 'Test_Data';
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      const filteredData = jsonData.filter(entry =>
-        testCaseList.includes(entry["Test Data"])
-      );
-    
+      const filteredData = jsonData.filter((entry) => changeList.includes(entry['Test Data']));
       setExcelData(filteredData);
     }
   };
@@ -213,12 +206,16 @@ const TestCasePage = () => {
   const handleImageFileChange = (event) => {
     if (event.target.files !== undefined) {
       setSelectedImageFile(event.target.files[0]);
-      setbuttondisableImage(true)
+      setButtonDisableImage(true);
+      setFilePopUp(true);
     }
+
+    setTimeout(() => {
+      setFilePopUp(false);
+    }, 3000);
   };
 
   const handleSubmit = async (event) => {
-
     event.preventDefault();
     if (selectEnv.map((env) => env.Jenkins_Path)) {
       try{
@@ -229,19 +226,18 @@ const TestCasePage = () => {
       }
       
     }
-
-
+    setIsLoading(true);
     const formData = new FormData();
-    formData.append('JobName', JOBNAME);
-    formData.append('TestCase', testCaseList.join(','));
-    formData.append('GridMode', gridMode);
-    formData.append('Browsers', selectedBrowser);
+    formData.append('jobName', JOBNAME);
+    formData.append('testCase', testCaseList.join(','));
+    formData.append('gridMode', gridMode);
+    formData.append('browsers', selectedBrowser);
 
-    if (localStorage.getItem('Token') !== null) {
-      formData.append('Token', localStorage.getItem('Token'));
+    if (localStorage.getItem('token') !== null) {
+      formData.append('Token', localStorage.getItem('token'));
     } else {
       const id = uuidFromUuidV4();
-      localStorage.setItem('Token', id);
+      localStorage.setItem('token', id);
       formData.append('Token', id);
     }
 
@@ -264,12 +260,21 @@ const TestCasePage = () => {
         navigate('/Progress', { state: { excelData } });
       } else {
         console.error('Error:', response.statusText);
-        setMessage("Error Job Name Or Jenkins Details Invalid Login Error")
       }
     } catch (error) {
       console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const handleTestCaseChange = (event) => {
+    const { value } = event.target;
+    if (value !== null) {
+      setChangeList(value);
+    }
+  };
+
   const handleSelectEnvChange = (event) => {
     const { value } = event.target;
     if (value != null) {
@@ -278,217 +283,220 @@ const TestCasePage = () => {
   };
 
   const handleCloseModal = () => {
-    setbuttondisableFile(false)
-    setbuttondisableImage(false)
+    setButtonDisableFile(false);
+    setButtonDisableImage(false);
     setOpenModal(false);
   };
 
-  return (
-    <Box sx={{ p: 4, marginLeft: '12%', marginRight: '4%' }}>
-      <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
-        <Box>
-          <TextField
-            value={searchQuery}
-            onChange={handleSearchChange}
-            placeholder="Search"
-            variant="outlined"
-            size="large"
-          />
-          <Button
-            onClick={() => handleRunClick()}
-            sx={{ ml: 2, fontSize: "1.2rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
-          >
-            Run
-          </Button>
-        </Box>
-      </Box>
-      <StyledPaper>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox"></TableCell>
-                <TableCell align="left" sx={{ fontSize: "1.2rem" }}>Test Case</TableCell>
-                <TableCell align="left" sx={{ fontSize: "1.2rem" }}>Description</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedData.map((testCase) => (
-                <TableRow key={testCase.id}>
-                  <TableCell padding="checkbox" sx={{ fontSize: "1.2rem" }}>
-                    <Checkbox
-                      onChange={(event) => handleCheckboxChange(event, testCase.id)}
-                    />
-                  </TableCell>
-                  <TableCell align="left" sx={{ fontSize: "1.2rem" }}>{testCase.Test_Case}</TableCell>
-                  <TableCell align="left" sx={{ fontSize: "1.2rem" }}>{testCase.Description}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={filteredTestCases.length}
-          rowsPerPage={rowsPerPage}
-          page={currentPage}
-          onPageChange={(event, newPage) => setCurrentPage(newPage)}
-          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-          sx={{ fontSize: "1.2rem" }}
-        />
-      </StyledPaper>
+  const Filepopup = () => (
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      backgroundColor: '#393E46', 
+      color: 'white', 
+      padding: '10px', 
+      borderRadius: '5px', 
+      animation: 'fadeInOut 6s ease-in-out' 
+    }}>
+      <span>File Selected Successfully</span>
+    </div>
+  );
 
+  return (
+    <Container>
+      <StyledPaper>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Typography variant="h5" component="h2" gutterBottom>
+              Test Cases
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end', }}>
+          <Button
+              variant="contained"
+              color="primary"
+              onClick={handleRunClick}
+              disabled={selectedTestCases.length === 0}
+              sx={{ backgroundColor: 'gray', '&:hover': { backgroundColor: 'gray' }, marginRight: '10px' }}
+            >
+              Run
+            </Button>
+
+            <TextField
+              label="Search Test Cases"
+              variant="outlined"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        indeterminate={
+                          selectedTestCases.length > 0 &&
+                          selectedTestCases.length < testCases.length
+                        }
+                        checked={testCases.length > 0 && selectedTestCases.length === testCases.length}
+                        onChange={(event) =>
+                          setSelectedTestCases(
+                            event.target.checked ? testCases.map((testCase) => testCase.id) : []
+                          )
+                        }
+                        inputProps={{ 'aria-label': 'select all test cases' }}
+                      />
+                    </TableCell>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Test Case</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedData.map((testCase) => (
+                    <TableRow key={testCase.id}>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedTestCases.includes(testCase.id)}
+                          onChange={(event) => handleCheckboxChange(event, testCase.id)}
+                          inputProps={{ 'aria-label': `select test case ${testCase.id}` }}
+                        />
+                      </TableCell>
+                      <TableCell>{testCase.id}</TableCell>
+                      <TableCell>{testCase.Test_Case}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              count={filteredTestCases.length}
+              rowsPerPage={rowsPerPage}
+              page={currentPage}
+              onPageChange={(_, newPage) => setCurrentPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setCurrentPage(0);
+              }}
+            />
+          </Grid>
+          
+        </Grid>
+      </StyledPaper>
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 400,
-          bgcolor: 'background.paper',
-          boxShadow: 24,
-          p: 4,
-          borderRadius: 1
-        }}>
+        <Box
+          component="form"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '50%',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+          }}
+          onSubmit={handleSubmit}
+        >
+
+          <IconButton
+            onClick={handleCloseModal}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1 style={{ textAlign: "center" }}>Run Your Test</h1>
+            {filePopUp && <Filepopup />}
+              <Typography variant="h6" component="h2" gutterBottom>
+                Run Configuration
+              </Typography>
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Test Case"
+                value={testCaseList.join(',')}
+                fullWidth
+                disabled
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl variant="outlined" fullWidth>
+                <InputLabel>Browser</InputLabel>
+                <Select value={selectedBrowser} onChange={(e) => setSelectedBrowser(e.target.value)}>
+                  <MenuItem value="chrome">Chrome</MenuItem>
+                  <MenuItem value="firefox">Firefox</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl variant="outlined" fullWidth>
+                <InputLabel sx={{ paddingBottom: '5%' }}>Grid Mode</InputLabel>
+                <Select value={gridMode} onChange={(e) => setGridMode(e.target.value)}>
+                  <MenuItem value="on">On</MenuItem>
+                  <MenuItem value="off">Off</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                component="label"
+                fullWidth
+                sx={{ backgroundColor: 'gray', '&:hover': { backgroundColor: 'gray' } }}
+              >
+                Upload Test Data
+                <VisuallyHiddenInput type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
+              </Button>
+              {selectedFile && <Typography variant="caption">{selectedFile.name}</Typography>}
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                component="label"
+                fullWidth
+                sx={{ backgroundColor: 'gray', '&:hover': { backgroundColor: 'gray' } }}
+              >
+                Upload Image
+                <VisuallyHiddenImageInput type="file" accept="image/*" onChange={handleImageFileChange} />
+              </Button>
+              {selectedImageFile && <Typography variant="caption">{selectedImageFile.name}</Typography>}
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                fullWidth
+                sx={{ backgroundColor: 'gray', '&:hover': { backgroundColor: 'gray' } }}
+              >
+                Submit
+              </Button>
+            </Grid>
+            {isLoading && (
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                <CircularProgress />
+              </Grid>
+            )}
             {message && (
-              <Box mb={2} textAlign="center">
-                <Typography color="error" variant="body2">
+              <Grid item xs={12}>
+                <Typography variant="body2" color="success.main">
                   {message}
                 </Typography>
-              </Box>
+              </Grid>
             )}
-            <Grid item xs={12}>
-              <form onSubmit={handleSubmit}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: "1.2rem" }}>Test Cases</InputLabel>
-                      <Select
-                        labelId="demo-multiple-checkbox-label"
-                        id="demo-multiple-checkbox"
-                        multiple
-                        value={changeList}
-                        input={<OutlinedInput label="Test Cases" />}
-                        renderValue={(selected) => selected.join(', ')}
-                        MenuProps={MenuProps}
-                     
-                      >
-                        {testCaseList.map((testCase) => (
-                          <MenuItem key={testCase} value={testCase} sx={{ fontSize: "1.2rem" }}>
-                            <ListItemText primary={testCase} />
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="demo-multiple-checkbox-label" sx={{ fontSize: "1.2rem" }}>Select Env</InputLabel>
-                      <Select
-                        labelId="demo-multiple-checkbox-label"
-                        id="demo-multiple-checkbox"
-                        multiple
-                        value={selectedEnv}
-                        onChange={handleSelectEnvChange}
-                        input={<OutlinedInput label="Test Cases" />}
-                        renderValue={(selected) => selected.join(', ')}
-                        MenuProps={MenuProps}
-                        sx={{ fontSize: "1.2rem" }}
-                      >
-                        {selectEnv.map((env) => (
-                          <MenuItem key={env.envName} value={env.envName}>
-                            <ListItemText primary={env.envName} sx={{ fontSize: "1.2rem" }} />
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="browser-select-label">Browser</InputLabel>
-                      <Select
-                        labelId="browser-select-label"
-                        id="browser-select"
-                        value={selectedBrowser}
-                        onChange={(event) => setSelectedBrowser(event.target.value)}
-                        input={<OutlinedInput label="Browser" />}
-                        MenuProps={MenuProps}
-                        sx={{ fontSize: "1.2rem" }}
-                      >
-                        <MenuItem sx={{ fontSize: "1.2rem" }} value="chrome">Chrome</MenuItem>
-                        <MenuItem sx={{ fontSize: "1.2rem" }} value="firefox">Firefox</MenuItem>
-                        <MenuItem sx={{ fontSize: "1.2rem" }} value="edge">Edge</MenuItem>
-                        <MenuItem sx={{ fontSize: "1.2rem" }} value="safari">Safari</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="grid-mode-select-label">Grid Mode</InputLabel>
-                      <Select
-                        labelId="grid-mode-select-label"
-                        id="grid-mode-select"
-                        value={gridMode}
-                        onChange={(event) => setGridMode(event.target.value)}
-                        input={<OutlinedInput label="Grid Mode" />}
-                        MenuProps={MenuProps}
-                      >
-                        <MenuItem sx={{ fontSize: "1.2rem" }} value="on">On</MenuItem>
-                        <MenuItem sx={{ fontSize: "1.2rem" }} value="off">Off</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button
-                      component="label"
-                      role={undefined}
-                      disabled={buttondisableFile == true}
-                      sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
-                      tabIndex={-1}
-                      style={{ marginLeft: '15%' }}
-                      startIcon={<CloudUploadIcon />}
-                    // sx={{ fontSize: "1.2rem" }}
-                    >
-                      Upload file
-                      <VisuallyHiddenInput type="file" name='file' onChange={handleFileChange} />
-                    </Button>
-
-                    <Button
-                      component="label"
-                      role={undefined}
-                      // variant="contained"
-                      disabled={buttondisableImage == true}
-                      tabIndex={-1}
-                      startIcon={<CloudUploadIcon />}
-                      sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
-
-                    >
-                      Upload image
-                      <VisuallyHiddenImageInput type="file" name='image' onChange={handleImageFileChange} />
-                    </Button>
-
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button type="submit" fullWidth
-                      sx={{ ml: 2, fontSize: "1rem", backgroundColor: '#393E46', color: 'white', '&:hover': { backgroundColor: '#00ADB5' } }}
-
-                    >
-                      Submit
-                    </Button>
-                  </Grid>
-                </Grid>
-              </form>
-
-            </Grid>
           </Grid>
         </Box>
       </Modal>
-    </Box>
+    </Container>
   );
 };
 
